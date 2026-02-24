@@ -92,13 +92,13 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void EnableSwordCollider()
     {
-        Debug.Log("EnableSwordCollider");
+     
         weaponController.EnableCollision();
     }
 
     public void DisableSwordCollider()
     {
-        Debug.Log("DisableSwordCollider");
+       
         weaponController.DisableCollision();
     }
 }

@@ -19,7 +19,7 @@ public class GameplayEffectManager : MonoBehaviour
             instance.Apply();
             activeEffects.Add(instance);
         }
-        else if (effect.EffectTime == EffectTime.Duration)
+        else if (effect.EffectTime == EffectTime.Infinite)
         {
             target.ApplyEffectOnce(effect);
         }
