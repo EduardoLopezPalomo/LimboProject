@@ -8,4 +8,6 @@ public class GameplayAttributeData : ScriptableObject
 {
     public string Name;
     public float BaseValue;
+
+    public AttributeResponse Response;
 }

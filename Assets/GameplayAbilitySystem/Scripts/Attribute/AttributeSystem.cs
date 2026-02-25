@@ -19,7 +19,7 @@ public class AttributeSystem : MonoBehaviour
 
         foreach (var attribute in attributes)
         {
-            attribute.Initialize();
+            attribute.Initialize(this);
             if (!_lookup.ContainsKey(attribute.Data))
             {
                 _lookup.Add(attribute.Data, attribute);

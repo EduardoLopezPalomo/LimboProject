@@ -13,13 +13,16 @@ public class GameplayAttributeInstance
     public float RuntimeBaseValue { get; private set; }
     public float CurrentValue { get; private set; }
 
+    private AttributeSystem owner;
+
     private Dictionary<Guid, float> addModifiers = new();
     private Dictionary<Guid, float> multModifiers = new();
     private Dictionary<Guid, float> overrideModifiers = new();
     private Dictionary<Guid, long> overrideTimestamps = new();
 
-    public void Initialize()
+    public void Initialize(AttributeSystem attributeSystem)
     {
+        owner = attributeSystem;
         RuntimeBaseValue = Data != null ? Data.BaseValue : 0f;
         RecalculateCurrent();
     }
@@ -56,6 +59,7 @@ public class GameplayAttributeInstance
     /*Recalculate the current value of the attribute if some effects is active*/
     private void RecalculateCurrent()
     {
+        float OldValue = CurrentValue;
 
         if (overrideModifiers.Count > 0)
         {
@@ -72,6 +76,11 @@ public class GameplayAttributeInstance
             if (last != Guid.Empty && overrideModifiers.TryGetValue(last, out var ov))
             {
                 CurrentValue = ov;
+                if(Data.Response != null)
+                {
+                    Data.Response.OnAttributeChanged(this, OldValue, owner);
+                }
+                Debug.Log("Current value of" + Data.Name + " " + CurrentValue);
                 return;
             }
         }
@@ -83,7 +92,11 @@ public class GameplayAttributeInstance
         foreach (var v in multModifiers.Values) productMult *= v;
 
         CurrentValue = (RuntimeBaseValue + sumAdds) * productMult;
-        Debug.Log("Current value of"+ Data.Name + CurrentValue);
+        if (Data.Response != null)
+        {
+            Data.Response.OnAttributeChanged(this, OldValue, owner);
+        }
+        Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
     }
     /*It modifies the value of the instance not of the data if its infinite*/
     public void ModifyRuntimeBase(float deltaOrValue, Modifier mode)

@@ -12,6 +12,6 @@ public class WeaponDamage : MonoBehaviour
         {
             effectmanager.ApplyEffect(DamageEffect, attributeSystem);
         }
-        Debug.Log("Damage applied to " + other.gameObject.name);
+        //Debug.Log("Damage applied to " + other.gameObject.name);
     }
 }
