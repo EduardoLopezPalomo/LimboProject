@@ -44,8 +44,11 @@ public class LightAttackSpec : GameplayAbilitySpec
         }
         inCombo = true;
         comboIndex = 1;
+        if (controller != null)
+        {
+            controller.SetInputAviable(false);
+        }
 
-        controller.SetInputAviable(false);
 
         animator.SetBool("InCombo", true);
         animator.SetInteger("ComboIndex", comboIndex);
@@ -65,7 +68,10 @@ public class LightAttackSpec : GameplayAbilitySpec
         inCombo = false;
         comboIndex = 0;
 
-        controller.SetInputAviable(true);
+        if (controller != null)
+        {
+            controller.SetInputAviable(true);
+        }
         animator.SetBool("InCombo", false);
     }
 
@@ -92,13 +98,13 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void EnableSwordCollider()
     {
-     
+
         weaponController.EnableCollision();
     }
 
     public void DisableSwordCollider()
     {
-       
+
         weaponController.DisableCollision();
     }
 }

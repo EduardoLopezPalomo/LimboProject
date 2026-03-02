@@ -1,4 +1,5 @@
-﻿ using UnityEngine;
+﻿using UnityEngine;
+using Cinemachine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -62,6 +63,24 @@ namespace StarterAssets
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
         public GameObject CinemachineCameraTarget;
+
+        [Tooltip("Activa modo isométrico (ortográfico, cámara fija)")]
+        public bool IsometricMode = false;
+
+        [Tooltip("Yaw (rotación Y) para la cámara isométrica")]
+        public float IsoYaw = 45f;
+
+        [Tooltip("Pitch (rotación X) para la cámara isométrica")]
+        public float IsoPitch = 30f;
+
+        [Tooltip("Distancia de la cámara isométrica (usada para el FollowOffset)")]
+        public float IsoDistance = 10f;
+
+        [Tooltip("Tamaño ortográfico para la cámara isométrica")]
+        public float IsoOrthographicSize = 5f;
+
+        [Tooltip("Referencia a la Cinemachine Virtual Camera (Player Follow Camera)")]
+        public CinemachineVirtualCamera PlayerCameraVcam;
 
         [Tooltip("How far in degrees can you move the camera up")]
         public float TopClamp = 70.0f;
@@ -137,7 +156,7 @@ namespace StarterAssets
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
-            
+
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
@@ -152,6 +171,30 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            if (IsometricMode && PlayerCameraVcam != null)
+            {
+                // lens -> ortográfico
+                PlayerCameraVcam.m_Lens.Orthographic = true;
+                PlayerCameraVcam.m_Lens.OrthographicSize = IsoOrthographicSize;
+
+                // fijar la rotación del target de Cinemachine (target que sigue la cámara)
+                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(IsoPitch, IsoYaw, 0f);
+
+                // ajustar el FollowOffset del Transposer para posicionar la cámara
+                var transposer = PlayerCameraVcam.GetCinemachineComponent<CinemachineTransposer>();
+                if (transposer != null)
+                {
+                    // calculamos un offset "por detrás y arriba" respecto al target, usando los ángulos isométricos
+                    Vector3 offset = Quaternion.Euler(IsoPitch, IsoYaw, 0f) * new Vector3(0f, 0f, -IsoDistance);
+                    // elevarlo un poco para que no quede justo nivel cero (opcional)
+                    offset.y += IsoDistance * 0.5f;
+                    transposer.m_FollowOffset = offset;
+                }
+
+                // opcional: bloquea la rotación por input (no queremos que la cámara se mueva con el ratón)
+                LockCameraPosition = true;
+            }
         }
 
         private void Update()
@@ -198,6 +241,12 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
+            if (IsometricMode)
+            {
+                // garantizar que el target tenga la rotación isométrica (por si algo la cambió)
+                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(IsoPitch + CameraAngleOverride, IsoYaw, 0f);
+                return;
+            }
             // if there is an input and camera position is not fixed
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
@@ -261,12 +310,13 @@ namespace StarterAssets
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
+                float cameraYaw = IsometricMode ? IsoYaw : _mainCamera.transform.eulerAngles.y;
+
+                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
                 float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
                     RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
+                // rotate to face input direction relative to camera position (o el yaw isométrico fijo)
                 transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
