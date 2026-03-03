@@ -641,6 +641,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 411221376787336310, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: maxDetectionDistance
+      value: 7.5
+      objectReference: {fileID: 0}
     - target: {fileID: 3893294197879345259, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.22
@@ -695,20 +699,37 @@ PrefabInstance:
         Assembly-CSharp]]'
       objectReference: {fileID: 0}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: 'managedReferences[700584704237109601]'
+      value: 'Unity.Behavior Unity.Behavior.BlackboardVariable`1[[RotateToPlayer,
+        Assembly-CSharp]]'
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: managedReferences[700584681235022540].Name
       value: AbilityHolder
       objectReference: {fileID: 0}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: managedReferences[700584704237109601].Name
+      value: RotateToPlayer
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: m_BlackboardVariableOverridesList.Array.size
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: managedReferences[700584681235022540].m_Value
       value: 
       objectReference: {fileID: 1743659907}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: managedReferences[700584704237109601].m_Value
+      value: 
+      objectReference: {fileID: 1743659908}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: 'm_BlackboardVariableOverridesList.Array.data[5]'
       value: 700584681235022540
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: 'm_BlackboardVariableOverridesList.Array.data[6]'
+      value: 700584704237109601
       objectReference: {fileID: 0}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: managedReferences[700584681235022540].GUID.m_Value0
@@ -717,6 +738,14 @@ PrefabInstance:
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: managedReferences[700584681235022540].GUID.m_Value1
       value: 6035271021292356150
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: managedReferences[700584704237109601].GUID.m_Value0
+      value: 2903760992125906094
+      objectReference: {fileID: 0}
+    - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      propertyPath: managedReferences[700584704237109601].GUID.m_Value1
+      value: 4122927967669887877
       objectReference: {fileID: 0}
     - target: {fileID: 7085615581472446681, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
       propertyPath: 'managedReferences[6494457346326528323].m_Value.Array.data[0]'
@@ -741,8 +770,16 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4416926081852918481, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1743659908}
   m_SourcePrefab: {fileID: 100100000, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+--- !u!1 &1379917764 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4416926081852918481, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
+  m_PrefabInstance: {fileID: 1379917763}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1474058198
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,12 +962,26 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7402628054716729176, guid: 17d8f69045f7fde428cb571bae321404, type: 3}
   m_PrefabInstance: {fileID: 1379917763}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1379917764}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67051c82640cb245921b2f34cf83876, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
+--- !u!114 &1743659908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379917764}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383c274cb1048aa4eb5f5a5661bee984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
+  player: {fileID: 457310354}
+  hasPlayerRotate: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
