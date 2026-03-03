@@ -1078,6 +1078,7 @@ GameObject:
   - component: {fileID: 411221376787336310}
   - component: {fileID: 4833137831392373243}
   - component: {fileID: 301599604142048434}
+  - component: {fileID: 7909674923356091308}
   m_Layer: 8
   m_Name: EnemiesArmature
   m_TagString: Enemy
@@ -1229,12 +1230,30 @@ MonoBehaviour:
   - rid: 6494457346326528462
   - rid: 2595195514297516247
   - rid: 2595195514297516764
+  - rid: 700584681235022540
+  - rid: 700584704237109601
   m_OriginalGraph: {fileID: 1991488102364103766, guid: a9c4b36210c85574e963cc0c9fdda2cd, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
+    - rid: 700584681235022540
+      type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 16308992008744106467
+          m_Value1: 6035271021292356150
+        Name: AbilityHolder
+        m_Value: {fileID: 7402628054716729176}
+    - rid: 700584704237109601
+      type: {class: 'BlackboardVariable`1[[RotateToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 2903760992125906094
+          m_Value1: 4122927967669887877
+        Name: RotateToPlayer
+        m_Value: {fileID: 7909674923356091308}
     - rid: 2595195514297516247
       type: {class: 'BlackboardVariable`1[[GoingToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1292,7 +1311,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 02b4e9b7c9ec66a4f80a03ad9056452f, type: 2}
 --- !u!114 &9109589844326103350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1370,7 +1389,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15f5323fbd2cdc841be6ecee68d92fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetection
-  maxDetectionDistance: 10
+  maxDetectionDistance: 7.5
 --- !u!114 &4833137831392373243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1400,6 +1419,20 @@ MonoBehaviour:
   HipSlot: {fileID: 8926661139380620725}
   RightHandSlot: {fileID: 4297782984481322938}
   weapon: {fileID: 1835961701615537783}
+--- !u!114 &7909674923356091308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383c274cb1048aa4eb5f5a5661bee984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
+  player: {fileID: 0}
+  hasPlayerRotate: 0
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0

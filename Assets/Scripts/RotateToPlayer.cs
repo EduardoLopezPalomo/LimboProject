@@ -14,7 +14,6 @@ public class RotateToPlayer : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
         if (Quaternion.Angle(transform.rotation, lookRotation) < 5f)
         {
-            Debug.Log("Player rotated");
             hasPlayerRotate = true;
         }
     }

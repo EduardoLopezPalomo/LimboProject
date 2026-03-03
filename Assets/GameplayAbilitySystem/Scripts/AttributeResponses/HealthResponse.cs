@@ -12,6 +12,8 @@ public class HealthResponse : AttributeResponse
 
             animator.SetTrigger("IsDeath");
 
+            KarmaManager.Instance.AddKarma(-10);
+
             Destroy(target, 2f);
         }
     }
