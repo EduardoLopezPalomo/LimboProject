@@ -21,9 +21,9 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 
-        [Header("Ability Events")]
-        public UnityEvent OnLightAttackEvent;
-        public UnityEvent OnHeavyAttackEvent;
+		[Header("Ability Events")]
+		public UnityEvent OnLightAttackEvent;
+		public UnityEvent OnDashEvent;
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -33,7 +33,7 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if (cursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -50,21 +50,21 @@ namespace StarterAssets
 		}
 
 		public void OnLightAttack(InputValue value)
-        {
-            if (value.isPressed) OnLightAttackEvent?.Invoke();
-        }
+		{
+			if (value.isPressed) OnLightAttackEvent?.Invoke();
+		}
 
-        public void OnHeavyAttack(InputValue value)
-        {
-            if (value.isPressed) OnHeavyAttackEvent?.Invoke();
-        }
+		public void OnDash(InputValue value)
+		{
+			if (value.isPressed) OnDashEvent?.Invoke();
+		}
 #endif
 
 
-        public void MoveInput(Vector2 newMoveDirection)
+		public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
-		} 
+		}
 
 		public void LookInput(Vector2 newLookDirection)
 		{
@@ -91,5 +91,5 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 	}
-	
+
 }

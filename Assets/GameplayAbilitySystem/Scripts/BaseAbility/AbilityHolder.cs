@@ -51,4 +51,14 @@ public class AbilityHolder : MonoBehaviour
             Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
         }
     }
+    /*Does the tick for every spec if they doesnt have cooldown they dont use it*/
+    void Update()
+    {
+        float dt = Time.deltaTime;
+
+        foreach (var spec in specs.Values)
+        {
+            spec.Tick(dt);
+        }
+    }
 }
