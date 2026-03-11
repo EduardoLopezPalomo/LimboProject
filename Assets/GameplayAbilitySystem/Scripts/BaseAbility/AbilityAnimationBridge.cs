@@ -1,41 +1,78 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AbilityAnimationBridge : MonoBehaviour
 {
     public AbilityHolder abilityHolder;
 
-    private GameplayAbilitySpec currentSpec => abilityHolder.ActiveSpec;
+    private List<GameplayAbilitySpec> currentSpec => abilityHolder.ActiveSpecs;
 
     /*
      *  Notifies of LightAttack
      */
     public void ComboWindowOpen()
     {
-        (currentSpec as LightAttackSpec)?.ComboWindowOpen();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.ComboWindowOpen();
+            }
+        }
     }
 
     public void ComboWindowClose()
     {
-        (currentSpec as LightAttackSpec)?.ComboWindowClose();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.ComboWindowClose();
+            }
+        }
     }
 
     public void EnableRootMotion()
     {
-        (currentSpec as LightAttackSpec)?.EnableRootMotion();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.EnableRootMotion();
+            }
+        }
     }
 
     public void DisableRootMotion()
     {
-        (currentSpec as LightAttackSpec)?.DisableRootMotion();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.DisableRootMotion();
+            }
+        }
     }
 
     public void EnableSwordCollider()
     {
-        (currentSpec as LightAttackSpec)?.EnableSwordCollider();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.EnableSwordCollider();
+            }
+        }
     }
 
     public void DisableSwordCollider()
     {
-        (currentSpec as LightAttackSpec)?.DisableSwordCollider();
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.DisableSwordCollider();
+            }
+        }
     }
 }

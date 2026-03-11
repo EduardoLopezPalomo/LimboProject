@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GameplayAbilitySpec
 {
-    protected GameplayAbility ability;
+    public GameplayAbility ability;
     protected GameObject owner;
 
     protected bool bOnCooldown;
@@ -42,6 +42,14 @@ public class GameplayAbilitySpec
     public virtual void EndAbility()
     {
 
+    }
+    public virtual void CancelAbility()
+    {
+        if (bOnCooldown)
+        {
+            bOnCooldown = false;
+            cooldownTimer = 0;
+        }
     }
 
     public virtual void Tick(float deltaTime)

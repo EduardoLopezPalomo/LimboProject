@@ -74,6 +74,18 @@ public class LightAttackSpec : GameplayAbilitySpec
         }
         animator.SetBool("InCombo", false);
     }
+    public override void CancelAbility()
+    {
+        base.CancelAbility();
+        if (inCombo)
+        {
+            animator.SetBool("InCombo", false);
+            DisableRootMotion();
+            DisableSwordCollider();
+            EndCombo();
+        }
+
+    }
 
     public override void EndAbility()
     {

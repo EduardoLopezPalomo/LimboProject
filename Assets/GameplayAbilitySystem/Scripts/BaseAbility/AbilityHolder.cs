@@ -6,7 +6,7 @@ using UnityEngine;
  */
 public class AbilityHolder : MonoBehaviour
 {
-    public GameplayAbilitySpec ActiveSpec;
+    public List<GameplayAbilitySpec> ActiveSpecs;
 
     [SerializeField] private List<GameplayAbility> abilities;
 
@@ -14,7 +14,7 @@ public class AbilityHolder : MonoBehaviour
 
     private void Awake()
     {
-
+        ActiveSpecs = new List<GameplayAbilitySpec>();
         specs = new Dictionary<string, GameplayAbilitySpec>();
         foreach (var ability in abilities)
         {
@@ -43,8 +43,21 @@ public class AbilityHolder : MonoBehaviour
     {
         if (specs.TryGetValue(abilityName, out var ability))
         {
-            ActiveSpec = ability;
+            ActiveSpecs.Add(ability);
             ability.ActivateAbility();
+        }
+        else
+        {
+            Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
+        }
+    }
+
+    public void CancelAbility(string abilityName)
+    {
+        if (specs.TryGetValue(abilityName, out var ability))
+        {
+            ability.CancelAbility();
+            ActiveSpecs.Remove(ability);
         }
         else
         {
