@@ -100,10 +100,13 @@ public class LightAttackSpec : GameplayAbilitySpec
         canReceiveInput = false;
 
         if (bufferedInput && comboIndex < 3)
+        {
             ContinueCombo();
-        else
-            EndCombo();
+        }
+
     }
+
+    public void EndComboAnimation() => EndCombo();
 
     public void EnableRootMotion() => rootMotion.EnableAnimRootMotion();
     public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
@@ -111,7 +114,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     public void EnableSwordCollider()
     {
 
-        weaponController.EnableCollision();
+        weaponController.EnableCollision(comboIndex);
     }
 
     public void DisableSwordCollider()
