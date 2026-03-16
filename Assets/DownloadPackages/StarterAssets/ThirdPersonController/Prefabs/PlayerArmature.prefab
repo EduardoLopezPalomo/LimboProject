@@ -1282,7 +1282,7 @@ MonoBehaviour:
           m_StringArgument: LightAttack
           m_BoolArgument: 0
         m_CallState: 2
-  OnHeavyAttackEvent:
+  OnDashEvent:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7488085740055343562}
@@ -1294,7 +1294,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: HeavyAttack
+          m_StringArgument: Dash
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &4416926081852918493
@@ -1430,6 +1430,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
   - {fileID: 11400000, guid: 02b4e9b7c9ec66a4f80a03ad9056452f, type: 2}
+  - {fileID: 11400000, guid: 762f380c374fa0f4ab9d5153fa44d073, type: 2}
 --- !u!114 &7488085740055343562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2915,6 +2916,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8504485261081640177}
     m_Modifications:
+    - target: {fileID: -4649783851600433739, guid: 4b9303f228d65cb45a4ce3ce68db0861, type: 3}
+      propertyPath: ObjectToDamage
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 7120993385342881108, guid: 4b9303f228d65cb45a4ce3ce68db0861, type: 3}
       propertyPath: m_Name
       value: Dagger

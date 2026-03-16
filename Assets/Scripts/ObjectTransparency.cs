@@ -20,6 +20,10 @@ public class ObjectTransparency : MonoBehaviour
 
     void DetectWall()
     {
+        if (!playerTransform)
+        {
+            Debug.Log("illooo");
+        }
         // Reset transparency for previously detected walls
         ResetWallTransparency();
 
@@ -58,7 +62,7 @@ public class ObjectTransparency : MonoBehaviour
                 Renderer renderer = wall.GetComponent<Renderer>();
                 if (renderer != null)
                 {
-                    renderer.material = originalMaterials[wall]; 
+                    renderer.material = originalMaterials[wall];
                 }
                 originalMaterials.Remove(wall);
             }
