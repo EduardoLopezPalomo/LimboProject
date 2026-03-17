@@ -11,11 +11,16 @@ public class WeaponDamage : MonoBehaviour
     {
         if (other.gameObject.tag == ObjectToDamage)
         {
+            MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
             GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
             AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
-            if (effectmanager == null && attributeSystem == null)
+            if (effectmanager == null || attributeSystem == null || invincible == null)
             {
-                Debug.Log("effectmanager o attributesystem is null");
+                Debug.Log("effectmanager, attributesystem or makeInvincible is null");
+                return;
+            }
+            if (invincible.IsInvincible())
+            {
                 return;
             }
             if (ComboNumber < 3)

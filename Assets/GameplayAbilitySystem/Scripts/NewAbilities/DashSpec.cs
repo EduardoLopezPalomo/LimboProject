@@ -1,20 +1,28 @@
 using UnityEngine;
 using StarterAssets;
+using System.Collections;
 
 public class DashSpec : GameplayAbilitySpec
 {
-    public int dashDistance = 50;
+    private int dashDistance;
+    private float dashTime;
     private Animator animator;
     private RootMotionController rootMotion;
-    private CharacterController controller;
+    private CharacterController charactercontroller;
+    private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
+    private MakeInvincible makeInvincible;
 
 
-    public DashSpec(GameplayAbility ability, GameObject owner) : base(ability, owner)
+    public DashSpec(GameplayAbility ability, GameObject owner, int dashForce, float dashTimeIn) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        controller = owner.GetComponent<CharacterController>();
+        charactercontroller = owner.GetComponent<CharacterController>();
+        personcontroller = owner.GetComponent<ThirdPersonController>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
+        makeInvincible = owner.GetComponent<MakeInvincible>();
+        dashTime = dashTimeIn;
+        dashDistance = dashForce;
 
     }
 
@@ -29,9 +37,29 @@ public class DashSpec : GameplayAbilitySpec
         {
             abilityHolder.CancelAbility("LightAttack");
         }
-        Vector3 dashDirection = owner.transform.forward;
-        controller.Move(dashDirection * dashDistance * Time.deltaTime);
 
+        abilityHolder.StartCoroutine(waitTillEndFrame());
+    }
+
+    private IEnumerator waitTillEndFrame()
+    {
+        makeInvincible.SetInvincible(true);
+        personcontroller.SetInputAviable(false);
+
+        float elapsed = 0f;
+
+        Vector3 dashDirection = owner.transform.forward;
+
+        while (elapsed < dashTime)
+        {
+            charactercontroller.Move(dashDirection * dashDistance * Time.deltaTime);
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        makeInvincible.SetInvincible(false);
+        personcontroller.SetInputAviable(true);
     }
 
     public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
