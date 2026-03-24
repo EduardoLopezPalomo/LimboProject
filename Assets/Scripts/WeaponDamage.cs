@@ -9,17 +9,17 @@ public class WeaponDamage : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == ObjectToDamage)
+        if (other.gameObject.CompareTag(ObjectToDamage))
         {
             MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
             GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
             AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
-            if (effectmanager == null || attributeSystem == null || invincible == null)
+            if (effectmanager == null || attributeSystem == null)
             {
                 Debug.Log("effectmanager, attributesystem or makeInvincible is null");
                 return;
             }
-            if (invincible.IsInvincible())
+            if (invincible != null && invincible.IsInvincible())
             {
                 return;
             }

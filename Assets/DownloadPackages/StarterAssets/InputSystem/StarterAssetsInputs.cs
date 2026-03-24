@@ -25,6 +25,8 @@ namespace StarterAssets
 		public UnityEvent OnLightAttackEvent;
 		public UnityEvent OnDashEvent;
 
+		public UnityEvent OnAbilityOneEvent;
+
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
 		{
@@ -57,6 +59,11 @@ namespace StarterAssets
 		public void OnDash(InputValue value)
 		{
 			if (value.isPressed) OnDashEvent?.Invoke();
+		}
+
+		public void OnAbilityOne(InputValue value)
+		{
+			if (value.isPressed) OnAbilityOneEvent?.Invoke();
 		}
 #endif
 
