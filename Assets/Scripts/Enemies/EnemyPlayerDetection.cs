@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerDetection : MonoBehaviour
+public class EnemyPlayerDetection : MonoBehaviour
 {
     public float maxDetectionDistance = 10f;
     private bool playerDetected = false;
