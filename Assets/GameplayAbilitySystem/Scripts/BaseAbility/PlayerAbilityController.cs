@@ -10,4 +10,10 @@ public class PlayerAbilityController : MonoBehaviour
         if (abilityHolder == null) return;
         abilityHolder.ActivateAbility(abilityName, gameObject);
     }
+
+    public void ActivateEquippedAbility(int slot)
+    {
+        if (abilityHolder == null) return;
+        abilityHolder.ActivateEquippedAbility(slot, gameObject);
+    }
 }

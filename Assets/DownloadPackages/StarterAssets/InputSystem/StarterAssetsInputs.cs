@@ -26,6 +26,7 @@ namespace StarterAssets
 		public UnityEvent OnDashEvent;
 
 		public UnityEvent OnAbilityOneEvent;
+        public UnityEvent OnAbilityTwoEvent;
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -65,10 +66,15 @@ namespace StarterAssets
 		{
 			if (value.isPressed) OnAbilityOneEvent?.Invoke();
 		}
+
+		public void OnAbilityTwo(InputValue value)
+		{
+			if (value.isPressed) OnAbilityTwoEvent?.Invoke();
+		}
 #endif
 
 
-		public void MoveInput(Vector2 newMoveDirection)
+        public void MoveInput(Vector2 newMoveDirection)
 		{
 			move = newMoveDirection;
 		}

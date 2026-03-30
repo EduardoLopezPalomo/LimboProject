@@ -10,6 +10,7 @@ using System.Collections.Generic;
 public abstract class GameplayAbility : ScriptableObject
 {
     public string Name;
+    public Sprite icon;
     public float Cooldown;
     public float ActiveTime;
     public List<GameplayEffect> Effects;
