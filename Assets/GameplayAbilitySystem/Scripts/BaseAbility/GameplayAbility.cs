@@ -13,6 +13,7 @@ public abstract class GameplayAbility : ScriptableObject
     public Sprite icon;
     public float Cooldown;
     public float ActiveTime;
+    public bool isPasive = false;
     public List<GameplayEffect> Effects;
 
     public virtual void ActivateAbilityEffects(GameObject owner)

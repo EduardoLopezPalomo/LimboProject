@@ -86,4 +86,20 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+
+    /*
+    * Notifies of AreaRayAttack
+    *
+    */
+
+    public void AreaRayAttack()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is AreaRayAttackSpec areaRayAttackSpec)
+            {
+                areaRayAttackSpec.ActivateAbility();
+            }
+        }
+    }
 }

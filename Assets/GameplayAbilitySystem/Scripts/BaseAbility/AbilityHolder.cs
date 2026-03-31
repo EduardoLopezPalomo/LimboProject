@@ -28,7 +28,9 @@ public class AbilityHolder : MonoBehaviour
         {
             if (ability != null && !specs.ContainsKey(ability.Name))
             {
-                specs.Add(ability.Name, ability.CreateSpec(gameObject));
+                GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
+                specs.Add(ability.Name, spec);
+                ActivePasiveAbilities(spec);
             }
         }
     }
@@ -36,8 +38,12 @@ public class AbilityHolder : MonoBehaviour
     public void AddAbility(GameplayAbility ability)
     {
         if (ability == null || specs.ContainsKey(ability.Name)) return;
+        GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
+
         abilities.Add(ability);
-        specs.Add(ability.Name, ability.CreateSpec(gameObject));
+        specs.Add(ability.Name, spec);
+
+        ActivePasiveAbilities(spec);
     }
     /*It removes the ability in the dictionary*/
     public void RemoveAbility(GameplayAbility ability)
@@ -68,7 +74,7 @@ public class AbilityHolder : MonoBehaviour
             return;
         }
         GameplayAbility equipped = GetEquippedAbility(slot);
-        if(equipped == null)
+        if (equipped == null)
         {
             Debug.LogWarning($"AbilityHolder: No ability equipped in slot {slot}");
             return;
@@ -151,6 +157,14 @@ public class AbilityHolder : MonoBehaviour
         else
         {
             Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
+        }
+    }
+
+    private void ActivePasiveAbilities(GameplayAbilitySpec spec)
+    {
+        if (spec.ability.isPasive)
+        {
+            ActiveSpecs.Add(spec);
         }
     }
 
