@@ -102,4 +102,21 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+
+    /*
+   * Notifies of LightAura
+   *
+   */
+
+    public void LightAura()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAuraSpec lightAuraSpec)
+            {
+                lightAuraSpec.ActivateAbility();
+            }
+        }
+    }
+
 }

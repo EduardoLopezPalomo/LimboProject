@@ -32,7 +32,6 @@ public class AreaRayAttackSpec : GameplayAbilitySpec
 
             if (effectmanager == null || attributeSystem == null)
             {
-                Debug.Log("effectmanager or attributesystem is null");
                 continue;
             }
 
