@@ -34,10 +34,4 @@ public class EnemiesGroupContoller : MonoBehaviour
             }
         }
     }
-
-    void Update()
-    {
-
-    }
-
 }
