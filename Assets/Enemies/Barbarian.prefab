@@ -1144,8 +1144,9 @@ GameObject:
   - component: {fileID: 4833137831392373243}
   - component: {fileID: 301599604142048434}
   - component: {fileID: 7909674923356091308}
+  - component: {fileID: 5655987160920270496}
   m_Layer: 9
-  m_Name: EnemiesArmature
+  m_Name: Barbarian
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1268,56 +1269,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Behavior::Unity.Behavior.BehaviorGraphAgent
-  m_Graph: {fileID: 1991488102364103766, guid: a9c4b36210c85574e963cc0c9fdda2cd, type: 2}
+  m_Graph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
   m_BlackboardVariableOverridesList:
-  - rid: 6494457346326528322
-  - rid: 6494457346326528323
-  - rid: 6494457346326528462
-  - rid: 2595195514297516247
-  - rid: 2595195514297516764
-  - rid: 700584681235022540
-  - rid: 700584704237109601
-  m_OriginalGraph: {fileID: 1991488102364103766, guid: a9c4b36210c85574e963cc0c9fdda2cd, type: 2}
+  - rid: 1614916531033473331
+  - rid: 1614916531033473863
+  - rid: 1614916531033473864
+  - rid: 1614916531033473868
+  - rid: 1614916533857026857
+  - rid: 1614916536398512265
+  m_OriginalGraph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 700584681235022540
-      type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 16308992008744106467
-          m_Value1: 6035271021292356150
-        Name: AbilityHolder
-        m_Value: {fileID: 7402628054716729176}
-    - rid: 700584704237109601
-      type: {class: 'BlackboardVariable`1[[RotateToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 2903760992125906094
-          m_Value1: 4122927967669887877
-        Name: RotateToPlayer
-        m_Value: {fileID: 7909674923356091308}
-    - rid: 2595195514297516247
-      type: {class: 'BlackboardVariable`1[[GoingToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 3532562371344445886
-          m_Value1: 16193763454701271645
-        Name: New Going To Player
-        m_Value: {fileID: 4833137831392373243}
-    - rid: 2595195514297516764
-      type: {class: 'BlackboardVariable`1[[UnityEngine.Animator, UnityEngine.AnimationModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 13577761021842627881
-          m_Value1: 17513804685402961923
-        Name: Animator
-        m_Value: {fileID: 6982812146204527121}
-    - rid: 6494457346326528322
+    - rid: 1614916531033473331
       type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
@@ -1325,26 +1291,46 @@ MonoBehaviour:
           m_Value1: 0
         Name: Self
         m_Value: {fileID: 4416926081852918481}
-    - rid: 6494457346326528323
-      type: {class: 'BlackboardVariable`1[[System.Collections.Generic.List`1[[UnityEngine.GameObject, UnityEngine.CoreModule]], mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+    - rid: 1614916531033473863
+      type: {class: 'BlackboardVariable`1[[UnityEngine.Animator, UnityEngine.AnimationModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 10921537550350210007
-          m_Value1: 9468225171499162077
-        Name: PatrolPoints
-        m_Value:
-        - {fileID: 0}
-        - {fileID: 0}
-        - {fileID: 0}
-        - {fileID: 0}
-    - rid: 6494457346326528462
-      type: {class: 'BlackboardVariable`1[[PlayerDetection, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+          m_Value0: 12201034460496565691
+          m_Value1: 9218871095664435501
+        Name: Animator
+        m_Value: {fileID: 6982812146204527121}
+    - rid: 1614916531033473864
+      type: {class: 'BlackboardVariable`1[[EnemyPlayerDetection, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 12266800596194737849
-          m_Value1: 6529742672464641251
-        Name: PlayerDetection
+          m_Value0: 15146850881409977749
+          m_Value1: 13687378373188549370
+        Name: EnemyPlayerDetection
         m_Value: {fileID: 7719422935418199172}
+    - rid: 1614916531033473868
+      type: {class: 'BlackboardVariable`1[[UnityEngine.Transform, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 3598534286386443963
+          m_Value1: 12952071848035278286
+        Name: InitialPosition
+        m_Value: {fileID: 0}
+    - rid: 1614916533857026857
+      type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 7298144360965219747
+          m_Value1: 8538184093435900827
+        Name: AbilityHolder
+        m_Value: {fileID: 7402628054716729176}
+    - rid: 1614916536398512265
+      type: {class: 'BlackboardVariable`1[[RotateToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 8230147949507604938
+          m_Value1: 2775506284343982256
+        Name: RotateToPlayer
+        m_Value: {fileID: 7909674923356091308}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1467,6 +1453,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
   player: {fileID: 0}
   hasPlayerRotate: 0
+--- !u!114 &5655987160920270496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802ff8ba25917134886252cf2d6da4e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyGraphBridge
+  State:
+    GUID:
+      m_Value0: 0
+      m_Value1: 0
+    Name: ActualState
+    m_Value: 0
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0

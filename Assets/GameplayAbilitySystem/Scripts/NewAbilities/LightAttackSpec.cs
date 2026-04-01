@@ -38,21 +38,29 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     void StartCombo()
     {
-        if (!animator.GetBool("Grounded"))
+        if (owner.CompareTag("Player"))
         {
-            return;
-        }
-        inCombo = true;
-        comboIndex = 1;
-        if (controller != null)
-        {
-            controller.SetInputAviable(false);
-        }
+            if (!animator.GetBool("Grounded"))
+            {
+                return;
+            }
+            inCombo = true;
+            comboIndex = 1;
+            if (controller != null)
+            {
+                controller.SetInputAviable(false);
+            }
 
 
-        animator.SetBool("InCombo", true);
-        animator.SetInteger("ComboIndex", comboIndex);
-        animator.SetTrigger("Attack");
+            animator.SetBool("InCombo", true);
+            animator.SetInteger("ComboIndex", comboIndex);
+            animator.SetTrigger("Attack");   
+        }
+        else if (owner.CompareTag("Enemy"))
+        {
+            animator.SetBool("InCombo", true);
+            animator.SetTrigger("Attack"); 
+        }
     }
 
     void ContinueCombo()

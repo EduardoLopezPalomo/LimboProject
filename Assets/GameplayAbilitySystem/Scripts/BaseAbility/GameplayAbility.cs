@@ -14,7 +14,7 @@ public abstract class GameplayAbility : ScriptableObject
     public float Cooldown;
     public float ActiveTime;
     public bool isPasive = false;
-    public List<GameplayEffect> Effects;
+    public List<GameplayEffect> EffectsToSelf;
 
     public virtual void ActivateAbilityEffects(GameObject owner)
     {
@@ -26,7 +26,7 @@ public abstract class GameplayAbility : ScriptableObject
             return;
         }
 
-        foreach (var effect in Effects)
+        foreach (var effect in EffectsToSelf)
         {
             effectManager.ApplyEffect(effect, owner.GetComponent<AttributeSystem>());
         }
