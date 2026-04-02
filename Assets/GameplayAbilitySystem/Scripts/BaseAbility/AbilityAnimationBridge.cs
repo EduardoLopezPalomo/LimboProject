@@ -86,6 +86,32 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+    /*
+     * Notifies of BowAttack
+     *
+     */
+    
+    public void ShootArrow()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is BowAttackSpec BowAttackSpec)
+            {
+                BowAttackSpec.ShootArrow();
+            }
+        }
+    }
+    public void AlreadyShoot()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is BowAttackSpec BowAttackSpec)
+            {
+                BowAttackSpec.AlreadyShoot();
+            }
+        }
+    }
+    
 
     /*
     * Notifies of AreaRayAttack

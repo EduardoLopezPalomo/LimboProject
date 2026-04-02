@@ -57,7 +57,10 @@ public class AbilityHolder : MonoBehaviour
     {
         if (specs.TryGetValue(abilityName, out var ability))
         {
-            ActiveSpecs.Add(ability);
+            if (!ActiveSpecs.Contains(ability))
+            {
+                ActiveSpecs.Add(ability);   
+            }
             ability.ActivateAbility();
         }
         else
