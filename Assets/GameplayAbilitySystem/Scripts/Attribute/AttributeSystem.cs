@@ -70,4 +70,17 @@ public class AttributeSystem : MonoBehaviour
             Debug.LogWarning("ApplyEffectOnce should not be called for Duration effects");
         }
     }
+    /*Get the value of the attribute*/
+    public float GetAttributeValue(String name)
+    {
+        foreach (var attribute in attributes)
+        {
+            if (attribute.Data.name == name)
+            {
+                return attribute.CurrentValue;
+            }
+        }
+        Debug.LogWarning("AttributeSystem: attribute not found: " + name);
+        return 0f;
+    }
 }

@@ -6,8 +6,6 @@ public class AreaRayAttackSpec : GameplayAbilitySpec
     private GameObject spherePrefab;
     private GameplayEffect damageEffect;
 
-    private int maxEnemiesHit;
-
     private LayerMask enemyLayer = LayerMask.GetMask("EnemyLayer");
 
     private Collider[] results;
@@ -15,7 +13,6 @@ public class AreaRayAttackSpec : GameplayAbilitySpec
     {
         this.radius = radius;
         this.damageEffect = DamageEffect;
-        this.maxEnemiesHit = maxEnemiesHit;
         this.spherePrefab = spherePrefab;
         results = new Collider[maxEnemiesHit];
     }

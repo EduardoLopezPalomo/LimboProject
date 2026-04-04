@@ -160,5 +160,31 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+    /*
+     * Notifies of HealTarget
+     *
+     */
+    public void HealTarget()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is HealTargetSpec healTargetSpec)
+            {
+                healTargetSpec.HealTarget();
+            }
+        }
+    }
+
+    public void StopHealParticle()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is HealTargetSpec healTargetSpec)
+            {
+                healTargetSpec.StopHealParticle();
+            }
+        }
+    }
+    
 
 }
