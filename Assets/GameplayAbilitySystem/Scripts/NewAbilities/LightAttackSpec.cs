@@ -87,6 +87,8 @@ public class LightAttackSpec : GameplayAbilitySpec
         base.CancelAbility();
         if (inCombo)
         {
+            canReceiveInput = false;
+            inCombo = false;
             animator.SetBool("InCombo", false);
             DisableRootMotion();
             DisableSwordCollider();

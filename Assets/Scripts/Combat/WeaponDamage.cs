@@ -9,6 +9,19 @@ public class WeaponDamage : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void OnTriggerEnter(Collider other)
     {
+        if (other.gameObject.layer == LayerMask.NameToLayer("Shield") && !gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Hit shield!");
+            AbilityHolder abilityHolder = GetComponentInParent<AbilityHolder>();
+            Animator animator = GetComponentInParent<Animator>();
+            if (abilityHolder != null && animator != null)
+            {
+                animator.SetBool("SetInCombo", false);
+                animator.SetTrigger("HitShield");
+                abilityHolder.CancelAbility("LightAttack");   
+            }
+            return; 
+        }
         if (other.gameObject.CompareTag(ObjectToDamage))
         {
             MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
