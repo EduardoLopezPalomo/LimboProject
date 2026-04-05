@@ -713,7 +713,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15f5323fbd2cdc841be6ecee68d92fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetection
-  maxDetectionDistance: 7.5
+  maxDetectionDistance: 9
 --- !u!135 &8354286642828417193
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1178,6 +1178,7 @@ GameObject:
   - component: {fileID: 5655987160920270496}
   - component: {fileID: 4143673214578963947}
   - component: {fileID: 7479449777399800649}
+  - component: {fileID: 2334040634425549364}
   m_Layer: 9
   m_Name: Shielder
   m_TagString: Enemy
@@ -1302,7 +1303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Behavior::Unity.Behavior.BehaviorGraphAgent
-  m_Graph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
+  m_Graph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_BlackboardVariableOverridesList:
   - rid: 1614916531033473331
   - rid: 1614916531033473863
@@ -1311,7 +1312,10 @@ MonoBehaviour:
   - rid: 1614916533857026855
   - rid: 1614916536398512263
   - rid: 1614916537472254124
-  m_OriginalGraph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
+  - rid: 1614916623133835926
+  - rid: 1614916623767437799
+  - rid: 1614916623834284928
+  m_OriginalGraph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
@@ -1373,6 +1377,30 @@ MonoBehaviour:
           m_Value1: 6743829350120249816
         Name: GoingToPlayer
         m_Value: {fileID: 4833137831392373243}
+    - rid: 1614916623133835926
+      type: {class: 'BlackboardVariable`1[[RotateAlongPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 3614669208900484197
+          m_Value1: 16735891436078398221
+        Name: RotateAlongPlayer
+        m_Value: {fileID: 2334040634425549364}
+    - rid: 1614916623767437799
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 7603136716861494965
+          m_Value1: 6698458947927652611
+        Name: Player
+        m_Value: {fileID: 0}
+    - rid: 1614916623834284928
+      type: {class: 'BlackboardVariable`1[[ShieldMaskController, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 1086539957402702751
+          m_Value1: 2113616804317589529
+        Name: ShieldController
+        m_Value: {fileID: 7479449777399800649}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1426,7 +1454,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa397c47a62f26e4f8389bce162dfda4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RootMotionController
-  animator: {fileID: 6982812146204527121}
 --- !u!114 &2651820873901344080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1465,7 +1492,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GoingToPlayer
   player: {fileID: 0}
-  offsetPosiiton: 2
+  offsetPosiiton: 2.4
 --- !u!114 &7909674923356091308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1521,6 +1548,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ebee13ac32110744a88f0ed6c8637d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShieldMaskController
+--- !u!114 &2334040634425549364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542ab653d1241c2488cb4bf6b232630b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
+  player: {fileID: 0}
+  rotationSpeed: 10
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
