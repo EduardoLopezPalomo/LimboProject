@@ -17,4 +17,12 @@ public class EnemyGraphBridge : MonoBehaviour
             agent.BlackboardReference.SetVariableValue("ActualState", BarbarianState.Hurt);
         }
     }
+
+    public void SetTrap()
+    {
+        if (agent != null)
+        {
+            agent.BlackboardReference.SetVariableValue("ActualState", BarbarianState.Trap);
+        }
+    }
 }

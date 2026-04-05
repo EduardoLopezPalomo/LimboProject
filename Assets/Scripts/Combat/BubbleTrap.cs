@@ -46,7 +46,12 @@ public class BubbleTrap : MonoBehaviour
             velocity = 0f;
             transform.position = other.transform.position + new Vector3(0f, 1f, 0f);
             timer = 0f;
-            Debug.Log("Atrapado");
+            var enemyGraph = other.GetComponent<EnemyGraphBridge>();
+            if (enemyGraph != null)
+            {
+                enemyGraph.SetTrap();
+            }
+            //Añadir trigger y bool de animacion de atrapado en burbuja
         }
         else
         {

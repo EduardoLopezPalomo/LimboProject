@@ -25,8 +25,13 @@ public class MoveSleepProyectile : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Enemy"))
         {
+            var enemyGraph = other.GetComponent<EnemyGraphBridge>();
+            if (enemyGraph != null)
+            {
+                enemyGraph.SetTrap();
+            }
+            //Añadir trigger y bool de animacion de con sueño
             Destroy(gameObject);
-
         }
         else
         {

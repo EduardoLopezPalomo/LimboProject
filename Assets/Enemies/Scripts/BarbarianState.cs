@@ -8,5 +8,6 @@ public enum BarbarianState
 	Detection,
 	Attack,
 	Hurt,
-	Persecution
+	Persecution,
+	Trap
 }
