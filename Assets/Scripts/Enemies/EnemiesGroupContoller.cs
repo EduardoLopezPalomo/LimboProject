@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class EnemiesGroupContoller : MonoBehaviour
 {
+    public int maxTokens = 2;
+    
+    private int currentToken = 0;
     private List<GameObject> enemies = new List<GameObject>();
     void Awake()
     {
+        currentToken = maxTokens;
+        // Find all child objects with the "Enemy" tag and add them to the list
         foreach (Transform child in transform)
         {
             if (child.gameObject.CompareTag("Enemy"))
@@ -33,5 +38,21 @@ public class EnemiesGroupContoller : MonoBehaviour
                 agent.SetVariableValue("GroupState", GroupState.Alone);
             }
         }
+    }
+    
+    public bool RequestToken()
+    {
+        if (currentToken > 0)
+        {
+            currentToken--;
+            return true;
+        }
+        return false;
+    }
+    
+    public void ReturnToken()
+    {
+        currentToken++;
+        currentToken = Mathf.Clamp(currentToken, 0, maxTokens);
     }
 }

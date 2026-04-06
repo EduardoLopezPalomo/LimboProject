@@ -1213,6 +1213,7 @@ GameObject:
   - component: {fileID: 6375694686120058918}
   - component: {fileID: 7479449777399800649}
   - component: {fileID: 2334040634425549364}
+  - component: {fileID: 6794550173913149181}
   m_Layer: 9
   m_Name: Shielder
   m_TagString: Enemy
@@ -1349,6 +1350,7 @@ MonoBehaviour:
   - rid: 1614916623133835926
   - rid: 1614916623767437799
   - rid: 1614916623834284928
+  - rid: 1614916645701812494
   m_OriginalGraph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1435,6 +1437,14 @@ MonoBehaviour:
           m_Value1: 2113616804317589529
         Name: ShieldController
         m_Value: {fileID: 7479449777399800649}
+    - rid: 1614916645701812494
+      type: {class: 'BlackboardVariable`1[[TokenTimer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 17417102069372451143
+          m_Value1: 11240515117120649055
+        Name: TokenTimer
+        m_Value: {fileID: 6794550173913149181}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1612,6 +1622,20 @@ MonoBehaviour:
   player: {fileID: 0}
   rotationSpeedALongPlayer: 10
   selfRotationSpeed: 60
+--- !u!114 &6794550173913149181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4028b501e435cc1479fb25589f2dcda2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
+  cooldownTimeMin: 3
+  cooldownTimeMax: 6
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
