@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -5,6 +6,9 @@ public class GoingToPlayer : MonoBehaviour
 {
     [SerializeField] private GameObject player;
     public float offsetPosiiton = 15f;
+    public SlotType slotType;
+    
+    private Slot currentSlot;
 
     public bool IsPlayerInRange()
     {
@@ -18,5 +22,31 @@ public class GoingToPlayer : MonoBehaviour
 
 
         return Position;
+    }
+
+    public Vector3 GetSlotPosition()
+    {
+        if (currentSlot != null)
+        {
+            return currentSlot.position;
+        }
+        
+        currentSlot = SlotsManager.Instance.GetBestFreeSlot(gameObject, slotType);
+        
+        if (currentSlot != null)
+        {
+            return currentSlot.position;
+        }
+        Debug.LogWarning("No slot found");
+        return GetPlayerPosition();
+    }
+    
+    public void ReleaseSlot()
+    {
+        if (currentSlot != null)
+        {
+            SlotsManager.Instance.ReleaseSlot(currentSlot);
+            currentSlot = null;
+        }
     }
 }

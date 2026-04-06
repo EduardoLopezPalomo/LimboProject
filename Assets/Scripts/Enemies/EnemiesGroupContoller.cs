@@ -8,6 +8,7 @@ public class EnemiesGroupContoller : MonoBehaviour
     
     private int currentToken = 0;
     private List<GameObject> enemies = new List<GameObject>();
+    
     void Awake()
     {
         currentToken = maxTokens;
@@ -55,4 +56,7 @@ public class EnemiesGroupContoller : MonoBehaviour
         currentToken++;
         currentToken = Mathf.Clamp(currentToken, 0, maxTokens);
     }
+    //Methods for slots managment
+    
+    
 }
