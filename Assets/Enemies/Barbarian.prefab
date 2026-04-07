@@ -1148,6 +1148,7 @@ GameObject:
   - component: {fileID: 6925886574139023334}
   - component: {fileID: 3125238463968912608}
   - component: {fileID: 1565763201875172971}
+  - component: {fileID: 8663315673830053461}
   m_Layer: 9
   m_Name: Barbarian
   m_TagString: Enemy
@@ -1283,6 +1284,9 @@ MonoBehaviour:
   - rid: 1614916537472254124
   - rid: 1614916644172202023
   - rid: 1614916644404724043
+  - rid: 8560592099634839627
+  - rid: 8560592099634839628
+  - rid: 8560592099634839629
   m_OriginalGraph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1361,6 +1365,30 @@ MonoBehaviour:
           m_Value1: 13261036465271344195
         Name: EscapeFromPlayer
         m_Value: {fileID: 6925886574139023334}
+    - rid: 8560592099634839627
+      type: {class: 'BlackboardVariable`1[[TokenTimer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5567065397197953382
+          m_Value1: 10061095820314232493
+        Name: TokenTimer
+        m_Value: {fileID: 3125238463968912608}
+    - rid: 8560592099634839628
+      type: {class: 'BlackboardVariable`1[[RotateAlongPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 16142632010528335284
+          m_Value1: 15518324085218616856
+        Name: RotateAlongPlayer
+        m_Value: {fileID: 1565763201875172971}
+    - rid: 8560592099634839629
+      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 9998029337331551552
+          m_Value1: 11895595512637064867
+        Name: SlotUpdate
+        m_Value: {fileID: 8663315673830053461}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1453,6 +1481,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoingToPlayer
   player: {fileID: 0}
   offsetPosiiton: 1.5
+  slotType: 0
 --- !u!114 &301599604142048434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1523,7 +1552,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4028b501e435cc1479fb25589f2dcda2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
-  cooldownTime: 5
+  cooldownTimeMin: 3
+  cooldownTimeMax: 6
 --- !u!114 &1565763201875172971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1539,6 +1569,19 @@ MonoBehaviour:
   player: {fileID: 0}
   rotationSpeedALongPlayer: 30
   selfRotationSpeed: 90
+--- !u!114 &8663315673830053461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c68ef9ccc5751479e798f96c6ee540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
+  timeToUpdate: 3
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0

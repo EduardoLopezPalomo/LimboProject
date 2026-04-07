@@ -1115,6 +1115,7 @@ GameObject:
   - component: {fileID: 3904626532832763255}
   - component: {fileID: 5393132917990667074}
   - component: {fileID: 5936803017723195615}
+  - component: {fileID: -6078419723278069600}
   m_Layer: 9
   m_Name: Healer
   m_TagString: Enemy
@@ -1245,12 +1246,12 @@ MonoBehaviour:
   - rid: 1614916554515546874
   - rid: 1614916554515546875
   - rid: 1614916554515546876
-  - rid: 1614916581288313720
   - rid: 1614916575563612211
   - rid: 1614916576206913850
   - rid: 1614916576206913851
   - rid: 1614916578180072004
   - rid: 1614916601084117360
+  - rid: 8560592100459020301
   m_OriginalGraph: {fileID: -2958111290060846793, guid: eef2f88e9fb47514986fa59ce172bb76, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1321,18 +1322,6 @@ MonoBehaviour:
           m_Value1: 3069624393637172234
         Name: EscapeFromPlayer
         m_Value: {fileID: 3904626532832763255}
-    - rid: 1614916581288313720
-      type: {class: 'BlackboardVariable`1[[System.Collections.Generic.List`1[[UnityEngine.GameObject, UnityEngine.CoreModule]], mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 3999795995197412714
-          m_Value1: 6291340109447800895
-        Name: PatrolPoints
-        m_Value:
-        - {fileID: 0}
-        - {fileID: 0}
-        - {fileID: 0}
-        - {fileID: 0}
     - rid: 1614916601084117360
       type: {class: 'BlackboardVariable`1[[RotateToTarget, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1341,6 +1330,14 @@ MonoBehaviour:
           m_Value1: 6494935926313107199
         Name: RotateToTarget
         m_Value: {fileID: 5936803017723195615}
+    - rid: 8560592100459020301
+      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 3536530447351579323
+          m_Value1: 11091600020236536856
+        Name: SlotUpdate
+        m_Value: {fileID: -6078419723278069600}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1394,7 +1391,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa397c47a62f26e4f8389bce162dfda4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RootMotionController
-  animator: {fileID: 6982812146204527121}
 --- !u!114 &2651820873901344080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1462,6 +1458,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoingToPlayer
   player: {fileID: 0}
   offsetPosiiton: 1
+  slotType: 0
 --- !u!114 &3904626532832763255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1505,6 +1502,19 @@ MonoBehaviour:
   MinAngle: 5
   Speed: 150
   hasPlayerRotate: 0
+--- !u!114 &-6078419723278069600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c68ef9ccc5751479e798f96c6ee540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
+  timeToUpdate: 10
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0

@@ -1214,6 +1214,7 @@ GameObject:
   - component: {fileID: 7479449777399800649}
   - component: {fileID: 2334040634425549364}
   - component: {fileID: 6794550173913149181}
+  - component: {fileID: -2779277033343087984}
   m_Layer: 9
   m_Name: Shielder
   m_TagString: Enemy
@@ -1351,6 +1352,7 @@ MonoBehaviour:
   - rid: 1614916623767437799
   - rid: 1614916623834284928
   - rid: 1614916645701812494
+  - rid: 8560592100580918112
   m_OriginalGraph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1445,6 +1447,14 @@ MonoBehaviour:
           m_Value1: 11240515117120649055
         Name: TokenTimer
         m_Value: {fileID: 6794550173913149181}
+    - rid: 8560592100580918112
+      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 2363532909829855749
+          m_Value1: 11939950890635167585
+        Name: SlotUpdate
+        m_Value: {fileID: -2779277033343087984}
 --- !u!114 &7402628054716729176
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,6 +1547,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoingToPlayer
   player: {fileID: 0}
   offsetPosiiton: 2.4
+  slotType: 0
 --- !u!114 &7909674923356091308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1636,6 +1647,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
   cooldownTimeMin: 3
   cooldownTimeMax: 6
+--- !u!114 &-2779277033343087984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5c68ef9ccc5751479e798f96c6ee540, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
+  timeToUpdate: 10
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
