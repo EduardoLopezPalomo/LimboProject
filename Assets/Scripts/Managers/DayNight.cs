@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-enum DayPhase
+public enum DayPhase
 {
     Night,
     Dawn,
@@ -11,11 +11,14 @@ enum DayPhase
 }
 public class DayNight : MonoBehaviour
 {
+    public static DayNight Instance { get; private set; }
     public float DayDuration = 60f;
     public float SunYaw = 170f;
 
     [Range(0f, 1f)]
     public float timeOfDay = 0.25f;
+
+    public DayPhase ActualPhase = DayPhase.Day;
 
     public AnimationCurve SunIntensityCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
     public AnimationCurve SunTemperatureCUrve = AnimationCurve.Linear(0f, 2000f, 1f, 6500f);
@@ -31,11 +34,21 @@ public class DayNight : MonoBehaviour
     public Material[] nightSkies;
     public Material[] sunsetSkies;
     public Material[] dawnSkies;
-
-
-    private DayPhase currentPhase;
+    public static event Action<DayPhase> OnDayPhaseChanged;
     private DayPhase lastPhase;
 
+    void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        // Option to persist across scenes if needed
+        // DontDestroyOnLoad(gameObject);
+    }
 
     void Start()
     {
@@ -45,6 +58,7 @@ public class DayNight : MonoBehaviour
             Moon.useColorTemperature = true;
         }
         RenderSettings.ambientMode = AmbientMode.Trilight;
+        ActualPhase = GetPhase(timeOfDay);
     }
 
     void Update()
@@ -86,23 +100,28 @@ public class DayNight : MonoBehaviour
         if (newPhase != lastPhase)
         {
             Material selected = null;
+            OnDayPhaseChanged?.Invoke(newPhase);
 
             switch (newPhase)
             {
                 case DayPhase.Day:
                     selected = Pick(daySkies);
+                    ActualPhase = DayPhase.Day;
                     break;
 
                 case DayPhase.Night:
                     selected = Pick(nightSkies);
+                    ActualPhase = DayPhase.Night;
                     break;
 
                 case DayPhase.Dawn:
                     selected = Pick(dawnSkies);
+                    ActualPhase = DayPhase.Dawn;
                     break;
 
                 case DayPhase.Sunset:
                     selected = Pick(sunsetSkies);
+                    ActualPhase = DayPhase.Sunset;
                     break;
             }
 

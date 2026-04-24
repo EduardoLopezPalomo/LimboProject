@@ -1219,8 +1219,9 @@ GameObject:
   - component: {fileID: 5885216827943657505}
   - component: {fileID: 755761323069143571}
   - component: {fileID: 7085615581472446681}
+  - component: {fileID: 9004167731671647149}
   m_Layer: 0
-  m_Name: NPC
+  m_Name: NPC_Merchant
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1338,28 +1339,40 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4416926081852918481}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0038c16c34866b4f9e25c9c0dc0f7e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Behavior::Unity.Behavior.BehaviorGraphAgent
-  m_Graph: {fileID: 0}
+  m_Graph: {fileID: 8882294074364485953, guid: fcd506c4888c48b47a1c6fd934640f31, type: 2}
   m_BlackboardVariableOverridesList:
-  - rid: -2
-  - rid: -2
-  - rid: -2
-  - rid: -2
-  - rid: -2
-  - rid: -2
-  - rid: -2
-  m_OriginalGraph: {fileID: 1991488102364103766, guid: a9c4b36210c85574e963cc0c9fdda2cd, type: 2}
+  - rid: 8560592484270080221
+  m_OriginalGraph: {fileID: 8882294074364485953, guid: fcd506c4888c48b47a1c6fd934640f31, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 8560592484270080221
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 1
+          m_Value1: 0
+        Name: Self
+        m_Value: {fileID: 4416926081852918481}
+--- !u!114 &9004167731671647149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8310c41819c526a4582cf32dafd5b09e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCGraphBridge
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
