@@ -16,7 +16,7 @@ public class WeaponDamage : MonoBehaviour
             Animator animator = GetComponentInParent<Animator>();
             if (abilityHolder != null && animator != null)
             {
-                animator.SetBool("SetInCombo", false);
+                animator.SetBool("InCombo", false);
                 animator.SetTrigger("HitShield");
                 abilityHolder.CancelAbility("LightAttack");   
             }
