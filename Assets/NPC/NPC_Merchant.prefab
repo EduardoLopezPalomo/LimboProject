@@ -1220,6 +1220,7 @@ GameObject:
   - component: {fileID: 755761323069143571}
   - component: {fileID: 7085615581472446681}
   - component: {fileID: 9004167731671647149}
+  - component: {fileID: 7886258595363692180}
   m_Layer: 0
   m_Name: NPC_Merchant
   m_TagString: Untagged
@@ -1347,12 +1348,21 @@ MonoBehaviour:
   m_Graph: {fileID: 8882294074364485953, guid: fcd506c4888c48b47a1c6fd934640f31, type: 2}
   m_BlackboardVariableOverridesList:
   - rid: 8560592484270080221
+  - rid: 1614917166982758716
   m_OriginalGraph: {fileID: 8882294074364485953, guid: fcd506c4888c48b47a1c6fd934640f31, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
+    - rid: 1614917166982758716
+      type: {class: 'BlackboardVariable`1[[RotateToPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 4721158036805042963
+          m_Value1: 12935989556888436623
+        Name: RotateToPlayer
+        m_Value: {fileID: 7886258595363692180}
     - rid: 8560592484270080221
       type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1373,6 +1383,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8310c41819c526a4582cf32dafd5b09e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCGraphBridge
+--- !u!114 &7886258595363692180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383c274cb1048aa4eb5f5a5661bee984, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
+  MinAngle: 5
+  Speed: 150
+  player: {fileID: 0}
+  hasPlayerRotate: 0
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0
