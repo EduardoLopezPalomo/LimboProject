@@ -13,6 +13,7 @@ public partial class TravelAlongPointsAction : Action
 {
     [SerializeReference] public BlackboardVariable<GameObject> Self;
     [SerializeReference] public BlackboardVariable<List<GameObject>> Route;
+    [SerializeReference] public BlackboardVariable<bool> Backwards = new(false);
     [SerializeReference] public BlackboardVariable<float> Speed = new(3f);
     [SerializeReference] public BlackboardVariable<float> DistanceThreshold = new(0.2f);
     [SerializeReference] public BlackboardVariable<string> AnimatorSpeedParam = new("Speed");
@@ -40,8 +41,14 @@ public partial class TravelAlongPointsAction : Action
         }
 
         Initialize();
-
-        MoveToNextWaypoint();
+        if(Backwards)
+        {
+            MoveToPreviusWaypoint();
+        }
+        else
+        {
+            MoveToNextWaypoint();
+        }
         return Status.Running;
     }
 
@@ -58,14 +65,26 @@ public partial class TravelAlongPointsAction : Action
         // Check if we've reached the waypoint (ensuring NavMeshAgent has completed path calculation if available)
         if (destinationReached && (m_NavMeshAgent == null || !m_NavMeshAgent.pathPending))
         {
-            
-            if (m_CurrentPatrolPoint >= Route.Value.Count - 1)
+            if(Backwards)
             {
-                UpdateAnimatorSpeed(0f);
-                return Status.Success;
+                if (m_CurrentPatrolPoint <= 0)
+                {
+                    UpdateAnimatorSpeed(0f);
+                    return Status.Success;
+                }
+
+                MoveToPreviusWaypoint();
             }
-            
-            MoveToNextWaypoint();
+            else
+            {
+                if (m_CurrentPatrolPoint >= Route.Value.Count - 1)
+                {
+                    UpdateAnimatorSpeed(0f);
+                    return Status.Success;
+                }
+                    
+                MoveToNextWaypoint();
+            }
             
         }
         else if (m_NavMeshAgent == null) 
@@ -132,6 +151,11 @@ public partial class TravelAlongPointsAction : Action
         }
 
         UpdateAnimatorSpeed(0f);
+
+        if(Backwards)
+        {
+            m_CurrentPatrolPoint = Route.Value.Count - 1;
+        }
     }
 
     private float GetDistanceToWaypoint()
@@ -150,6 +174,17 @@ public partial class TravelAlongPointsAction : Action
     private void MoveToNextWaypoint()
     {
         m_CurrentPatrolPoint++;
+
+        m_CurrentTarget = Route.Value[m_CurrentPatrolPoint].transform.position;
+        if (m_NavMeshAgent != null)
+        {
+            m_NavMeshAgent.SetDestination(m_CurrentTarget);
+        }
+    }
+
+    private void MoveToPreviusWaypoint()
+    {
+        m_CurrentPatrolPoint--;
 
         m_CurrentTarget = Route.Value[m_CurrentPatrolPoint].transform.position;
         if (m_NavMeshAgent != null)
