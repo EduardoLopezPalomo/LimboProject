@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 public enum DayPhase
 {
     Night,
+    FirstLight,
     Dawn,
     Day,
     Sunset
@@ -123,6 +124,9 @@ public class DayNight : MonoBehaviour
                     selected = Pick(sunsetSkies);
                     ActualPhase = DayPhase.Sunset;
                     break;
+                case DayPhase.FirstLight:
+                    ActualPhase = DayPhase.FirstLight;
+                    break;
             }
 
             ApplySkybox(selected);
@@ -145,8 +149,9 @@ public class DayNight : MonoBehaviour
 
     DayPhase GetPhase(float t)
     {
-        if (t < 0.25f) return DayPhase.Night;
-        if (t < 0.30f) return DayPhase.Dawn;
+        if (t < 0.20f) return DayPhase.Night;
+        if (t < 0.205f) return DayPhase.FirstLight;
+        if (t < 0.25f) return DayPhase.Dawn;
         if (t < 0.65f) return DayPhase.Day;
         if (t < 0.77f) return DayPhase.Sunset;
         return DayPhase.Night;

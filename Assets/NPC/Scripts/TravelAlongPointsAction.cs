@@ -156,6 +156,10 @@ public partial class TravelAlongPointsAction : Action
         {
             m_CurrentPatrolPoint = Route.Value.Count - 1;
         }
+        else
+        {
+            m_CurrentPatrolPoint = 0;
+        }
     }
 
     private float GetDistanceToWaypoint()
