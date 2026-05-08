@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class PoolManager : MonoBehaviour
 {
 
-    [SerializeField] private List<NPCPool> Npcs = new(); 
+    [SerializeField] private List<NPCPool> Npcs = new();
     public static PoolManager Instance { get; private set; }
 
     void Awake()
@@ -45,12 +45,20 @@ public class PoolManager : MonoBehaviour
 
     private void WakeUp(DayPhase newPhase)
     {
-        if(newPhase == DayPhase.FirstLight)
+        if (newPhase == DayPhase.FirstLight)
         {
             for (int i = 0; i < Npcs.Count; i++)
             {
                 if (Npcs[i] != null)
                     Npcs[i].WakeUp();
+            }
+        }
+        else if (newPhase == DayPhase.Night)
+        {
+            for (int i = 0; i < Npcs.Count; i++)
+            {
+                if (Npcs[i] != null)
+                    Npcs[i].GoToSleep();
             }
         }
     }

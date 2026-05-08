@@ -5,6 +5,7 @@ public class NPCGraphBridge : MonoBehaviour
 {
 
     private BehaviorGraphAgent agent;
+    private bool HasReachedHome = false;
 
     void Awake()
     {
@@ -54,5 +55,15 @@ public class NPCGraphBridge : MonoBehaviour
         {
             agent.BlackboardReference.SetVariableValue("NPCState", NPCState.Talking);
         }
+    }
+
+    public void SetReachedHome(bool HasReached)
+    {
+        HasReachedHome = HasReached;
+    }
+
+    public bool GetReachedHome()
+    {
+        return HasReachedHome;
     }
 }

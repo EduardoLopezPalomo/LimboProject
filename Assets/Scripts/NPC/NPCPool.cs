@@ -1,30 +1,49 @@
 using UnityEngine;
-using Unity.Behavior;
+using System.Collections;
 
 public class NPCPool : MonoBehaviour
 {
+    public bool RestAtHome = true;
     [SerializeField] private GameObject Npc;
+
+    private NPCGraphBridge graphBridge;
+    private Coroutine sleepRoutine;
+
+    private void Awake()
+    {
+        graphBridge = GetComponentInChildren<NPCGraphBridge>(true);
+    }
 
     public void WakeUp()
     {
-        BehaviorGraphAgent agent = GetComponentInChildren<BehaviorGraphAgent>(true);
-        if (agent != null)
-        {
-            agent.BlackboardReference.SetVariableValue("NPCState", NPCState.GoingToWork);
-        }
-        if(Npc)
+        if (Npc)
         {
             Npc.SetActive(true);
         }
-
     }
 
     public void GoToSleep()
     {
-        if(Npc)
+        if (Npc && RestAtHome)
         {
-            Npc.SetActive(false);
+            if (sleepRoutine != null)
+            {
+                StopCoroutine(sleepRoutine);
+            }
+
+            sleepRoutine = StartCoroutine(WaitUntilRouteFinishedThenSleep());
         }
+    }
+
+    private IEnumerator WaitUntilRouteFinishedThenSleep()
+    {
+        if (graphBridge == null)
+            yield break;
+
+        // Espera hasta que el hijo diga que ya terminó la ruta
+        yield return new WaitUntil(() => graphBridge.GetReachedHome());
+
+        Npc.SetActive(false);
     }
 
 }
