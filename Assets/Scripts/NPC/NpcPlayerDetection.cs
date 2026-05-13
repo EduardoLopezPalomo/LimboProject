@@ -3,19 +3,20 @@ using UnityEngine;
 public class NpcPlayerDetection : MonoBehaviour
 {
     public float detectionAngle = 0.6f;
-   
+
     [SerializeField] private GameObject interactUI;
+    [SerializeField] private GameObject npc;
     private GameObject player;
     private bool playerDetected = false;
 
     void Update()
     {
-        if(playerDetected)
+        if (playerDetected)
         {
-            Vector3 direction = (transform.root.position - player.transform.position).normalized;
-            
+            Vector3 direction = (npc.transform.position - player.transform.position).normalized;
+
             float dot = Vector3.Dot(player.transform.forward, direction);
-          
+
             if (dot > detectionAngle)
             {
                 interactUI.SetActive(true);
