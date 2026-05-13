@@ -40,7 +40,6 @@ public class NPCPool : MonoBehaviour
         if (graphBridge == null)
             yield break;
 
-        // Espera hasta que el hijo diga que ya terminó la ruta
         yield return new WaitUntil(() => graphBridge.GetReachedHome());
 
         Npc.SetActive(false);
