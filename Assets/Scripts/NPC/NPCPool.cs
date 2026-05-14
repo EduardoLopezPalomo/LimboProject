@@ -45,4 +45,12 @@ public class NPCPool : MonoBehaviour
         Npc.SetActive(false);
     }
 
+    public void ForceSleep()
+    {
+        if (Npc && RestAtHome)
+        {
+            Npc.SetActive(false);
+        }
+    }
+
 }
