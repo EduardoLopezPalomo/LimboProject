@@ -49,10 +49,11 @@ public class DashSpec : GameplayAbilitySpec
         float elapsed = 0f;
 
         Vector3 dashDirection = owner.transform.forward;
+        float speed = dashDistance / dashTime;
 
         while (elapsed < dashTime)
         {
-            charactercontroller.Move(dashDirection * dashDistance * Time.deltaTime);
+            charactercontroller.Move(dashDirection * speed * Time.deltaTime);
             elapsed += Time.deltaTime;
 
             yield return null;

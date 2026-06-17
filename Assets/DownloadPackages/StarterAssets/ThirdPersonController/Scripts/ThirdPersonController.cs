@@ -229,9 +229,10 @@ namespace StarterAssets
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
+            
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
-
+            
             // update animator if using character
             if (_hasAnimator)
             {
@@ -389,7 +390,9 @@ namespace StarterAssets
                     // update animator if using character
                     if (_hasAnimator)
                     {
+                      
                         _animator.SetBool(_animIDFreeFall, true);
+                    
                     }
                 }
 
