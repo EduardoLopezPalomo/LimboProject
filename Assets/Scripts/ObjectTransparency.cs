@@ -7,6 +7,7 @@ public class ObjectTransparency : MonoBehaviour
     public Transform cameraTransform;
     public LayerMask wallLayer;
     public float transparency = 0.3f;
+    public Material transparentMaterialTemplate;
 
     private Dictionary<GameObject, Material> originalMaterials = new Dictionary<GameObject, Material>();
     private List<GameObject> transparentWalls = new List<GameObject>();
@@ -72,15 +73,11 @@ public class ObjectTransparency : MonoBehaviour
 
     void SetMaterialTransparent(Material material, float alpha)
     {
+        material.shader = transparentMaterialTemplate.shader;
+        material.CopyPropertiesFromMaterial(transparentMaterialTemplate);
+
         Color color = material.color;
         color.a = alpha;
         material.color = color;
-
-        //Correct transparency and blending settings
-        material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
-        material.SetInt("_ZWrite", 0);
-        material.SetInt("_Surface", 1);
-        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
     }
 }
