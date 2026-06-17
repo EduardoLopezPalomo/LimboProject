@@ -77,54 +77,47 @@ namespace Synty.SidekickCharacters.SkinnedMesh
             GameObject combinedSkinnedMesh = new GameObject("mesh");
             combinedSkinnedMesh.transform.parent = combinedModel.transform;
 
-            Transform modelRootBone = baseModel.GetComponentInChildren<SkinnedMeshRenderer>().rootBone;
-
-            // Initialise bone data stores.
-            Transform[] bones = Array.Empty<Transform>();
-            int boneCount = 0;
-
             skinnedMeshesToCombine.Sort((a, b) => string.Compare(a.name, b.name));
             Material material = null;
             Mesh mesh = new Mesh();
-            int boneOffset = 0;
-            GameObject rootBone = GameObject.Instantiate(modelRootBone.gameObject, combinedModel.transform, true);
-            rootBone.name = modelRootBone.name;
-            Hashtable boneNameMap = CreateBoneNameMap(rootBone);
-            Transform[] additionalBones = FindAdditionalBones(boneNameMap, new List<SkinnedMeshRenderer>(skinnedMeshesToCombine));
-            if (additionalBones.Length > 0)
+            GameObject rootBone = BuildSkeleton(skinnedMeshesToCombine, baseModel, combinedModel.transform, out _);
+
+            // Build the unique skeleton; one entry per unique bone name, ordered by rig hierarchy traversal.
+            HashSet<string> usedBoneNames = new HashSet<string>();
+            foreach (SkinnedMeshRenderer child in skinnedMeshesToCombine)
             {
-                JoinAdditionalBonesToBoneArray(bones, additionalBones, boneNameMap);
-                // Need to redo the name map now that we have updated the bone array.
-                boneNameMap = CreateBoneNameMap(rootBone);
+                foreach (Transform bone in child.bones)
+                {
+                    usedBoneNames.Add(bone.name);
+                }
             }
 
-            List<CombineInstance> combineInstances = new List<CombineInstance>();
-            List<Matrix4x4> bindPosesToMerge = new List<Matrix4x4>();
+            List<Transform> uniqueBoneList = new List<Transform>();
+            Dictionary<string, int> boneIndexByName = new Dictionary<string, int>();
+            CollectUsedBonesDepthFirst(rootBone.transform, usedBoneNames, uniqueBoneList, boneIndexByName);
 
-            // Iterate through the skinned meshes and process them into Material groupings, and also process the bones as required.
+            List<CombineInstance> combineInstances = new List<CombineInstance>();
+            List<BoneWeight> allBoneWeights = new List<BoneWeight>();
+
+            // Iterate through the skinned meshes and process them into Material groupings, and remap their bone weights to the unique skeleton.
             foreach (SkinnedMeshRenderer child in skinnedMeshesToCombine)
             {
                 material = child.sharedMaterial;
 
                 mesh = MeshUtils.CopyMesh(child.sharedMesh);
 
-                boneCount += child.bones.Length;
-
-                Transform[] existingBones = bones;
-                bones = new Transform[boneCount];
-                Array.Copy(existingBones, bones, existingBones.Length);
-                Transform[] newBones = new Transform[child.bones.Length];
-
-                for (int i = 0; i < newBones.Length; i++)
+                int[] indexRemap = new int[child.bones.Length];
+                for (int i = 0; i < indexRemap.Length; i++)
                 {
-                    Transform currentBone = (Transform) boneNameMap[child.bones[i].name];
-
-                    newBones[i] = currentBone;
-                    bindPosesToMerge.Add(currentBone.worldToLocalMatrix * child.transform.worldToLocalMatrix);
+                    if (!boneIndexByName.TryGetValue(child.bones[i].name, out int uniqueIndex))
+                    {
+                        Debug.LogWarning($"Combiner: bone '{child.bones[i].name}' on part '{child.name}' not found in rig; remapping to root.");
+                        uniqueIndex = 0;
+                    }
+                    indexRemap[i] = uniqueIndex;
                 }
-                Array.Copy(newBones, 0, bones, boneOffset, child.bones.Length);
-
-                boneOffset = bones.Length;
+                // Collected separately rather than written back to the copied mesh, as CombineMeshes would offset the indices again.
+                allBoneWeights.AddRange(RemapBoneWeights(mesh.boneWeights, indexRemap));
 
                 Matrix4x4 transformMatrix = child.localToWorldMatrix;
 
@@ -135,20 +128,182 @@ namespace Synty.SidekickCharacters.SkinnedMesh
             }
 
             SkinnedMeshRenderer renderer = combinedSkinnedMesh.AddComponent<SkinnedMeshRenderer>();
-            renderer.bones = bones;
+            Transform[] uniqueBones = uniqueBoneList.ToArray();
+            renderer.bones = uniqueBones;
             renderer.updateWhenOffscreen = true;
             Mesh newMesh = new Mesh();
             newMesh.CombineMeshes(combineInstances.ToArray(), true, true);
             newMesh.RecalculateBounds();
             newMesh.name = combinedModel.name;
-            renderer.rootBone = combinedModel.transform.Find("root");
+            renderer.rootBone = rootBone.transform;
+
+            // Part transforms are baked into the vertices by CombineMeshes, so each bindpose maps from
+            // the combined renderer's space (identity, at the scene origin) into bone space.
+            Matrix4x4 rendererLocalToWorld = combinedSkinnedMesh.transform.localToWorldMatrix;
+            Matrix4x4[] uniqueBindPoses = new Matrix4x4[uniqueBones.Length];
+            for (int i = 0; i < uniqueBones.Length; i++)
+            {
+                uniqueBindPoses[i] = uniqueBones[i].worldToLocalMatrix * rendererLocalToWorld;
+            }
+
+            if (allBoneWeights.Count != newMesh.vertexCount)
+            {
+                Debug.LogError($"Combiner: bone weight count {allBoneWeights.Count} != combined vertex count {newMesh.vertexCount}.");
+            }
+
+            // Assign the remapped weights before shrinking the bindposes so no intermediate state has out-of-range bone indices.
+            newMesh.boneWeights = allBoneWeights.ToArray();
+            newMesh.bindposes = uniqueBindPoses;
+
             renderer.sharedMesh = newMesh;
             renderer.enabled = true;
-            renderer.sharedMesh.bindposes = bindPosesToMerge.ToArray();
             renderer.sharedMaterial = baseMaterial == null ? material : baseMaterial;
             MergeAndGetAllBlendShapeDataOfSkinnedMeshRenderers(skinnedMeshesToCombine.ToArray(), renderer.sharedMesh, renderer);
 
             return combinedModel;
+        }
+
+        /// <summary>
+        ///     Processes the given GameObject and creates a model where each part keeps its own mesh, but all parts share a single
+        ///     merged skeleton hierarchy, built the same way as the combined mesh path.
+        /// </summary>
+        /// <param name="partsToAdd">All of the part meshes to add to the model.</param>
+        /// <param name="baseModel">The base model that has the base rig that the parts will be bound to.</param>
+        /// <param name="baseMaterial">The base material to use for the model.</param>
+        /// <returns>A new GameObject containing a renderer per part, all sharing a single skeleton.</returns>
+        public static GameObject CreateSeparateSkinnedMeshes(
+            List<SkinnedMeshRenderer> partsToAdd,
+            GameObject baseModel,
+            Material baseMaterial
+        )
+        {
+            GameObject partsModel = new GameObject("Prefab Character");
+
+            partsToAdd.Sort((a, b) => string.Compare(a.name, b.name));
+            GameObject rootBone = BuildSkeleton(partsToAdd, baseModel, partsModel.transform, out Hashtable boneNameMap);
+
+            foreach (SkinnedMeshRenderer part in partsToAdd)
+            {
+                GameObject newPart = new GameObject(part.name);
+                newPart.transform.parent = partsModel.transform;
+                SkinnedMeshRenderer renderer = newPart.AddComponent<SkinnedMeshRenderer>();
+                renderer.updateWhenOffscreen = true;
+
+                // Remap the part's bones to the shared skeleton by name, keeping the part's own bone order so the copied
+                // bone weights and bindposes stay valid without remapping.
+                Transform[] oldBones = part.bones;
+                Transform[] newBones = new Transform[oldBones.Length];
+                for (int i = 0; i < oldBones.Length; i++)
+                {
+                    Transform newBone = (Transform) boneNameMap[oldBones[i].name];
+                    if (newBone == null)
+                    {
+                        Debug.LogWarning($"Combiner: bone '{oldBones[i].name}' on part '{part.name}' not found in rig; remapping to root.");
+                        newBone = rootBone.transform;
+                    }
+                    newBones[i] = newBone;
+                }
+
+                renderer.sharedMesh = MeshUtils.CopyMesh(part.sharedMesh);
+                Transform newRootBone = (Transform) boneNameMap[part.rootBone.name];
+                renderer.rootBone = newRootBone == null ? rootBone.transform : newRootBone;
+
+                // CopyMesh does not copy blend shapes, so re-add them from the source part.
+                MergeAndGetAllBlendShapeDataOfSkinnedMeshRenderers(
+                    new[]
+                    {
+                        part
+                    },
+                    renderer.sharedMesh,
+                    renderer
+                );
+
+                renderer.bones = newBones;
+                renderer.sharedMaterial = baseMaterial == null ? part.sharedMaterial : baseMaterial;
+            }
+
+            return partsModel;
+        }
+
+        /// <summary>
+        ///     Builds the shared skeleton for a new character model by instantiating the base model's rig and adding any extra
+        ///     bones required by the given parts.
+        /// </summary>
+        /// <param name="parts">The part meshes that will be bound to the skeleton.</param>
+        /// <param name="baseModel">The base model that has the base rig.</param>
+        /// <param name="characterRoot">The transform of the new character model the skeleton will be parented to.</param>
+        /// <param name="boneNameMap">The output map between bone names and the bones of the new skeleton.</param>
+        /// <returns>The root bone GameObject of the new skeleton.</returns>
+        private static GameObject BuildSkeleton(
+            List<SkinnedMeshRenderer> parts,
+            GameObject baseModel,
+            Transform characterRoot,
+            out Hashtable boneNameMap
+        )
+        {
+            Transform modelRootBone = baseModel.GetComponentInChildren<SkinnedMeshRenderer>().rootBone;
+            GameObject rootBone = GameObject.Instantiate(modelRootBone.gameObject, characterRoot, true);
+            rootBone.name = modelRootBone.name;
+            boneNameMap = CreateBoneNameMap(rootBone);
+            Transform[] additionalBones = FindAdditionalBones(boneNameMap, new List<SkinnedMeshRenderer>(parts));
+            if (additionalBones.Length > 0)
+            {
+                JoinAdditionalBonesToBoneArray(Array.Empty<Transform>(), additionalBones, boneNameMap);
+                // Need to redo the name map now that we have updated the bone array.
+                boneNameMap = CreateBoneNameMap(rootBone);
+            }
+
+            return rootBone;
+        }
+
+        /// <summary>
+        ///     Collects the bones used by the combined parts in rig hierarchy (pre-order depth-first) order, one entry per unique bone name.
+        ///     Traversal order and first-wins duplicate name handling match <see cref="CreateBoneNameMap" /> so each indexed
+        ///     Transform is the same instance the bone name map resolves to.
+        /// </summary>
+        /// <param name="current">The current bone being processed.</param>
+        /// <param name="usedBoneNames">The names of all bones used by the parts being combined.</param>
+        /// <param name="orderedBones">The output list of unique bones, in hierarchy order.</param>
+        /// <param name="boneIndexByName">The output map from bone name to its index in <paramref name="orderedBones" />.</param>
+        private static void CollectUsedBonesDepthFirst(
+            Transform current,
+            HashSet<string> usedBoneNames,
+            List<Transform> orderedBones,
+            Dictionary<string, int> boneIndexByName
+        )
+        {
+            if (usedBoneNames.Contains(current.name) && !boneIndexByName.ContainsKey(current.name))
+            {
+                boneIndexByName.Add(current.name, orderedBones.Count);
+                orderedBones.Add(current);
+            }
+
+            // Recurse into all children regardless; a used bone can sit under an unused one.
+            for (int i = 0; i < current.childCount; i++)
+            {
+                CollectUsedBonesDepthFirst(current.GetChild(i), usedBoneNames, orderedBones, boneIndexByName);
+            }
+        }
+
+        /// <summary>
+        ///     Remaps the bone indices of the given bone weights using the given index remap table.
+        /// </summary>
+        /// <param name="weights">The bone weights to remap.</param>
+        /// <param name="indexRemap">A table mapping old bone indices to new bone indices.</param>
+        /// <returns>A new array of bone weights with remapped bone indices.</returns>
+        private static BoneWeight[] RemapBoneWeights(BoneWeight[] weights, int[] indexRemap)
+        {
+            BoneWeight[] remappedWeights = new BoneWeight[weights.Length];
+            for (int i = 0; i < weights.Length; i++)
+            {
+                BoneWeight weight = weights[i];
+                weight.boneIndex0 = indexRemap[weight.boneIndex0];
+                weight.boneIndex1 = indexRemap[weight.boneIndex1];
+                weight.boneIndex2 = indexRemap[weight.boneIndex2];
+                weight.boneIndex3 = indexRemap[weight.boneIndex3];
+                remappedWeights[i] = weight;
+            }
+            return remappedWeights;
         }
 
         /// <summary>

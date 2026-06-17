@@ -6,6 +6,7 @@
 // For additional details, see the LICENSE.MD file bundled with this software.
 
 using Synty.SidekickCharacters.SkinnedMesh;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -31,16 +32,42 @@ namespace Synty.SidekickCharacters.Utils
             List<BlendShapeData> allBlendShapeData
         )
         {
+            return GetBlendShapeData(
+                mesh,
+                skinnedMesh,
+                blendShapeName => excludedBlendNames.All(ebn => !blendShapeName.Contains(ebn)),
+                verticesCountStartIndex,
+                allBlendShapeData
+            );
+        }
 
-            // Debug.Log("Blend count in getter: " + allBlendShapeData.Count);
-
+        /// <summary>
+        ///     Collects all of the blend shape data from a given skinnedMesh and Mesh, and stores them as blend shape data.
+        /// </summary>
+        /// <param name="mesh">The mesh to get the blend shape data from.</param>
+        /// <param name="skinnedMesh">The skinned mesh to get the blend shape data from.</param>
+        /// <param name="includeBlendShape">
+        ///     Predicate deciding which blend shapes to collect. Receives the full blend shape name as it appears on the source mesh
+        ///     (e.g. "SK_HumnMascBase_Head.jawOpen" or "MESHBlends.defaultBuff"); the "MESHBlends." rename happens after filtering.
+        /// </param>
+        /// <param name="verticesCountStartIndex">The start position for the delta vertices index.</param>
+        /// <param name="allBlendShapeData">Passed in blendshape data used </param>
+        /// <returns>A list of BlendShapeData from all blend shape data on the mesh and skinned mesh.</returns>
+        public static List<BlendShapeData> GetBlendShapeData(
+            Mesh mesh,
+            SkinnedMeshRenderer skinnedMesh,
+            Func<string, bool> includeBlendShape,
+            int verticesCountStartIndex,
+            List<BlendShapeData> allBlendShapeData
+        )
+        {
             int totalVerticesVerifiedAtHereForBlendShapes = verticesCountStartIndex;
 
             string[] blendShapes = new string[skinnedMesh.sharedMesh.blendShapeCount];
             for (int i = 0; i < skinnedMesh.sharedMesh.blendShapeCount; i++)
             {
                 string blendShapeName = skinnedMesh.sharedMesh.GetBlendShapeName(i);
-                if (excludedBlendNames.All(ebn => !blendShapeName.Contains(ebn)))
+                if (includeBlendShape(blendShapeName))
                 {
                     blendShapes[i] = blendShapeName;
                 }

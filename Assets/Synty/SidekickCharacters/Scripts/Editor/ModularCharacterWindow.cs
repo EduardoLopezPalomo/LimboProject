@@ -48,6 +48,9 @@ namespace Synty.SidekickCharacters
         private const string _BLEND_SHAPE_HEAVY_NAME = "defaultHeavy";
         private const string _BLEND_SHAPE_SKINNY_NAME = "defaultSkinny";
         private const string _AUTO_OPEN_STATE = "syntySkAutoOpenState";
+        private const string _COMBINE_MESHES_STATE = "SK_Combine_meshes";
+        private const string _COMBINE_BODY_BLENDS_STATE = "SK_Combine_body_blends";
+        private const string _COMBINE_FACIAL_BLENDS_STATE = "SK_Combine_facial_blends";
         private const string _OUTPUT_MODEL_NAME = "Combined Character";
         private const string _PART_COUNT_BODY = " parts in library";
         private const string _TEXTURE_COLOR_NAME = "ColorMap.png";
@@ -74,9 +77,12 @@ namespace Synty.SidekickCharacters
         private ObjectField _animationField;
         private FilterGroup _appliedPartFilters;
         private bool _applyingPreset = false;
+        private bool _regenerateQueued = false;
+        private bool _reapplyColorsOnRegen = false;
+        private double _lastRegenRequestTime = 0;
+        private const double _REGEN_DEBOUNCE_SECONDS = 0.2;
         private List<SidekickPart> _availablePartList;
         List<SidekickPartPreset> _availablePresets;
-        private bool _bakeBlends = true;
         private ObjectField _baseModelField;
         private Dictionary<string, Vector3> _blendShapeRigMovement = new Dictionary<string, Vector3>();
         private Dictionary<string, Quaternion> _blendShapeRigRotation = new Dictionary<string, Quaternion>();
@@ -92,6 +98,8 @@ namespace Synty.SidekickCharacters
         private ToolbarToggle _colorSelectionTab;
         private ScrollView _colorSelectionView;
         private DropdownField _colorSetsDropdown;
+        private bool _combineBodyBlendShapes = true;
+        private bool _combineFacialBlendShapes = true;
         private bool _combineMeshes = true;
         private AnimatorController _currentAnimationController;
         private Dictionary<string, SidekickBodyShapePreset> _currentBodyPresetDictionary = new Dictionary<string, SidekickBodyShapePreset>();
@@ -152,7 +160,9 @@ namespace Synty.SidekickCharacters
         private SidekickRuntime _sidekickRuntime;
         private DropdownField _speciesField;
         private DropdownField _speciesPresetField;
-        private PlayModeStateChange _stateChange;
+        // ExitingEditMode doubles as the "no pending reload" state; the enum default (EnteredEditMode) would falsely
+        // trigger a character reload when the window is first opened.
+        private PlayModeStateChange _stateChange = PlayModeStateChange.ExitingEditMode;
         private bool _useAutoSaveAndLoad = false;
         private List<SidekickColorSet> _visibleColorSets = new List<SidekickColorSet>();
 
@@ -183,7 +193,8 @@ namespace Synty.SidekickCharacters
         /// <inheritdoc cref="OnDestroy" />
         private void OnDestroy()
         {
-            if (_useAutoSaveAndLoad)
+            // A window with no character state must not overwrite the snapshot saved when the character was last built.
+            if (_useAutoSaveAndLoad && _currentCharacter.Count > 0)
             {
                 SerializedCharacter savedCharacter = CreateSerializedCharacter(_OUTPUT_MODEL_NAME);
                 Serializer serializer = new Serializer();
@@ -206,6 +217,7 @@ namespace Synty.SidekickCharacters
         private void OnDisable()
         {
             EditorApplication.update -= AnimationUpdate;
+            EditorApplication.update -= DebouncedRegenerationTick;
         }
 
         /// <inheritdoc cref="Update" />
@@ -442,7 +454,11 @@ namespace Synty.SidekickCharacters
         /// <param name="stateChange">The current PlayModeStateChange</param>
         private void StateChange(PlayModeStateChange stateChange)
         {
-            if (_useAutoSaveAndLoad && stateChange == PlayModeStateChange.ExitingEditMode || _useAutoSaveAndLoad && stateChange == PlayModeStateChange.ExitingPlayMode)
+            // The character and tool selections always persist across play sessions, independent of the auto save/load
+            // option. A window with no character state (e.g. freshly rebuilt by a recompile) must not overwrite the
+            // snapshot saved when the character was last built.
+            if (_currentCharacter.Count > 0
+                && (stateChange == PlayModeStateChange.ExitingEditMode || stateChange == PlayModeStateChange.ExitingPlayMode))
             {
                 SerializedCharacter savedCharacter = CreateSerializedCharacter(_OUTPUT_MODEL_NAME);
                 Serializer serializer = new Serializer();
@@ -450,7 +466,7 @@ namespace Synty.SidekickCharacters
                 EditorPrefs.SetString(_AUTOSAVE_KEY, serializedCharacter);
             }
 
-            if (_useAutoSaveAndLoad && stateChange == PlayModeStateChange.EnteredEditMode || _useAutoSaveAndLoad && stateChange == PlayModeStateChange.EnteredPlayMode)
+            if (stateChange == PlayModeStateChange.EnteredEditMode || stateChange == PlayModeStateChange.EnteredPlayMode)
             {
                 _stateChange = stateChange;
             }
@@ -794,8 +810,8 @@ namespace Synty.SidekickCharacters
                     {
                         await SidekickRuntime.PopulateToolData(_sidekickRuntime);
                         _callbackQueue.Enqueue(AddAllTabContent);
-                        if (_useAutoSaveAndLoad && _stateChange == PlayModeStateChange.EnteredEditMode
-                            || _useAutoSaveAndLoad && _stateChange == PlayModeStateChange.EnteredPlayMode)
+                        if (_stateChange == PlayModeStateChange.EnteredEditMode
+                            || _stateChange == PlayModeStateChange.EnteredPlayMode)
                         {
                             _callbackQueue.Enqueue(ReloadCharacterFromStateChange);
                         }
@@ -932,6 +948,9 @@ namespace Synty.SidekickCharacters
             _openWindowOnStart = EditorPrefs.GetBool(_AUTO_OPEN_STATE, true);
             _useAutoSaveAndLoad = EditorPrefs.GetBool(_AUTOSAVE_STATE, false);
             _showMissingPartsPopup = EditorPrefs.GetBool(_AUTOSAVE_MISSING_PARTS, false);
+            _combineMeshes = EditorPrefs.GetBool(_COMBINE_MESHES_STATE, true);
+            _combineBodyBlendShapes = EditorPrefs.GetBool(_COMBINE_BODY_BLENDS_STATE, true);
+            _combineFacialBlendShapes = EditorPrefs.GetBool(_COMBINE_FACIAL_BLENDS_STATE, true);
         }
 
         /// <summary>
@@ -1102,15 +1121,21 @@ namespace Synty.SidekickCharacters
                         }
                     }
 
-                    if (_newModel == null)
+                    // During a batch the single debounced rebuild creates/updates the model, so don't build early here.
+                    if (_newModel == null && !_applyingPreset)
                     {
-                        _newModel = GenerateCharacter(false, true);
+                        RegeneratePreviewCharacter(false, true);
                         UpdatePartUVData();
                     }
 
-                    _sidekickRuntime.UpdateBlendShapes(_newModel);
-                    _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
-                    _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    // During a batch operation (randomize / preset / load) the single debounced rebuild
+                    // re-applies blend shapes, so skip the in-place update to avoid a separate visible stage.
+                    if (!_applyingPreset)
+                    {
+                        _sidekickRuntime.UpdateBlendShapes(_newModel);
+                        _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
+                        _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    }
                 }
             );
 
@@ -1140,15 +1165,21 @@ namespace Synty.SidekickCharacters
                         _sidekickRuntime.BodySizeSkinnyBlendValue = 0;
                     }
 
-                    if (_newModel == null)
+                    // During a batch the single debounced rebuild creates/updates the model, so don't build early here.
+                    if (_newModel == null && !_applyingPreset)
                     {
-                        _newModel = GenerateCharacter(false, true);
+                        RegeneratePreviewCharacter(false, true);
                         UpdatePartUVData();
                     }
 
-                    _sidekickRuntime.UpdateBlendShapes(_newModel);
-                    _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
-                    _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    // During a batch operation (randomize / preset / load) the single debounced rebuild
+                    // re-applies blend shapes, so skip the in-place update to avoid a separate visible stage.
+                    if (!_applyingPreset)
+                    {
+                        _sidekickRuntime.UpdateBlendShapes(_newModel);
+                        _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
+                        _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    }
                 }
             );
 
@@ -1158,15 +1189,21 @@ namespace Synty.SidekickCharacters
                     _musclesBlendValue = evt.newValue;
                     _sidekickRuntime.MusclesBlendValue = evt.newValue;
 
-                    if (_newModel == null)
+                    // During a batch the single debounced rebuild creates/updates the model, so don't build early here.
+                    if (_newModel == null && !_applyingPreset)
                     {
-                        _newModel = GenerateCharacter(false, true);
+                        RegeneratePreviewCharacter(false, true);
                         UpdatePartUVData();
                     }
 
-                    _sidekickRuntime.UpdateBlendShapes(_newModel);
-                    _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
-                    _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    // During a batch operation (randomize / preset / load) the single debounced rebuild
+                    // re-applies blend shapes, so skip the in-place update to avoid a separate visible stage.
+                    if (!_applyingPreset)
+                    {
+                        _sidekickRuntime.UpdateBlendShapes(_newModel);
+                        _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
+                        _sidekickRuntime.ProcessBoneMovement(_newModel);
+                    }
                 }
             );
         }
@@ -1654,30 +1691,55 @@ namespace Synty.SidekickCharacters
                 evt =>
                 {
                     _combineMeshes = evt.newValue;
+                    EditorPrefs.SetBool(_COMBINE_MESHES_STATE, _combineMeshes);
                 }
             );
 
             view.Add(combineToggle);
 
-            Toggle bakeBlendsToggle = new Toggle("Combine Body Blend Shapes")
+            Toggle bodyBlendsToggle = new Toggle("Combine Body Blend Shapes")
             {
-                value = _bakeBlends,
+                value = _combineBodyBlendShapes,
                 style =
                 {
                     marginTop = 10,
                     marginLeft = 15
                 },
-                tooltip = "Whether or not to bake the body blend shapes into the mesh in the output model."
+                tooltip = "When enabled the body blend shapes are kept on the output model. "
+                    + "When disabled the current body shape is baked into the mesh and the blend shapes are removed."
             };
 
-            bakeBlendsToggle.RegisterValueChangedCallback(
+            bodyBlendsToggle.RegisterValueChangedCallback(
                 evt =>
                 {
-                    _bakeBlends = evt.newValue;
+                    _combineBodyBlendShapes = evt.newValue;
+                    EditorPrefs.SetBool(_COMBINE_BODY_BLENDS_STATE, _combineBodyBlendShapes);
                 }
             );
 
-            view.Add(bakeBlendsToggle);
+            view.Add(bodyBlendsToggle);
+
+            Toggle facialBlendsToggle = new Toggle("Combine Facial Blend Shapes")
+            {
+                value = _combineFacialBlendShapes,
+                style =
+                {
+                    marginTop = 10,
+                    marginLeft = 15
+                },
+                tooltip = "When enabled the facial blend shapes are kept on the output model. "
+                    + "When disabled the current facial blend shape values are baked into the mesh and the blend shapes are removed."
+            };
+
+            facialBlendsToggle.RegisterValueChangedCallback(
+                evt =>
+                {
+                    _combineFacialBlendShapes = evt.newValue;
+                    EditorPrefs.SetBool(_COMBINE_FACIAL_BLENDS_STATE, _combineFacialBlendShapes);
+                }
+            );
+
+            view.Add(facialBlendsToggle);
 
             Label toolOptions = new Label
             {
@@ -1756,7 +1818,8 @@ namespace Synty.SidekickCharacters
                     marginTop = 10,
                     marginLeft = 15
                 },
-                tooltip = "Auto saves and loads character on run/stop and unity or tool open and close."
+                tooltip = "Auto saves and loads the character when the tool or Unity is opened or closed. "
+                    + "The character and tool selections always persist across play mode sessions."
             };
 
             autoSaveToggle.RegisterValueChangedCallback(
@@ -1790,6 +1853,31 @@ namespace Synty.SidekickCharacters
             );
 
             view.Add(showMissingParts);
+
+            VisualElement syncDatabaseLayout = new VisualElement
+            {
+                style =
+                {
+                    minHeight = 20,
+                    display = DisplayStyle.Flex,
+                    flexDirection = FlexDirection.Row,
+                    marginBottom = 2,
+                    marginTop = 10,
+                    marginLeft = 15,
+                    marginRight = 2
+                }
+            };
+
+            Button syncDatabaseButton = new Button(DatabaseBuildSync.SyncRuntimeDatabase)
+            {
+                text = "Sync Runtime Database",
+                tooltip = "Copies the Sidekick database into the plugin's Resources folder as a .bytes asset so that player builds "
+                    + "can read the part, preset and color data at runtime. This sync also runs automatically before every build; "
+                    + "use this button to refresh the copy manually after the database has been updated."
+            };
+
+            syncDatabaseLayout.Add(syncDatabaseButton);
+            view.Add(syncDatabaseLayout);
 
             VisualElement row = new VisualElement
             {
@@ -3012,6 +3100,15 @@ namespace Synty.SidekickCharacters
 
             generateButton.clickable.clicked += delegate
             {
+                // Ignore clicks while a randomize/preset batch is still being applied: _applyingPreset stays
+                // true until the debounced rebuild completes, so this prevents overlapping randomize batches
+                // (which share _applyingPreset / _reapplyColorsOnRegen state) and collapses any stray
+                // double-dispatch of the click into a single randomize.
+                if (_applyingPreset)
+                {
+                    return;
+                }
+
                 _applyingPreset = true;
                 foreach (PopupField<string> dropdown in dropdowns.Values)
                 {
@@ -3025,14 +3122,7 @@ namespace Synty.SidekickCharacters
                     dropdown.value = newValue;
                 }
 
-                // if (_newModel != null)
-                // {
-                //     DestroyImmediate(_newModel);
-                // }
-
-                _newModel = GenerateCharacter(false, true);
-                UpdatePartUVData();
-                _applyingPreset = false;
+                SchedulePreviewRegeneration();
             };
         }
 
@@ -3367,17 +3457,7 @@ namespace Synty.SidekickCharacters
                                 );
                             }
 
-                            _applyingPreset = false;
-
-                            _newModel = GameObject.Find(_OUTPUT_MODEL_NAME);
-
-                            // if (_newModel != null)
-                            // {
-                            //     DestroyImmediate(_newModel);
-                            // }
-
-                            _newModel = GenerateCharacter(false, true);
-                            UpdatePartUVData();
+                            SchedulePreviewRegeneration();
                             break;
                         case PresetDropdownType.Body:
                             SidekickBodyShapePreset bodyShapePreset = _currentBodyPresetDictionary[evt.newValue];
@@ -3470,7 +3550,16 @@ namespace Synty.SidekickCharacters
                                     existingRow.NiceOpacity = row.NiceOpacity;
                                 }
 
-                                UpdateAllColors(existingRow);
+                                // During a batch operation, defer the in-place texture write to the single rebuild
+                                // so colours don't apply as a separate visible stage before the parts swap in.
+                                if (_applyingPreset)
+                                {
+                                    _reapplyColorsOnRegen = true;
+                                }
+                                else
+                                {
+                                    UpdateAllColors(existingRow);
+                                }
                             }
 
                             PopulatePartColorRows();
@@ -3536,7 +3625,12 @@ namespace Synty.SidekickCharacters
             partContainer.Add(partSelection);
             view.Add(partContainer);
 
-            partSelection.value = defaultValue;
+            // Set without notifying: rebuilding the UI must restore what the dropdown shows without re-applying the preset
+            // (which would overwrite slider values and parts that were changed after the preset was selected).
+            partSelection.SetValueWithoutNotify(defaultValue);
+            _presetDefaultValues[rowLabel] = defaultValue;
+            previousButton.SetEnabled(partSelection.index > 0);
+            nextButton.SetEnabled(partSelection.index < popupValues.Count - 1);
 
             return partSelection;
         }
@@ -4211,12 +4305,7 @@ namespace Synty.SidekickCharacters
 
                 if (!_applyingPreset && _previewToggle.value)
                 {
-                    // if (_combineMeshes && _newModel != null)
-                    // {
-                    //     DestroyImmediate(_newModel);
-                    // }
-
-                    _newModel = GenerateCharacter(false, true);
+                    RegeneratePreviewCharacter(false, true);
                     bool switchAnimation = SetupAnimationControllers();
 
                     if (switchAnimation && (type == CharacterPartType.HandLeft || type == CharacterPartType.HandRight))
@@ -4321,7 +4410,15 @@ namespace Synty.SidekickCharacters
             GameObject newModel = null;
             try
             {
-                newModel = _sidekickRuntime.CreateCharacter( _OUTPUT_MODEL_NAME, parts, combineMesh, processBoneMovement, _newModel);
+                newModel = _sidekickRuntime.CreateCharacter(
+                    _OUTPUT_MODEL_NAME,
+                    parts,
+                    combineMesh,
+                    processBoneMovement,
+                    null,
+                    _combineBodyBlendShapes,
+                    _combineFacialBlendShapes
+                );
                 _currentAnimator = null;
             }
             catch (Exception ex)
@@ -4335,6 +4432,92 @@ namespace Synty.SidekickCharacters
             }
 
             return newModel;
+        }
+
+        /// <summary>
+        ///     Destroys the current preview character and generates a new one from the current selected parts.
+        /// </summary>
+        private void RegeneratePreviewCharacter(bool combineMesh, bool processBoneMovement)
+        {
+            if (_newModel != null)
+            {
+                DestroyImmediate(_newModel);
+            }
+
+            // Also remove any stale duplicates left in the scene (e.g. from older sessions) so only the new model remains.
+            GameObject existingModel = GameObject.Find(_OUTPUT_MODEL_NAME);
+            while (existingModel != null)
+            {
+                DestroyImmediate(existingModel);
+                existingModel = GameObject.Find(_OUTPUT_MODEL_NAME);
+            }
+
+            _newModel = GenerateCharacter(combineMesh, processBoneMovement);
+
+            // Keep the saved character snapshot in sync with the last built character, so entering play mode restores the
+            // right character even if the window has been rebuilt (e.g. by a script recompile) before play is pressed.
+            if (!EditorApplication.isPlaying
+                && _newModel != null
+                && _currentSpecies != null
+                && _currentColorSet != null
+                && _currentCharacter.Count > 0)
+            {
+                SerializedCharacter savedCharacter = CreateSerializedCharacter(_OUTPUT_MODEL_NAME);
+                Serializer serializer = new Serializer();
+                EditorPrefs.SetString(_AUTOSAVE_KEY, serializer.Serialize(savedCharacter));
+            }
+        }
+
+        /// <summary>
+        ///     Schedules a single preview regeneration for after the UI event queue has been processed. Dropdown value changes
+        ///     made while applying a preset or loading a character dispatch their change events after the current event finishes,
+        ///     so the regeneration (and re-enabling of the part change regeneration) must happen after those have run.
+        /// </summary>
+        private void SchedulePreviewRegeneration()
+        {
+            _applyingPreset = true;
+
+            // Every request pushes back the debounce deadline. The deferred dropdown change-event cascade
+            // (presets -> parts -> wrap) can span several editor ticks with gaps, so we cannot rely on a
+            // single "quiet tick" - that rebuilds prematurely with partial parts and then again with the
+            // final parts. Instead we wait until requests have stopped arriving for the debounce window.
+            // This also keeps _applyingPreset true for the whole cascade, so the in-place body/colour
+            // suppression holds until the single rebuild applies everything together.
+            _lastRegenRequestTime = EditorApplication.timeSinceStartup;
+            if (_regenerateQueued)
+            {
+                return;
+            }
+
+            _regenerateQueued = true;
+            EditorApplication.update += DebouncedRegenerationTick;
+        }
+
+        /// <summary>
+        ///     Polls until the regeneration request stream has been quiet for <see cref="_REGEN_DEBOUNCE_SECONDS" />, then
+        ///     rebuilds the preview exactly once with the fully settled character state. Driven by
+        ///     <see cref="SchedulePreviewRegeneration" />.
+        /// </summary>
+        private void DebouncedRegenerationTick()
+        {
+            if (EditorApplication.timeSinceStartup - _lastRegenRequestTime < _REGEN_DEBOUNCE_SECONDS)
+            {
+                return;
+            }
+
+            EditorApplication.update -= DebouncedRegenerationTick;
+            _regenerateQueued = false;
+            _applyingPreset = false;
+            RegeneratePreviewCharacter(_combineMeshes, true);
+            UpdatePartUVData();
+
+            // Apply colours deferred during the batch (the rebuild itself does not apply colours), so parts,
+            // body shape and colours all appear in this single update.
+            if (_reapplyColorsOnRegen)
+            {
+                UpdateAllVisibleColors();
+                _reapplyColorsOnRegen = false;
+            }
         }
 
         /// <summary>
@@ -4463,6 +4646,10 @@ namespace Synty.SidekickCharacters
         /// <param name="showAllColors">Whether to show all colors or not.</param>
         private void LoadSerializedCharacter(SerializedCharacter serializedCharacter, bool showAllColors)
         {
+            // Suppress the per-part rebuilds from the dropdown change events (including the ones queued for after this
+            // method returns); SchedulePreviewRegeneration below performs a single rebuild once they have all run.
+            _applyingPreset = true;
+
             SidekickSpecies species = SidekickSpecies.GetByID(_dbManager, serializedCharacter.Species);
             _speciesField.value = species.Name;
             ProcessSpeciesChange(species.Name);
@@ -4484,6 +4671,10 @@ namespace Synty.SidekickCharacters
                 {
                     currentField.SetPartDropdownValue("None");
                 }
+
+                // The dropdown change event only fires when the value actually changes (and only updates the character
+                // while the parts tab is active), so sync the character state from the final dropdown value directly.
+                SyncCurrentCharacterFromDropdown(currentType, currentField);
             }
 
             if (hasErrors)
@@ -4506,13 +4697,42 @@ namespace Synty.SidekickCharacters
             _showAllColourProperties = showAllColors;
             UpdateColorTabContent();
 
-            if (_combineMeshes && _newModel != null)
-            {
-                DestroyImmediate(_newModel);
-            }
+            SchedulePreviewRegeneration();
+        }
 
-            _newModel = GenerateCharacter(_combineMeshes, true);
-            UpdatePartUVData();
+        /// <summary>
+        ///     Updates the current character state for the given part type from its dropdown's current value, mirroring the state
+        ///     changes of <see cref="PartSelectionChangeEvent" /> without the UI side effects.
+        /// </summary>
+        /// <param name="type">The part type to update.</param>
+        /// <param name="field">The part controls for the given part type.</param>
+        private void SyncCurrentCharacterFromDropdown(CharacterPartType type, PartTypeControls field)
+        {
+            string partName = field.PartDropdown.value;
+            if (!string.IsNullOrEmpty(partName)
+                && partName != "None"
+                && _sidekickRuntime.MappedPartDictionary.ContainsKey(type)
+                && _sidekickRuntime.MappedPartDictionary[type].TryGetValue(partName, out SidekickPart selectedPart))
+            {
+                _currentCharacter[type] = selectedPart;
+
+                GameObject partModel = selectedPart.GetPartModel();
+                SkinnedMeshRenderer selectedMesh = partModel == null ? null : partModel.GetComponentInChildren<SkinnedMeshRenderer>();
+                if (selectedMesh != null)
+                {
+                    _partDictionary[type] = selectedMesh;
+                }
+
+                if (type == CharacterPartType.Torso)
+                {
+                    _requiresWrap = selectedPart.UsesWrap;
+                }
+            }
+            else
+            {
+                _currentCharacter.Remove(type);
+                _partDictionary.Remove(type);
+            }
         }
 
         /// <summary>
@@ -4715,41 +4935,7 @@ namespace Synty.SidekickCharacters
                 List<SkinnedMeshRenderer> allRenderers = clonedModel.GetComponentsInChildren<SkinnedMeshRenderer>().ToList();
                 SkinnedMeshRenderer clonedRenderer = allRenderers[0];
 
-                if (_bakeBlends)
-                {
-
-                    // Copy mesh, bone weights and bindposes before baking so the mesh can be re-skinned after baking.
-                    foreach (SkinnedMeshRenderer renderer in allRenderers)
-                    {
-                        if (clonedRenderer == null)
-                        {
-                            clonedRenderer = renderer;
-                        }
-
-                        Mesh clonedSkinnedMesh = MeshUtils.CopyMesh(renderer.sharedMesh);
-                        BoneWeight[] boneWeights = clonedSkinnedMesh.boneWeights;
-                        Matrix4x4[] bindposes = clonedSkinnedMesh.bindposes;
-                        List<BlendShapeData> blendData = BlendShapeUtils.GetBlendShapeData(
-                            clonedSkinnedMesh,
-                            renderer,
-                            new string[]
-                            {
-                                "defaultHeavy", "defaultBuff", "defaultSkinny", "masculineFeminine"
-                            },
-                            0,
-                            new List<BlendShapeData>()
-                        );
-                        renderer.BakeMesh(clonedSkinnedMesh);
-                        // Re-skin the new baked mesh.
-                        clonedSkinnedMesh.boneWeights = boneWeights;
-                        clonedSkinnedMesh.bindposes = bindposes;
-                        // assign the new mesh to the renderer
-                        renderer.sharedMesh = clonedSkinnedMesh;
-
-                        BlendShapeUtils.RestoreBlendShapeData(blendData, clonedSkinnedMesh, renderer);
-                    }
-                }
-
+                // Blend shape baking/filtering already happened inside CreateCharacter, before any bone movement.
                 // now do the bone movements!
                 _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
                 _sidekickRuntime.ProcessBoneMovement(clonedModel);

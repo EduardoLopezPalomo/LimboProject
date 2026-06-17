@@ -13,6 +13,8 @@ using SQLite;
 using Synty.SidekickCharacters.Database.DTO;
 using System;
 using System.Linq;
+using Unity.Collections;
+using UnityEngine;
 
 namespace Synty.SidekickCharacters.Database
 {
@@ -22,10 +24,14 @@ namespace Synty.SidekickCharacters.Database
     public class DatabaseManager
     {
         private static readonly string _DATABASE_PATH = "Assets/Synty/SidekickCharacters/Database/Side_Kick_Data.db";
+        // Resources path of the read-only runtime copy of the database; kept in sync from the .db by DatabaseBuildSync.
+        private static readonly string _RUNTIME_DATABASE_RESOURCE_PATH = "Database/Side_Kick_Data";
         private readonly string _CURRENT_VERSION = "1.0.2";
 
         private static SQLiteConnection _connection;
         private static int _connectionHash;
+        // sqlite3_deserialize does not copy the buffer, so it must stay allocated for the lifetime of the runtime connection.
+        private static NativeArray<byte> _runtimeDbBuffer;
 
         /// <summary>
         ///     Gets the DB connection with the given connection details.
@@ -37,14 +43,13 @@ namespace Synty.SidekickCharacters.Database
         /// <returns>A connection to a DB with the given connection details.</returns>
         public SQLiteConnection GetDbConnection(bool checkDbOnLoad = false)
         {
-            if (_connection == null)
-            {
-                _connection = new SQLiteConnection(_DATABASE_PATH, true);
-            }
-            else
+            if (_connection != null)
             {
                 return _connection;
             }
+
+#if UNITY_EDITOR
+            _connection = new SQLiteConnection(_DATABASE_PATH, true);
 
             if (checkDbOnLoad)
             {
@@ -52,6 +57,24 @@ namespace Synty.SidekickCharacters.Database
 
                 InitialiseDatabase(createTables);
             }
+#else
+            // In a player build the .db file does not exist; the database ships as a TextAsset and is opened
+            // read-only in memory. The shipped database is already fully configured, so checkDbOnLoad is not needed.
+            TextAsset dbAsset = Resources.Load<TextAsset>(_RUNTIME_DATABASE_RESOURCE_PATH);
+
+            if (dbAsset == null)
+            {
+                Debug.LogError(
+                    $"Sidekick runtime database not found at 'Resources/{_RUNTIME_DATABASE_RESOURCE_PATH}'. "
+                    + "Run 'Sync Runtime Database' from the Sidekick tool's Options tab and rebuild."
+                );
+                return null;
+            }
+
+            _runtimeDbBuffer = new NativeArray<byte>(dbAsset.bytes, Allocator.Persistent);
+            _connection = new SQLiteConnection(":memory:", true);
+            _connection.Deserialize(_runtimeDbBuffer, flags: SQLite3.DeserializeFlags.ReadOnly);
+#endif
 
             return _connection;
         }
@@ -81,6 +104,11 @@ namespace Synty.SidekickCharacters.Database
             _connection.Dispose();
             // Our SQLCipher library doesn't surface checking connection state; disposed connections need their reference removed
             _connection = null;
+
+            if (_runtimeDbBuffer.IsCreated)
+            {
+                _runtimeDbBuffer.Dispose();
+            }
         }
 
         /// <summary>

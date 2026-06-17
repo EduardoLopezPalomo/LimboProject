@@ -235,15 +235,32 @@ namespace Synty.SidekickCharacters.API
         /// </summary>
         /// <param name="modelName">What to call the parent GameObject of the created character.</param>;
         /// <param name="toCombine">The list of SkinnedMeshes to combine to create the character.</param>
-        /// <param name="combineMesh">When true the character mesh will be combined into a single mesh.</param>
+        /// <param name="combineMesh">
+        ///     When true the character mesh will be combined into a single mesh. When false each part keeps its own mesh, but all
+        ///     parts share a single merged skeleton hierarchy.
+        /// </param>
         /// <param name="processBoneMovement">When true the bones will be moved to match the blend shape settings.</param>
+        /// <param name="existingModel">
+        ///     No longer used; a new model is always created. Kept for API compatibility — callers must use the returned object and
+        ///     destroy any previous model themselves.
+        /// </param>
+        /// <param name="combineBodyBlendShapes">
+        ///     When true the body blend shapes are kept on the created model. When false the current body blend shape values are
+        ///     baked into the mesh and the blend shapes removed.
+        /// </param>
+        /// <param name="combineFacialBlendShapes">
+        ///     When true the facial blend shapes are kept on the created model. When false the current facial blend shape values are
+        ///     baked into the mesh and the blend shapes removed.
+        /// </param>
         /// <returns>A new character object.</returns>
         public GameObject CreateCharacter(
             string modelName,
             List<SkinnedMeshRenderer> toCombine,
             bool combineMesh,
             bool processBoneMovement,
-            GameObject existingModel = null
+            GameObject existingModel = null,
+            bool combineBodyBlendShapes = true,
+            bool combineFacialBlendShapes = true
         )
         {
             PopulateUVDictionary(toCombine);
@@ -256,7 +273,7 @@ namespace Synty.SidekickCharacters.API
             }
             else
             {
-                newSpawn = CreateModelFromParts(toCombine, modelName, existingModel);
+                newSpawn = Combiner.CreateSeparateSkinnedMeshes(toCombine, _baseModel, _currentMaterial);
             }
 
             newSpawn.name = modelName;
@@ -269,28 +286,21 @@ namespace Synty.SidekickCharacters.API
 
             if (newSpawn.GetComponent<Animator>() == null)
             {
-                if (existingModel == null)
-                {
-                    Animator newModelAnimator = newSpawn.AddComponent<Animator>();
-                    Animator baseModelAnimator = _baseModel.GetComponentInChildren<Animator>();
-                    newModelAnimator.avatar = baseModelAnimator.avatar;
-                    newModelAnimator.Rebind();
+                Animator newModelAnimator = newSpawn.AddComponent<Animator>();
+                Animator baseModelAnimator = _baseModel.GetComponentInChildren<Animator>();
+                newModelAnimator.avatar = baseModelAnimator.avatar;
+                newModelAnimator.Rebind();
 
-                    if (_currentAnimationController != null)
-                    {
-                        newModelAnimator.runtimeAnimatorController = _currentAnimationController;
-                    }
-                }
-                else
+                if (_currentAnimationController != null)
                 {
-                    Animator newModelAnimator = newSpawn.AddComponent<Animator>();
-                    Animator baseModelAnimator = existingModel.GetComponentInChildren<Animator>();
-                    newModelAnimator.avatar = baseModelAnimator.avatar;
-                    newModelAnimator.Rebind();
+                    newModelAnimator.runtimeAnimatorController = _currentAnimationController;
                 }
             }
 
             UpdateBlendShapes(newSpawn);
+
+            // Bake before any bone movement; the saved bindposes are only valid to re-apply while the skeleton is still in bindpose.
+            BakeAndFilterBlendShapes(newSpawn, combineBodyBlendShapes, combineFacialBlendShapes);
 
             if (processBoneMovement)
             {
@@ -307,6 +317,7 @@ namespace Synty.SidekickCharacters.API
         /// <param name="parts">The parts to build into the character.</param>
         /// <param name="outputModelName">What to call the parent GameObject of the created character.</param>
         /// <returns>A new game object with all the part meshes and a single rig.</returns>
+        [Obsolete("No longer used by the tool; use CreateCharacter, which routes through Combiner.CreateSeparateSkinnedMeshes.")]
         public GameObject CreateModelFromParts(
             List<SkinnedMeshRenderer> parts,
             string outputModelName,
@@ -503,6 +514,73 @@ namespace Synty.SidekickCharacters.API
         }
 
         /// <summary>
+        ///     Checks if the given blend shape name is one of the body shape blend shapes.
+        /// </summary>
+        /// <param name="blendShapeName">The blend shape name to check.</param>
+        /// <returns>True if the blend shape is a body shape blend shape; otherwise false.</returns>
+        public static bool IsBodyBlendShape(string blendShapeName)
+        {
+            return blendShapeName.Contains(_BLEND_GENDER_NAME)
+                || blendShapeName.Contains(_BLEND_MUSCLE_NAME)
+                || blendShapeName.Contains(_BLEND_SHAPE_HEAVY_NAME)
+                || blendShapeName.Contains(_BLEND_SHAPE_SKINNY_NAME);
+        }
+
+        /// <summary>
+        ///     Removes any blend shape groups that are not being kept from all meshes on the given model, baking their current
+        ///     values into the mesh vertices first so the model keeps its current shape.
+        /// </summary>
+        /// <param name="model">The model to process.</param>
+        /// <param name="keepBodyBlendShapes">When true the body blend shapes are kept on the meshes.</param>
+        /// <param name="keepFacialBlendShapes">When true the facial blend shapes are kept on the meshes.</param>
+        public static void BakeAndFilterBlendShapes(GameObject model, bool keepBodyBlendShapes, bool keepFacialBlendShapes)
+        {
+            if (keepBodyBlendShapes && keepFacialBlendShapes)
+            {
+                return;
+            }
+
+            foreach (SkinnedMeshRenderer renderer in model.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                if (renderer.sharedMesh == null || renderer.sharedMesh.blendShapeCount == 0)
+                {
+                    continue;
+                }
+
+                Mesh bakedMesh = MeshUtils.CopyMesh(renderer.sharedMesh);
+                // Copy bone weights and bindposes before baking so the mesh can be re-skinned after baking.
+                BoneWeight[] boneWeights = bakedMesh.boneWeights;
+                Matrix4x4[] bindposes = bakedMesh.bindposes;
+
+                List<BlendShapeData> keptBlendShapes = BlendShapeUtils.GetBlendShapeData(
+                    bakedMesh,
+                    renderer,
+                    blendShapeName => IsBodyBlendShape(blendShapeName) ? keepBodyBlendShapes : keepFacialBlendShapes,
+                    0,
+                    new List<BlendShapeData>()
+                );
+
+                // Zero the kept shapes so BakeMesh only bakes in the removed shapes; the kept shapes get their weights
+                // re-applied by RestoreBlendShapeData, which would otherwise double-apply their deltas.
+                foreach (BlendShapeData blendShapeData in keptBlendShapes)
+                {
+                    renderer.SetBlendShapeWeight(blendShapeData.blendShapeFrameIndex, 0f);
+                }
+
+                renderer.BakeMesh(bakedMesh);
+                // Re-skin the new baked mesh.
+                bakedMesh.boneWeights = boneWeights;
+                bakedMesh.bindposes = bindposes;
+                renderer.sharedMesh = bakedMesh;
+
+                if (keptBlendShapes.Count > 0)
+                {
+                    BlendShapeUtils.RestoreBlendShapeData(keptBlendShapes, bakedMesh, renderer);
+                }
+            }
+        }
+
+        /// <summary>
         ///     Populates the internal library of parts based on the files in the project.
         /// </summary>
         public Dictionary<CharacterPartType, Dictionary<string, string>> PopulatePartLibrary()
@@ -610,15 +688,18 @@ namespace Synty.SidekickCharacters.API
             _speciesDictionary = new Dictionary<string, SidekickSpecies>();
             _partCount = 0;
 
-            List<string> files = Directory.GetFiles("Assets", "SK_*_*_*_*_*.fbx", SearchOption.AllDirectories).ToList();
+#if UNITY_EDITOR
+            // Editor-only: verify each part's FBX exists in the project. A player build has no Assets folder on disk and
+            // loads part models from Resources instead, so this scan must not run at runtime.
             Dictionary<string, string> filesOnDisk = new Dictionary<string, string>();
-            foreach (string file in files)
+            foreach (string file in Directory.GetFiles("Assets", "SK_*_*_*_*_*.fbx", SearchOption.AllDirectories))
             {
                 FileInfo fileInfo = new FileInfo(file);
                 string partName = fileInfo.Name;
                 partName = partName.Substring(0, partName.IndexOf(".fbx", StringComparison.Ordinal));
                 filesOnDisk.TryAdd(partName, file);
             }
+#endif
 
             foreach (CharacterPartType type in Enum.GetValues(typeof(CharacterPartType)))
             {
@@ -644,7 +725,14 @@ namespace Synty.SidekickCharacters.API
 
             foreach (SidekickPart part in allParts)
             {
-                if (filesOnDisk.ContainsKey(part.Name))
+#if UNITY_EDITOR
+                bool partAvailable = filesOnDisk.ContainsKey(part.Name);
+#else
+                // Player build: trust the shipped DB's file_exists flag (set at author time); no disk scan, no write.
+                // Model loads are null-checked at use, so a part whose model is missing is simply skipped.
+                bool partAvailable = part.FileExists;
+#endif
+                if (partAvailable)
                 {
                     _partCount++;
 
@@ -695,7 +783,10 @@ namespace Synty.SidekickCharacters.API
 
             }
 
+#if UNITY_EDITOR
+            // Persists the FileExists flag computed above; only meaningful in the editor.
             SidekickPart.UpdateAll(_dbManager, allParts);
+#endif
 
             return Task.CompletedTask;
         }
