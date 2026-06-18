@@ -43,6 +43,17 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
 
+    public void ComboTransitionReady()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.ComboTransitionReady();
+            }
+        }
+    }
+
     public void EnableRootMotion()
     {
         foreach (var spec in currentSpec)

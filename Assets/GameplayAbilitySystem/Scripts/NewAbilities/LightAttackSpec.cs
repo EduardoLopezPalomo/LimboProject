@@ -46,11 +46,6 @@ public class LightAttackSpec : GameplayAbilitySpec
             }
             inCombo = true;
             comboIndex = 1;
-            if (controller != null)
-            {
-                controller.SetInputAviable(false);
-            }
-
 
             animator.SetBool("InCombo", true);
             animator.SetInteger("ComboIndex", comboIndex);
@@ -65,8 +60,16 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     void ContinueCombo()
     {
+        Debug.Log(comboIndex);
         bufferedInput = false;
-        comboIndex++;
+        if (comboIndex < 3)
+        {
+            comboIndex++;   
+        }
+        else
+        {
+            comboIndex = 1;
+        }
         animator.SetInteger("ComboIndex", comboIndex);
         animator.SetTrigger("Attack");
     }
@@ -75,11 +78,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         inCombo = false;
         comboIndex = 0;
-
-        if (controller != null)
-        {
-            controller.SetInputAviable(true);
-        }
+        
         animator.SetBool("InCombo", false);
     }
     public override void CancelAbility()
@@ -103,17 +102,31 @@ public class LightAttackSpec : GameplayAbilitySpec
     }
 
     // Animation Events
-    public void ComboWindowOpen() => canReceiveInput = true;
+    public void ComboWindowOpen()
+    {
+        canReceiveInput = true;
+        if (owner.CompareTag("Player"))
+        {
+            controller.SetInputAviable(false);   
+        }
+    }
 
     public void ComboWindowClose()
     {
         canReceiveInput = false;
+    }
 
-        if (bufferedInput && comboIndex < 3)
+    public void ComboTransitionReady()
+    {
+        if (bufferedInput)
         {
             ContinueCombo();
         }
 
+        if (owner.CompareTag("Player"))
+        {
+            controller.SetInputAviable(true);   
+        }
     }
 
     public void EndComboAnimation() => EndCombo();
