@@ -1,3 +1,5 @@
+using System.Collections;
+using StarterAssets;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "AbilitySystem/Responses/Health")]
@@ -5,12 +7,22 @@ public class HealthResponse : AttributeResponse
 {
     public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner)
     {
-        if (owner.CompareTag("Enemy") && attributeInstance.Data.name == "Health" && attributeInstance.CurrentValue < oldValue)
+        if (attributeInstance.Data.name == "Health" && attributeInstance.CurrentValue < oldValue)
         {
-            var enemy = owner.GetComponent<EnemyGraphBridge>();
-            if (enemy != null)
+            if (owner.CompareTag("Enemy"))
             {
-                enemy.SetHurt();
+                var enemy = owner.GetComponent<EnemyGraphBridge>();
+                if (enemy != null)
+                {
+                    enemy.SetHurt();
+                    Animator animator = owner.GetComponent<Animator>();
+                    animator.SetTrigger("IsHurt");
+                }    
+            }
+            else if (owner.CompareTag("Player"))
+            {
+                KnockBack knockBack = owner.GetComponent<KnockBack>();
+                knockBack.StartKnockBack();
             }
         }
         if (attributeInstance.Data.name == "Health" && attributeInstance.CurrentValue <= 0)
@@ -25,5 +37,4 @@ public class HealthResponse : AttributeResponse
             Destroy(target, 2f);
         }
     }
-
 }

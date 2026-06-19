@@ -5,10 +5,11 @@ using UnityEngine;
 public class LightAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private RootMotionController rootMotion;
     private ThirdPersonController controller;
-
+    private CharacterController characterController;
+    private MakeInvincible invincible;
     private WeaponController weaponController;
+    private StarterAssetsInputs starterInputs;
 
 
 
@@ -16,14 +17,28 @@ public class LightAttackSpec : GameplayAbilitySpec
     private bool inCombo;
     private bool canReceiveInput;
     private bool bufferedInput;
+    
+    private float coneRange;
+    private float coneAngle;       
+    private float dashDuration;
+    private float dashStopDistance; 
+    private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        rootMotion = owner.GetComponent<RootMotionController>();
         controller = owner.GetComponent<ThirdPersonController>();
         weaponController = owner.GetComponent<WeaponController>();
+        characterController = owner.GetComponent<CharacterController>();
+        invincible = owner.GetComponent<MakeInvincible>();
+        starterInputs = owner.GetComponent<StarterAssetsInputs>();
+        enemyLayer = LayerMask.GetMask("EnemyLayer");
+        
+        coneRange = ConeRange;
+        coneAngle = ConeAngle;
+        dashDuration = DashDuration;
+        dashStopDistance = DashStopDistance;
     }
 
     public override void ActivateAbility()
@@ -49,7 +64,9 @@ public class LightAttackSpec : GameplayAbilitySpec
 
             animator.SetBool("InCombo", true);
             animator.SetInteger("ComboIndex", comboIndex);
-            animator.SetTrigger("Attack");   
+            animator.SetTrigger("Attack");  
+            
+            TryAimAssistDash();
         }
         else if (owner.CompareTag("Enemy"))
         {
@@ -57,10 +74,8 @@ public class LightAttackSpec : GameplayAbilitySpec
             animator.SetTrigger("Attack"); 
         }
     }
-
     void ContinueCombo()
     {
-        Debug.Log(comboIndex);
         bufferedInput = false;
         if (comboIndex < 3)
         {
@@ -70,6 +85,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             comboIndex = 1;
         }
+        TryAimAssistDash();
         animator.SetInteger("ComboIndex", comboIndex);
         animator.SetTrigger("Attack");
     }
@@ -89,7 +105,6 @@ public class LightAttackSpec : GameplayAbilitySpec
             canReceiveInput = false;
             inCombo = false;
             animator.SetBool("InCombo", false);
-            DisableRootMotion();
             DisableSwordCollider();
             EndCombo();
         }
@@ -99,6 +114,120 @@ public class LightAttackSpec : GameplayAbilitySpec
     public override void EndAbility()
     {
         EndCombo();
+    }
+    
+    private Vector3 GetAimDirection()
+    {
+        Vector2 move = starterInputs != null ? starterInputs.move : Vector2.zero;
+        
+        if (move.sqrMagnitude < 0.0001f)
+        {
+            return owner.transform.forward;
+        }
+
+        Camera cam = Camera.main;
+        Vector3 camForward = cam.transform.forward;
+        Vector3 camRight = cam.transform.right;
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        return (camForward * move.y + camRight * move.x).normalized;
+    }
+    
+    void TryAimAssistDash()
+    {
+        Transform target = FindTargetInCone();
+        if (target != null)
+        {
+            controller.StartCoroutine(DashTowards(target));
+        }
+    }
+    
+    Transform FindTargetInCone()
+    {
+        Vector3 origin = owner.transform.position;
+        Vector3 direction = GetAimDirection();
+
+        Collider[] hits = Physics.OverlapSphere(origin, coneRange, enemyLayer);
+
+        Transform best = null;
+        float bestDot = Mathf.Cos(coneAngle * Mathf.Deg2Rad);
+        float bestDistance = Mathf.Infinity;
+        
+        DrawDebugCone(origin, direction);
+        
+        foreach (var hit in hits)
+        {
+            Vector3 toTarget = hit.transform.position - origin;
+            toTarget.y = 0f;
+            float distance = toTarget.magnitude;
+            if (distance < 0.01f) continue;
+
+            Vector3 dirToTarget = toTarget.normalized;
+            float dot = Vector3.Dot(direction, dirToTarget);
+
+            if (dot >= bestDot)
+            {
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = hit.transform;
+                }
+            }
+        }
+
+        return best;
+    }
+
+    System.Collections.IEnumerator DashTowards(Transform target)
+    {
+        Vector3 startPos = owner.transform.position;
+        Vector3 toTarget = target.position - startPos;
+        toTarget.y = 0f;
+
+        float fullDistance = toTarget.magnitude;
+        float travelDistance = Mathf.Max(0f, fullDistance - dashStopDistance);
+        Vector3 dashDirection = toTarget.normalized;
+
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            float step = (travelDistance / dashDuration) * Time.deltaTime;
+            characterController.Move(dashDirection * step + Vector3.down * 0.05f);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+    
+    void DrawDebugCone(Vector3 origin, Vector3 aimDirection)
+    {
+        Vector3 originRaised = origin + Vector3.up * 0.1f;
+
+        // Linea central: direccion de aim
+        Debug.DrawRay(originRaised, aimDirection * coneRange, Color.yellow, 2f, false);
+
+        // Bordes del cono
+        Quaternion leftRotation = Quaternion.Euler(0, -coneAngle, 0);
+        Quaternion rightRotation = Quaternion.Euler(0, coneAngle, 0);
+
+        Vector3 leftEdge = leftRotation * aimDirection;
+        Vector3 rightEdge = rightRotation * aimDirection;
+
+        Debug.DrawRay(originRaised, leftEdge * coneRange, Color.cyan, 2f, false);
+        Debug.DrawRay(originRaised, rightEdge * coneRange, Color.cyan, 2f, false);
+
+        // Circulo aproximado del rango (opcional, para ver coneRange completo)
+        int segments = 20;
+        Vector3 prevPoint = originRaised + new Vector3(Mathf.Sin(0), 0, Mathf.Cos(0)) * coneRange;
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = (i / (float)segments) * 360f * Mathf.Deg2Rad;
+            Vector3 nextPoint = originRaised + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * coneRange;
+            Debug.DrawLine(prevPoint, nextPoint, new Color(1f, 1f, 1f, 0.2f), 2f, false);
+            prevPoint = nextPoint;
+        }
     }
 
     // Animation Events
@@ -130,9 +259,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     }
 
     public void EndComboAnimation() => EndCombo();
-
-    public void EnableRootMotion() => rootMotion.EnableAnimRootMotion();
-    public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
+    
 
     public void EnableSwordCollider()
     {
@@ -144,5 +271,21 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
 
         weaponController.DisableCollision();
+    }
+
+    public void MakeInvincible()
+    {
+        if (invincible)
+        {
+            invincible.SetInvincible(true);   
+        }
+    }
+    
+    public void DisableInvincible()
+    {
+        if (invincible)
+        {
+            invincible.SetInvincible(false);   
+        }
     }
 }

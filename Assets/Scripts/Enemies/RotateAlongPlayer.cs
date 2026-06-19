@@ -7,11 +7,13 @@ public class RotateAlongPlayer : MonoBehaviour
     public Transform player;
     public float rotationSpeedAlongPlayer = 10f;
     public float selfRotationSpeed = 60f;
-    private float orbitRadius = 5f;
+    public float speed = 1.5f;
     
     private bool StopRotation = true;
     private int direction = 1;
     private float currentAngle;
+    private float currentRadius;
+    private float previusSpeed;
     private NavMeshAgent agent;
     private Animator Animator;
     
@@ -31,11 +33,11 @@ public class RotateAlongPlayer : MonoBehaviour
 
             float rad = currentAngle * Mathf.Deg2Rad;
             Vector3 targetPosition = player.position + new Vector3(
-                Mathf.Sin(rad) * orbitRadius,
+                Mathf.Sin(rad) * currentRadius,
                 0f,
-                Mathf.Cos(rad) * orbitRadius
+                Mathf.Cos(rad) * currentRadius
             );
-
+            
             agent.SetDestination(targetPosition);
             Turn();
         }
@@ -55,6 +57,7 @@ public class RotateAlongPlayer : MonoBehaviour
     {
         StopRotation = true;
         Animator.SetBool("SideStep", false);
+        agent.speed = previusSpeed;
         if (agent.isOnNavMesh)
         {
             agent.ResetPath();   
@@ -65,9 +68,17 @@ public class RotateAlongPlayer : MonoBehaviour
     {
         StopRotation = false;
         Animator.SetBool("SideStep", true);
+        
+        previusSpeed = agent.speed;
+        agent.speed = speed;
+        
         direction = UnityEngine.Random.value < 0.5f ? -1 : 1;
         float animatorDirection = direction == -1 ? 1 : 0;
         Animator.SetFloat("MotionSpeed", animatorDirection);
-        orbitRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));
+        
+        Vector3 toPlayer = transform.position - player.position;
+        toPlayer.y = 0f;
+        currentAngle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
+        currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));
     }
 }

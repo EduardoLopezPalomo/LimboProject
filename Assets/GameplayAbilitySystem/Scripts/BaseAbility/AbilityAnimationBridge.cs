@@ -54,28 +54,6 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
 
-    public void EnableRootMotion()
-    {
-        foreach (var spec in currentSpec)
-        {
-            if (spec is LightAttackSpec lightAttackSpec)
-            {
-                lightAttackSpec.EnableRootMotion();
-            }
-        }
-    }
-
-    public void DisableRootMotion()
-    {
-        foreach (var spec in currentSpec)
-        {
-            if (spec is LightAttackSpec lightAttackSpec)
-            {
-                lightAttackSpec.DisableRootMotion();
-            }
-        }
-    }
-
     public void EnableSwordCollider()
     {
         foreach (var spec in currentSpec)
@@ -94,6 +72,28 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is LightAttackSpec lightAttackSpec)
             {
                 lightAttackSpec.DisableSwordCollider();
+            }
+        }
+    }
+    
+    public void MakeInvincible()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.MakeInvincible();
+            }
+        }
+    }
+    
+    public void DisableInvincible()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.DisableInvincible();
             }
         }
     }

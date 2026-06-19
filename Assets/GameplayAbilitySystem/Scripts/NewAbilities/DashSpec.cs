@@ -12,6 +12,9 @@ public class DashSpec : GameplayAbilitySpec
     private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
+    private StarterAssetsInputs starterInputs;
+
+    private Vector3 direction;
 
 
     public DashSpec(GameplayAbility ability, GameObject owner, int dashForce, float dashTimeIn) : base(ability, owner)
@@ -21,6 +24,7 @@ public class DashSpec : GameplayAbilitySpec
         personcontroller = owner.GetComponent<ThirdPersonController>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
+        starterInputs = owner.GetComponent<StarterAssetsInputs>();
         dashTime = dashTimeIn;
         dashDistance = dashForce;
 
@@ -36,9 +40,31 @@ public class DashSpec : GameplayAbilitySpec
         if (animator.GetBool("InCombo"))
         {
             abilityHolder.CancelAbility("LightAttack");
+            animator.SetBool("InCombo", false);
+            animator.SetTrigger("Dash");
+        }
+        direction = GetAimDirection();
+        abilityHolder.StartCoroutine(waitTillEndFrame());
+    }
+    
+    private Vector3 GetAimDirection()
+    {
+        Vector2 move = starterInputs != null ? starterInputs.move : Vector2.zero;
+        
+        if (move.sqrMagnitude < 0.0001f)
+        {
+            return owner.transform.forward;
         }
 
-        abilityHolder.StartCoroutine(waitTillEndFrame());
+        Camera cam = Camera.main;
+        Vector3 camForward = cam.transform.forward;
+        Vector3 camRight = cam.transform.right;
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        return (camForward * move.y + camRight * move.x).normalized;
     }
 
     private IEnumerator waitTillEndFrame()
@@ -47,13 +73,11 @@ public class DashSpec : GameplayAbilitySpec
         personcontroller.SetInputAviable(false);
 
         float elapsed = 0f;
-
-        Vector3 dashDirection = owner.transform.forward;
         float speed = dashDistance / dashTime;
 
         while (elapsed < dashTime)
         {
-            charactercontroller.Move(dashDirection * speed * Time.deltaTime);
+            charactercontroller.Move(direction * speed * Time.deltaTime);
             elapsed += Time.deltaTime;
 
             yield return null;
@@ -62,8 +86,6 @@ public class DashSpec : GameplayAbilitySpec
         makeInvincible.SetInvincible(false);
         personcontroller.SetInputAviable(true);
     }
-
-    public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
 
     public override void EndAbility()
     {
