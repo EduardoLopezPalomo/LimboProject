@@ -4,50 +4,53 @@ using UnityEngine;
 
 public class KnockBack : MonoBehaviour
 {
-    public float Distance;
-    public float KnockBackTime;
+    public float KnockBackOffsetTime = 2f;
     
+    private bool CanKnockBack = true;
     private MakeInvincible makeInvincible;
-    private ThirdPersonController personcontroller;
-    private CharacterController charactercontroller;
+    private AbilityHolder abilityHolder;
     private Animator animator;
     private Vector3 direction;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        charactercontroller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
         makeInvincible = GetComponent<MakeInvincible>();
-        personcontroller = GetComponent<ThirdPersonController>();
+        abilityHolder = GetComponent<AbilityHolder>();
     }
 
     
     public void StartKnockBack()
     {
+        if (!CanKnockBack) return;
+        
         animator.SetTrigger("KnockBack");
-        direction = -transform.forward;
-        StartCoroutine(KnockbackMovement());
+        abilityHolder.CancelAbility("LightAttack");
+        StartCoroutine(Timer());
     }
     
         
-    private IEnumerator KnockbackMovement()
+    private IEnumerator Timer()
     {
-        makeInvincible.SetInvincible(true);
-        personcontroller.SetInputAviable(false);
-
-        float elapsed = 0f;
-        float speed = Distance / KnockBackTime;
-
-        while (elapsed < KnockBackTime)
+        if (CompareTag("Player"))
         {
-            charactercontroller.Move(direction * speed * Time.deltaTime);
+            makeInvincible.SetInvincible(true);   
+        }
+
+        CanKnockBack = false;
+        float elapsed = 0f;
+
+        while (elapsed < KnockBackOffsetTime)
+        {
             elapsed += Time.deltaTime;
 
             yield return null;
         }
-
-        makeInvincible.SetInvincible(false);
-        personcontroller.SetInputAviable(true);
+        CanKnockBack = true;
+        if (CompareTag("Player"))
+        {
+            makeInvincible.SetInvincible(false);   
+        }
     }
 }

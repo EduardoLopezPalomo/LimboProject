@@ -3509,6 +3509,8 @@ GameObject:
   - component: {fileID: 9026381587408325352}
   - component: {fileID: -9148873608367138642}
   - component: {fileID: -2572595190362700129}
+  - component: {fileID: -5997736564581953681}
+  - component: {fileID: -3101236700995031486}
   m_Layer: 9
   m_Name: Magician_fem2
   m_TagString: Enemy
@@ -3901,8 +3903,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
   player: {fileID: 0}
-  rotationSpeedALongPlayer: 10
+  rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
+  speed: 1.5
 --- !u!114 &-9148873608367138642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3930,6 +3933,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
   timeToUpdate: 10
+--- !u!114 &-5997736564581953681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3698048732365281575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6b180f015c16ba40b1279e5f356f562, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockBack
+  KnockBackOffsetTime: 2
+--- !u!114 &-3101236700995031486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3698048732365281575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
 --- !u!1 &3750373072000040059
 GameObject:
   m_ObjectHideFlags: 0

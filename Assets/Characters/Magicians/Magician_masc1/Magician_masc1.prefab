@@ -1426,6 +1426,8 @@ GameObject:
   - component: {fileID: -6249235947232605448}
   - component: {fileID: -2504382259261565747}
   - component: {fileID: -2419266790197100224}
+  - component: {fileID: -4870799657765374161}
+  - component: {fileID: 394486886526595142}
   m_Layer: 9
   m_Name: Magician_masc1
   m_TagString: Enemy
@@ -1818,8 +1820,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
   player: {fileID: 0}
-  rotationSpeedALongPlayer: 10
+  rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
+  speed: 1.5
 --- !u!114 &-2504382259261565747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1847,6 +1850,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
   timeToUpdate: 10
+--- !u!114 &-4870799657765374161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4246853655884236103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6b180f015c16ba40b1279e5f356f562, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockBack
+  KnockBackOffsetTime: 2
+--- !u!114 &394486886526595142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4246853655884236103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
 --- !u!1 &4247069662748545196
 GameObject:
   m_ObjectHideFlags: 0

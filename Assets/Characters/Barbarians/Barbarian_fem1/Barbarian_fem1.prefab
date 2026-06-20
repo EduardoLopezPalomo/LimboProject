@@ -218,6 +218,8 @@ GameObject:
   - component: {fileID: -4827072027572319664}
   - component: {fileID: 7442130441389284074}
   - component: {fileID: 4276034949122878560}
+  - component: {fileID: 5020726046340138555}
+  - component: {fileID: 4871226525049616792}
   m_Layer: 9
   m_Name: Barbarian_fem1
   m_TagString: Enemy
@@ -637,6 +639,7 @@ MonoBehaviour:
   player: {fileID: 0}
   rotationSpeedAlongPlayer: 25
   selfRotationSpeed: 90
+  speed: 1.5
 --- !u!114 &4276034949122878560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -650,6 +653,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
   timeToUpdate: 3
+--- !u!114 &5020726046340138555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580124438056508130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6b180f015c16ba40b1279e5f356f562, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockBack
+  KnockBackOffsetTime: 2
+--- !u!114 &4871226525049616792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580124438056508130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
 --- !u!1 &629371062462779084
 GameObject:
   m_ObjectHideFlags: 0

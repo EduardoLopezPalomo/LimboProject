@@ -1,9 +1,11 @@
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.InputSystem;
 
 public class InputController : MonoBehaviour
 {
     private ThirdPersonController controller;
+    public PlayerInput playerInput;
     
     private void Awake()
     {
@@ -15,6 +17,7 @@ public class InputController : MonoBehaviour
         if (controller != null)
         {
             controller.SetInputAviable(true);
+            playerInput.ActivateInput();
         }
     }
 
@@ -23,6 +26,7 @@ public class InputController : MonoBehaviour
         if (controller != null)
         {
             controller.SetInputAviable(false);
+            playerInput.DeactivateInput();
         }
     }
 }
