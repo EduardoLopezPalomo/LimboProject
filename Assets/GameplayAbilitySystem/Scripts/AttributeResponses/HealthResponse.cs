@@ -6,10 +6,11 @@ using UnityEngine.AI;
 [CreateAssetMenu(menuName = "AbilitySystem/Responses/Health")]
 public class HealthResponse : AttributeResponse
 {
-    public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner)
+    public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner, bool CanResponse)
     {
         if (attributeInstance.Data.name == "Health" && attributeInstance.CurrentValue < oldValue)
         {
+            if (!CanResponse) return;
             if (owner.CompareTag("Enemy"))
             {
                 var enemy = owner.GetComponent<EnemyGraphBridge>();
@@ -51,6 +52,7 @@ public class HealthResponse : AttributeResponse
             else if (owner.CompareTag("Player"))
             {
                 KnockBack knockBack = owner.GetComponent<KnockBack>();
+                
                 knockBack.StartKnockBack();
             }
         }

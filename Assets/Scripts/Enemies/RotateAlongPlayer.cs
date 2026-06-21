@@ -16,11 +16,13 @@ public class RotateAlongPlayer : MonoBehaviour
     private float previusSpeed;
     private NavMeshAgent agent;
     private Animator Animator;
+    private GoingToPlayer SlotPosition;
     
     void Start()
     {
         Animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        SlotPosition = GetComponent<GoingToPlayer>();
         agent.updateRotation = false;
         agent.stoppingDistance = 0f;
     }
@@ -79,6 +81,16 @@ public class RotateAlongPlayer : MonoBehaviour
         Vector3 toPlayer = transform.position - player.position;
         toPlayer.y = 0f;
         currentAngle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
-        currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));
+
+        if (SlotPosition && SlotPosition.GetActualSlot() != Vector3.zero)
+        {
+            Vector3 targetPosition = SlotPosition.GetActualSlot();
+            targetPosition.y = 0f;
+            currentRadius = Vector3.Distance(targetPosition, new Vector3(player.position.x, 0, player.position.z));
+        }
+        else
+        {
+            currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));   
+        }
     }
 }

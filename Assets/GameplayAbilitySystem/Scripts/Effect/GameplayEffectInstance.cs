@@ -22,7 +22,7 @@ public class GameplayEffectInstance
     /*Apply the effect*/
     public void Apply()
     {
-        Target.AddModifier(Effect.TargetAttribute, Id, Effect.Modifier, Effect.Value);
+        Target.AddModifier(Effect.TargetAttribute, Id, Effect.Modifier, Effect.Value, Effect.CanAttributeResponse);
     }
     /*If the effect has a duration check the timer*/
     public void Tick(float deltaTime)
@@ -42,7 +42,7 @@ public class GameplayEffectInstance
     public void End()
     {
         if (IsEnded) return;
-        Target.RemoveModifier(Effect.TargetAttribute, Id);
+        Target.RemoveModifier(Effect.TargetAttribute, Id, Effect.CanAttributeResponse);
         IsEnded = true;
     }
 }

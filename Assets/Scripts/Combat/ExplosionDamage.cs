@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class ExplosionDamage : MonoBehaviour
 {
     public float DamageTickRate = 2f;
+    public float lifeTime = 3f;
     [SerializeField] private GameplayEffect DamageEffect;
     [SerializeField] private string ObjectToDamage;
 
@@ -11,6 +13,12 @@ public class ExplosionDamage : MonoBehaviour
     private MakeInvincible invincible;
     private GameplayEffectManager effectmanager;
     private AttributeSystem attributeSystem;
+
+    private void Start()
+    {
+        Destroy(gameObject, lifeTime);
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag(ObjectToDamage))

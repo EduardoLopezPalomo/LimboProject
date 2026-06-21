@@ -27,7 +27,7 @@ public class GameplayAttributeInstance
         RecalculateCurrent();
     }
     /* Add the type of modifier in his diccionary in order to remove it later*/
-    public void AddModifier(Guid id, Modifier modifier, float value)
+    public void AddModifier(Guid id, Modifier modifier, float value, bool AttributeCanResponse)
     {
         switch (modifier)
         {
@@ -42,10 +42,10 @@ public class GameplayAttributeInstance
                 overrideTimestamps[id] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 break;
         }
-        RecalculateCurrent();
+        RecalculateCurrent(AttributeCanResponse);
     }
     /* Remove the modifier and the attribute goes back to the previous value*/
-    public void RemoveModifier(Guid id)
+    public void RemoveModifier(Guid id, bool AttributeCanResponse)
     {
         var removed = false;
         removed |= addModifiers.Remove(id);
@@ -53,11 +53,11 @@ public class GameplayAttributeInstance
         removed |= overrideModifiers.Remove(id);
         overrideTimestamps.Remove(id);
 
-        if (removed) RecalculateCurrent();
+        if (removed) RecalculateCurrent(AttributeCanResponse);
     }
 
     /*Recalculate the current value of the attribute if some effects is active*/
-    private void RecalculateCurrent()
+    private void RecalculateCurrent(bool AttributeCanResponse = false)
     {
         float OldValue = CurrentValue;
 
@@ -78,7 +78,7 @@ public class GameplayAttributeInstance
                 CurrentValue = ov;
                 if(Data.Response != null)
                 {
-                    Data.Response.OnAttributeChanged(this, OldValue, owner);
+                    Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
                 }
                 Debug.Log("Current value of" + Data.Name + " " + CurrentValue);
                 return;
@@ -94,12 +94,12 @@ public class GameplayAttributeInstance
         CurrentValue = (RuntimeBaseValue + sumAdds) * productMult;
         if (Data.Response != null)
         {
-            Data.Response.OnAttributeChanged(this, OldValue, owner);
+            Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
         }
         Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
     }
     /*It modifies the value of the instance not of the data if its infinite*/
-    public void ModifyRuntimeBase(float deltaOrValue, Modifier mode)
+    public void ModifyRuntimeBase(float deltaOrValue, Modifier mode, bool AttributeCanResponse)
     {
         switch (mode)
         {
@@ -113,6 +113,6 @@ public class GameplayAttributeInstance
                 RuntimeBaseValue = deltaOrValue;
                 break;
         }
-        RecalculateCurrent();
+        RecalculateCurrent(AttributeCanResponse);
     }
 }

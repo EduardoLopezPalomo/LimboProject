@@ -26,4 +26,5 @@ public class GameplayEffect : ScriptableObject
 
     public EffectTime EffectTime;
     public float Duration;
+    public bool CanAttributeResponse = true;
 }

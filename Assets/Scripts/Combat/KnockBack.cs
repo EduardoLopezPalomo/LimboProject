@@ -28,6 +28,7 @@ public class KnockBack : MonoBehaviour
         animator.SetTrigger("KnockBack");
         abilityHolder.CancelAbility("LightAttack");
         abilityHolder.CancelAbility("BowAttack");
+        abilityHolder.CancelAbility("FireAttack");
         StartCoroutine(Timer());
     }
     

@@ -6,14 +6,12 @@ using UnityEngine.Animations;
 public class FireAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private RootMotionController rootMotion;
     private GameObject firePrefab;
     private float inclineAngle;
 
     public FireAttackSpec(GameplayAbility ability, GameObject owner, GameObject firePrefab, float inclineAngle) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        rootMotion = owner.GetComponent<RootMotionController>();
         this.firePrefab = firePrefab;
         this.inclineAngle = inclineAngle;
     }
@@ -26,15 +24,18 @@ public class FireAttackSpec : GameplayAbilitySpec
         animator.SetTrigger("Attack"); 
     }
 
+    public override void CancelAbility()
+    {
+        base.CancelAbility();
+        animator.SetBool("IsAttacking", false);
+    }
+
     public override void EndAbility()
     {
        base.EndAbility();
     }
 
     // Animation Events
-
-    public void EnableRootMotion() => rootMotion.EnableAnimRootMotion();
-    public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
     
     public void SpawnFire()
     {

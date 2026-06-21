@@ -31,7 +31,7 @@ public class AttributeSystem : MonoBehaviour
         }
     }
     /*Add the modifier to the attribute instance, that way it can change*/
-    public void AddModifier(GameplayAttributeData data, Guid id, Modifier modifier, float value)
+    public void AddModifier(GameplayAttributeData data, Guid id, Modifier modifier, float value, bool AttributeCanResponse)
     {
         if (!_lookup.TryGetValue(data, out var inst))
         {
@@ -39,10 +39,10 @@ public class AttributeSystem : MonoBehaviour
             return;
         }
 
-        inst.AddModifier(id, modifier, value);
+        inst.AddModifier(id, modifier, value, AttributeCanResponse);
     }
     /*Remove the modifier in order to go back to the previous value*/
-    public void RemoveModifier(GameplayAttributeData data, Guid id)
+    public void RemoveModifier(GameplayAttributeData data, Guid id, bool AttributeCanResponse)
     {
         if (!_lookup.TryGetValue(data, out var inst))
         {
@@ -50,7 +50,7 @@ public class AttributeSystem : MonoBehaviour
             return;
         }
 
-        inst.RemoveModifier(id);
+        inst.RemoveModifier(id, AttributeCanResponse);
     }
     /*Apply the effect only if its infinite*/
     public void ApplyEffectOnce(GameplayEffect effect)
@@ -63,7 +63,7 @@ public class AttributeSystem : MonoBehaviour
         }
         if (effect.EffectTime == EffectTime.Infinite)
         {
-            inst.ModifyRuntimeBase(effect.Value, effect.Modifier);
+            inst.ModifyRuntimeBase(effect.Value, effect.Modifier, effect.CanAttributeResponse);
         }
         else
         {

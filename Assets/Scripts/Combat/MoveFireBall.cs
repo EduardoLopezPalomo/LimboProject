@@ -34,7 +34,7 @@ public class MoveFireBall : MonoBehaviour
             ContactPoint contact = collision.contacts[0];
             Vector3 normal = contact.normal;
             Quaternion rotation = Quaternion.LookRotation(normal);
-            if (explosionEffectPrefab != null)
+            if (explosionEffectPrefab != null && collision.gameObject.layer.Equals(LayerMask.NameToLayer("Floor")))
             {
                 Instantiate(explosionEffectPrefab, contact.point + (normal * 0.05f), rotation);
             }

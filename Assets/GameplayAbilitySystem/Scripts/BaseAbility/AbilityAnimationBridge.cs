@@ -97,6 +97,16 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+    public void CanHaveInput()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.CanHaveInput();
+            }
+        }
+    }
     /*
      * Notifies of BowAttack
      *

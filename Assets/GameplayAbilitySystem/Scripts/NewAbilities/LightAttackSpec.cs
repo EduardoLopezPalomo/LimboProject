@@ -23,9 +23,10 @@ public class LightAttackSpec : GameplayAbilitySpec
     private float dashDuration;
     private float dashStopDistance; 
     private float dashDefaultDistance;
+    private float rotationSpeed;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance, float DashDefaultDistance)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -41,6 +42,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         dashDuration = DashDuration;
         dashStopDistance = DashStopDistance;
         dashDefaultDistance = DashDefaultDistance;
+        rotationSpeed = RotationSpeed;
     }
 
     public override void ActivateAbility()
@@ -196,12 +198,16 @@ public class LightAttackSpec : GameplayAbilitySpec
         float fullDistance = toTarget.magnitude;
         float travelDistance = Mathf.Max(0f, fullDistance - dashStopDistance);
         Vector3 dashDirection = toTarget.normalized;
+        
+        Quaternion targetRotation = dashDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dashDirection) : owner.transform.rotation;
 
         float elapsed = 0f;
         while (elapsed < dashDuration)
         {
             float step = (travelDistance / dashDuration) * Time.deltaTime;
             characterController.Move(dashDirection * step + Vector3.down * 0.05f);
+            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -210,12 +216,14 @@ public class LightAttackSpec : GameplayAbilitySpec
     System.Collections.IEnumerator DefaultDash()
     {
         Vector3 dashDirection = GetAimDirection();
+        Quaternion targetRotation = dashDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dashDirection) : owner.transform.rotation;
 
         float elapsed = 0f;
         while (elapsed < dashDuration)
         {
             float step = (dashDefaultDistance / dashDuration) * Time.deltaTime;
             characterController.Move(dashDirection * step + Vector3.down * 0.05f);
+            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -271,7 +279,10 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             ContinueCombo();
         }
+    }
 
+    public void CanHaveInput()
+    {
         if (owner.CompareTag("Player"))
         {
             controller.SetInputAviable(true);   

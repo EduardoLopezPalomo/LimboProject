@@ -40,6 +40,11 @@ public class GoingToPlayer : MonoBehaviour
         Debug.LogWarning("No slot found");
         return GetPlayerPosition();
     }
+
+    public Vector3 GetActualSlot()
+    {
+        return currentSlot != null ? currentSlot.position : Vector3.zero;
+    }
     
     public void ReleaseSlot()
     {
