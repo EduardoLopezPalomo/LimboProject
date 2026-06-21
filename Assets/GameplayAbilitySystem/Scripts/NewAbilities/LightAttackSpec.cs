@@ -159,7 +159,6 @@ public class LightAttackSpec : GameplayAbilitySpec
         Vector3 direction = GetAimDirection();
 
         Collider[] hits = Physics.OverlapSphere(origin, coneRange, enemyLayer);
-
         Transform best = null;
         float bestDot = Mathf.Cos(coneAngle * Mathf.Deg2Rad);
         float bestDistance = Mathf.Infinity;
@@ -198,16 +197,22 @@ public class LightAttackSpec : GameplayAbilitySpec
         float fullDistance = toTarget.magnitude;
         float travelDistance = Mathf.Max(0f, fullDistance - dashStopDistance);
         Vector3 dashDirection = toTarget.normalized;
-        
+
         Quaternion targetRotation = dashDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dashDirection) : owner.transform.rotation;
 
+        float traveled = 0f;
+        float speed = travelDistance / dashDuration;
+
         float elapsed = 0f;
-        while (elapsed < dashDuration)
+        while (elapsed < dashDuration && traveled < travelDistance)
         {
-            float step = (travelDistance / dashDuration) * Time.deltaTime;
+            float step = speed * Time.deltaTime;
+            step = Mathf.Min(step, travelDistance - traveled);
+
             characterController.Move(dashDirection * step + Vector3.down * 0.05f);
             owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            
+
+            traveled += step;
             elapsed += Time.deltaTime;
             yield return null;
         }
