@@ -6,6 +6,7 @@ public class RotateToPlayer : MonoBehaviour
     [SerializeField] private float Speed = 150f;
     [SerializeField] private GameObject player;
     [HideInInspector] public bool hasPlayerRotate;
+    [HideInInspector] public bool IsShooting;
 
     public void RotateTowardsPlayer()
     {
@@ -17,5 +18,15 @@ public class RotateToPlayer : MonoBehaviour
         {
             hasPlayerRotate = true;
         }
+    }
+
+    public bool RotateUntilShoot()
+    {
+        if (IsShooting) return false;
+        
+        Vector3 direction = (player.transform.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, Time.deltaTime * Speed);
+        return true;
     }
 }

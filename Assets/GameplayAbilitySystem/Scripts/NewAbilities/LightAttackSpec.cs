@@ -22,9 +22,10 @@ public class LightAttackSpec : GameplayAbilitySpec
     private float coneAngle;       
     private float dashDuration;
     private float dashStopDistance; 
+    private float dashDefaultDistance;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance, float DashDefaultDistance)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -39,6 +40,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         coneAngle = ConeAngle;
         dashDuration = DashDuration;
         dashStopDistance = DashStopDistance;
+        dashDefaultDistance = DashDefaultDistance;
     }
 
     public override void ActivateAbility()
@@ -143,6 +145,10 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             controller.StartCoroutine(DashTowards(target));
         }
+        else
+        {
+            controller.StartCoroutine(DefaultDash());
+        }
     }
     
     Transform FindTargetInCone()
@@ -195,6 +201,20 @@ public class LightAttackSpec : GameplayAbilitySpec
         while (elapsed < dashDuration)
         {
             float step = (travelDistance / dashDuration) * Time.deltaTime;
+            characterController.Move(dashDirection * step + Vector3.down * 0.05f);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+    }
+    
+    System.Collections.IEnumerator DefaultDash()
+    {
+        Vector3 dashDirection = GetAimDirection();
+
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            float step = (dashDefaultDistance / dashDuration) * Time.deltaTime;
             characterController.Move(dashDirection * step + Vector3.down * 0.05f);
             elapsed += Time.deltaTime;
             yield return null;

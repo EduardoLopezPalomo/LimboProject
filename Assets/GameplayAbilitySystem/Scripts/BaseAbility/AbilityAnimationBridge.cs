@@ -123,6 +123,16 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
     
+    public void ShowArrowPath()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is BowAttackSpec BowAttackSpec)
+            {
+                BowAttackSpec.ShowArrowPath();
+            }
+        }
+    }
 
     /*
     * Notifies of AreaRayAttack

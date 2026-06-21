@@ -41,8 +41,8 @@ public class DashSpec : GameplayAbilitySpec
         {
             abilityHolder.CancelAbility("LightAttack");
             animator.SetBool("InCombo", false);
-            animator.SetTrigger("Dash");
         }
+        animator.SetBool("Dash", true);
         direction = GetAimDirection();
         abilityHolder.StartCoroutine(waitTillEndFrame());
     }
@@ -82,7 +82,8 @@ public class DashSpec : GameplayAbilitySpec
 
             yield return null;
         }
-
+        
+        animator.SetBool("Dash", false);
         makeInvincible.SetInvincible(false);
         personcontroller.SetInputAviable(true);
     }
