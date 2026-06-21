@@ -36,6 +36,15 @@ public class BowAttackSpec : GameplayAbilitySpec
         animator.SetBool("InCombo", true);
         animator.SetTrigger("Attack"); 
     }
+    
+    public override void CancelAbility()
+    {
+        base.CancelAbility();
+        arrowPath?.Hide();
+        animator.SetBool("InCombo", false);
+        AlreadyShoot();
+
+    }
 
     public override void EndAbility()
     {

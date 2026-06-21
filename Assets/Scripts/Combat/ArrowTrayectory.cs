@@ -4,8 +4,8 @@ public class ArrowTrayectory : MonoBehaviour
 {
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Animator colorAnimator;
+    [SerializeField] private float maxDistance = 8f;
     [SerializeField] private int resolution = 30;
-    [SerializeField] private float timeStep = 0.08f;
     
     private Transform originTransform;
     private Transform directionSource; 
@@ -44,7 +44,12 @@ public class ArrowTrayectory : MonoBehaviour
     {
         Vector3 origin = originTransform.position;
         Vector3 direction = directionSource.forward;
+        direction.y = 0f; 
+        direction.Normalize();
         Vector3 velocity = direction.normalized * currentSpeed;
+        
+        float totalTime = maxDistance / currentSpeed;
+        float timeStep = totalTime / resolution;
 
         for (int i = 0; i < resolution; i++)
         {
