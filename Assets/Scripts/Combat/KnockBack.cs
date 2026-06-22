@@ -26,9 +26,18 @@ public class KnockBack : MonoBehaviour
         if (!CanKnockBack) return;
         
         animator.SetTrigger("KnockBack");
-        abilityHolder.CancelAbility("LightAttack");
-        abilityHolder.CancelAbility("BowAttack");
-        abilityHolder.CancelAbility("FireAttack");
+        if (abilityHolder.HasAbility("LightAttack"))
+        {
+            abilityHolder.CancelAbility("LightAttack");   
+        }
+        if (abilityHolder.HasAbility("BowAttack"))
+        {
+            abilityHolder.CancelAbility("BowAttack");   
+        }
+        if (abilityHolder.HasAbility("FireAttack"))
+        {
+            abilityHolder.CancelAbility("FireAttack");   
+        } ;
         StartCoroutine(Timer());
     }
     

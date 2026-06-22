@@ -18,15 +18,15 @@ public class LightAttackSpec : GameplayAbilitySpec
     private bool canReceiveInput;
     private bool bufferedInput;
     
-    private float coneRange;
-    private float coneAngle;       
+    private float forwardDistanceRay;
+    private float lateralDistanceRay;       
     private float dashDuration;
     private float dashStopDistance; 
     private float dashDefaultDistance;
     private float rotationSpeed;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ConeRange, float ConeAngle, float DashDuration, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float DashDuration, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -37,8 +37,8 @@ public class LightAttackSpec : GameplayAbilitySpec
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
         
-        coneRange = ConeRange;
-        coneAngle = ConeAngle;
+        lateralDistanceRay = LateralDistanceRay;
+        forwardDistanceRay = ForwardDistanceRay;
         dashDuration = DashDuration;
         dashStopDistance = DashStopDistance;
         dashDefaultDistance = DashDefaultDistance;
@@ -108,11 +108,10 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             canReceiveInput = false;
             inCombo = false;
-            animator.SetBool("InCombo", false);
-            DisableSwordCollider();
             EndCombo();
         }
-
+        animator.SetBool("InCombo", false);
+        DisableSwordCollider();
     }
 
     public override void EndAbility()
@@ -142,7 +141,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     
     void TryAimAssistDash()
     {
-        Transform target = FindTargetInCone();
+        Transform target = FindTargetInRectangle();
         if (target != null)
         {
             controller.StartCoroutine(DashTowards(target));
@@ -153,35 +152,33 @@ public class LightAttackSpec : GameplayAbilitySpec
         }
     }
     
-    Transform FindTargetInCone()
+    Transform FindTargetInRectangle()
     {
         Vector3 origin = owner.transform.position;
-        Vector3 direction = GetAimDirection();
+        Vector3 forward = GetAimDirection();
 
-        Collider[] hits = Physics.OverlapSphere(origin, coneRange, enemyLayer);
         Transform best = null;
-        float bestDot = Mathf.Cos(coneAngle * Mathf.Deg2Rad);
         float bestDistance = Mathf.Infinity;
-        
-        DrawDebugCone(origin, direction);
-        
+
+        Collider[] hits = Physics.OverlapBox(
+            origin + forward * (forwardDistanceRay / 2f),
+            new Vector3(lateralDistanceRay, 1f, forwardDistanceRay / 2f),
+            Quaternion.LookRotation(forward),
+            enemyLayer
+        );
+
+        DrawDebugRectangle(origin, forward);
+
         foreach (var hit in hits)
         {
             Vector3 toTarget = hit.transform.position - origin;
             toTarget.y = 0f;
             float distance = toTarget.magnitude;
-            if (distance < 0.01f) continue;
 
-            Vector3 dirToTarget = toTarget.normalized;
-            float dot = Vector3.Dot(direction, dirToTarget);
-
-            if (dot >= bestDot)
+            if (distance < bestDistance)
             {
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    best = hit.transform;
-                }
+                bestDistance = distance;
+                best = hit.transform;
             }
         }
 
@@ -190,29 +187,37 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     System.Collections.IEnumerator DashTowards(Transform target)
     {
-        Vector3 startPos = owner.transform.position;
-        Vector3 toTarget = target.position - startPos;
-        toTarget.y = 0f;
-
-        float fullDistance = toTarget.magnitude;
-        float travelDistance = Mathf.Max(0f, fullDistance - dashStopDistance);
-        Vector3 dashDirection = toTarget.normalized;
-
-        Quaternion targetRotation = dashDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dashDirection) : owner.transform.rotation;
-
-        float traveled = 0f;
-        float speed = travelDistance / dashDuration;
-
         float elapsed = 0f;
-        while (elapsed < dashDuration && traveled < travelDistance)
+        
+        Vector3 initialToTarget = target.position - owner.transform.position;
+        initialToTarget.y = 0f;
+        
+        Vector3 dashDestination = target.position - initialToTarget.normalized * dashStopDistance;
+        dashDestination.y = owner.transform.position.y;
+        
+        float travelDistance = Vector3.Distance(owner.transform.position, dashDestination);
+        float speed = travelDistance / dashDuration;
+        
+        Quaternion targetRotation = Quaternion.LookRotation(initialToTarget.normalized);
+
+
+        while (elapsed < dashDuration)
         {
+            Vector3 toDestination = dashDestination - owner.transform.position;
+            toDestination.y = 0f;
+            float remainingDistance = toDestination.magnitude;
+
+            if (remainingDistance <= 0.05f)
+                break;
+
+            Vector3 dashDirection = toDestination.normalized;
+
             float step = speed * Time.deltaTime;
-            step = Mathf.Min(step, travelDistance - traveled);
+            step = Mathf.Min(step, remainingDistance);
 
             characterController.Move(dashDirection * step + Vector3.down * 0.05f);
             owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
 
-            traveled += step;
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -234,33 +239,25 @@ public class LightAttackSpec : GameplayAbilitySpec
         }
     }
     
-    void DrawDebugCone(Vector3 origin, Vector3 aimDirection)
+    void DrawDebugRectangle(Vector3 origin, Vector3 forward)
     {
+        Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
         Vector3 originRaised = origin + Vector3.up * 0.1f;
 
-        // Linea central: direccion de aim
-        Debug.DrawRay(originRaised, aimDirection * coneRange, Color.yellow, 2f, false);
+        // Las 4 esquinas del rectangulo
+        Vector3 frontLeft  = originRaised + forward * forwardDistanceRay - right * lateralDistanceRay;
+        Vector3 frontRight = originRaised + forward * forwardDistanceRay + right * lateralDistanceRay;
+        Vector3 backLeft   = originRaised - right * lateralDistanceRay;
+        Vector3 backRight  = originRaised + right * lateralDistanceRay;
 
-        // Bordes del cono
-        Quaternion leftRotation = Quaternion.Euler(0, -coneAngle, 0);
-        Quaternion rightRotation = Quaternion.Euler(0, coneAngle, 0);
+        // Lados del rectangulo
+        Debug.DrawLine(backLeft,   frontLeft,  Color.cyan, 2f);
+        Debug.DrawLine(backRight,  frontRight, Color.cyan, 2f);
+        Debug.DrawLine(backLeft,   backRight,  Color.cyan, 2f);
+        Debug.DrawLine(frontLeft,  frontRight, Color.cyan, 2f);
 
-        Vector3 leftEdge = leftRotation * aimDirection;
-        Vector3 rightEdge = rightRotation * aimDirection;
-
-        Debug.DrawRay(originRaised, leftEdge * coneRange, Color.cyan, 2f, false);
-        Debug.DrawRay(originRaised, rightEdge * coneRange, Color.cyan, 2f, false);
-
-        // Circulo aproximado del rango (opcional, para ver coneRange completo)
-        int segments = 20;
-        Vector3 prevPoint = originRaised + new Vector3(Mathf.Sin(0), 0, Mathf.Cos(0)) * coneRange;
-        for (int i = 1; i <= segments; i++)
-        {
-            float angle = (i / (float)segments) * 360f * Mathf.Deg2Rad;
-            Vector3 nextPoint = originRaised + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * coneRange;
-            Debug.DrawLine(prevPoint, nextPoint, new Color(1f, 1f, 1f, 0.2f), 2f, false);
-            prevPoint = nextPoint;
-        }
+        // Linea central hacia delante
+        Debug.DrawRay(originRaised, forward * forwardDistanceRay, Color.yellow, 2f);
     }
 
     // Animation Events
@@ -313,7 +310,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         if (invincible)
         {
-            invincible.SetInvincible(true);   
+            //invincible.SetInvincible(true);   
         }
     }
     
@@ -321,7 +318,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         if (invincible)
         {
-            invincible.SetInvincible(false);   
+            //invincible.SetInvincible(false);   
         }
     }
 }

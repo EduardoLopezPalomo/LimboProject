@@ -36,17 +36,12 @@ public class HealthResponse : AttributeResponse
             {
                 deathCheck.SetIsDeath(true);
                 GameObject target = owner.gameObject;
-                Animator animator = target.GetComponent<Animator>();
-                NavMeshAgent agent = target.GetComponent<NavMeshAgent>();
                 EnemyGraphBridge enemy = owner.GetComponent<EnemyGraphBridge>();
-                enemy.SetTrap();
-                agent.isStopped = true;
-                agent.velocity = Vector3.zero;
-
-                animator.SetTrigger("IsDeath");
-
+                
+                enemy.SetDeath();
+                
                 KarmaManager.Instance.AddKarma(-10);
-
+                
                 Destroy(target, 2f); 
             }
             else if (owner.CompareTag("Player"))

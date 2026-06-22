@@ -150,6 +150,18 @@ public class AbilityHolder : MonoBehaviour
         }
     }
 
+    public bool HasAbility(string abilityName)
+    {
+        if (specs.TryGetValue(abilityName, out var ability))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public void CancelAbility(string abilityName)
     {
         if (specs.TryGetValue(abilityName, out var ability))
