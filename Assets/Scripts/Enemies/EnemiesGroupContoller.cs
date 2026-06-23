@@ -39,6 +39,7 @@ public class EnemiesGroupContoller : MonoBehaviour
                 agent.SetVariableValue("GroupState", GroupState.Alone);
             }
         }
+        Debug.Log(enemies.Count);
     }
     
     public bool RequestToken()
@@ -55,6 +56,17 @@ public class EnemiesGroupContoller : MonoBehaviour
     {
         currentToken++;
         currentToken = Mathf.Clamp(currentToken, 0, maxTokens);
+    }
+
+    public void AlertGroup(GameObject alerter)
+    {
+        foreach (var v in enemies)
+        {
+            if(alerter == v) continue;
+            
+            EnemyGraphBridge aux = v.GetComponent<EnemyGraphBridge>();
+            aux.SetDetection();
+        }
     }
     //Methods for slots managment
     

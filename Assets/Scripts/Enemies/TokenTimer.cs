@@ -5,7 +5,8 @@ public class TokenTimer : MonoBehaviour
 {
     public float cooldownTimeMin = 3f;
     public float cooldownTimeMax = 6f;
-    
+
+    [SerializeField] private EnemiesGroupContoller controller;
     private float timer = 0f;
     private float cooldownTime;
     private bool isOnCooldown = false;
@@ -19,6 +20,7 @@ public class TokenTimer : MonoBehaviour
             {
                 isOnCooldown = false;
                 timer = 0f;
+                controller.ReturnToken();
             }
         }
     }

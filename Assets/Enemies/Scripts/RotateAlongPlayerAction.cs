@@ -5,33 +5,33 @@ using Action = Unity.Behavior.Action;
 using Unity.Properties;
 
 [Serializable, GeneratePropertyBag]
-[NodeDescription(name: "RotateAlongPlayer", story: "[Rotate] for this [myTime]", category: "Action", id: "a93c938be5067d19cb33075097a87d57")]
+[NodeDescription(name: "RotateAlongPlayer", story: "[Rotate] from [MinTime] to [MaxTIme]", category: "Action", id: "a93c938be5067d19cb33075097a87d57")]
 public partial class RotateAlongPlayerAction : Action
 {
     [SerializeReference] public BlackboardVariable<RotateAlongPlayer> Rotate;
-    [SerializeReference] public BlackboardVariable<float> myTime;
+    [SerializeReference] public BlackboardVariable<float> MinTime;
+    [SerializeReference] public BlackboardVariable<float> MaxTIme;
 
-    private float ActualTime = 0f;
+    private float Timer = 0.0f;
 
     protected override Status OnStart()
     {
-        ActualTime = 0f;
+        Timer = UnityEngine.Random.Range(MinTime, MaxTIme);
         Rotate.Value.StartRotating();
         return Status.Running;
     }
 
     protected override Status OnUpdate()
     {
-        ActualTime += Time.deltaTime;
-        if (ActualTime <= myTime.Value)
-        {
-            return Status.Running;
-        }
-        else
+        Timer -= Time.deltaTime;
+        if (Timer <= 0)
         {
             Rotate.Value.StopRotating();
             return Status.Success;
         }
+
+        return Status.Running;
+        
     }
 
     protected override void OnEnd()
