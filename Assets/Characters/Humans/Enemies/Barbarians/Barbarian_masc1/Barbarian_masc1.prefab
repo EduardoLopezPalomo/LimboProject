@@ -4585,6 +4585,7 @@ GameObject:
   - component: {fileID: -246758400474830375}
   - component: {fileID: 4425124840492817081}
   - component: {fileID: -5163910332428772807}
+  - component: {fileID: 4936966808691090131}
   - component: {fileID: 239297876523981500}
   - component: {fileID: -4592159647406452949}
   - component: {fileID: -1937112726094095819}
@@ -4729,12 +4730,21 @@ MonoBehaviour:
   - rid: 8560592099634839627
   - rid: 8560592099634839628
   - rid: 8560592099634839629
+  - rid: 805764412706128574
   m_OriginalGraph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
+    - rid: 805764412706128574
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 2496455141059334098
+          m_Value1: 16405280388648121546
+        Name: Player
+        m_Value: {fileID: 0}
     - rid: 1614916531033473331
       type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -4968,6 +4978,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 802ff8ba25917134886252cf2d6da4e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyGraphBridge
+--- !u!114 &4936966808691090131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5571537817589140483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2962b0f057ac08e49910260cf101342b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyUIbridge
+  healthBar: {fileID: 1335192147563454097}
 --- !u!114 &239297876523981500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6285,6 +6308,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
+--- !u!114 &1335192147563454097 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4176439329765841778, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
+  m_PrefabInstance: {fileID: 3130634365189539299}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60e544c47e8de8c48afe332a629c9101, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealthBar
 --- !u!224 &5100919505539934061 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}

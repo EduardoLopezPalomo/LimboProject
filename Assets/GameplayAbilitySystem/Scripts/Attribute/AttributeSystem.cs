@@ -83,4 +83,17 @@ public class AttributeSystem : MonoBehaviour
         Debug.LogWarning("AttributeSystem: attribute not found: " + name);
         return 0f;
     }
+    /*get the max value of an attribute*/
+    public float GetAttributeMaxValue(String name)
+    {
+        foreach (var attribute in attributes)
+        {
+            if (attribute.Data.name == name)
+            {
+                return attribute.Data.MaxValue;
+            }
+        }
+        Debug.LogWarning("AttributeSystem: attribute not found: " + name);
+        return 0f;
+    }
 }

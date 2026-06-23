@@ -75,7 +75,7 @@ public class GameplayAttributeInstance
             }
             if (last != Guid.Empty && overrideModifiers.TryGetValue(last, out var ov))
             {
-                CurrentValue = ov;
+                CurrentValue = Mathf.Clamp(ov, 0f, Data.MaxValue);
                 if(Data.Response != null)
                 {
                     Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
@@ -91,7 +91,7 @@ public class GameplayAttributeInstance
         float productMult = 1f;
         foreach (var v in multModifiers.Values) productMult *= v;
 
-        CurrentValue = (RuntimeBaseValue + sumAdds) * productMult;
+        CurrentValue = Mathf.Clamp((RuntimeBaseValue + sumAdds) * productMult, 0f, Data.MaxValue); 
         if (Data.Response != null)
         {
             Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
