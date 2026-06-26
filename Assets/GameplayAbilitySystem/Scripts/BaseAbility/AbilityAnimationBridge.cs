@@ -216,6 +216,21 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+    /*
+     * Notifies of Dash
+     *
+     */
+    public void StartMoving()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is DashSpec dashSpec)
+            {
+                dashSpec.StartMoving();
+            }
+        }
+    }
+    
     
 
 }

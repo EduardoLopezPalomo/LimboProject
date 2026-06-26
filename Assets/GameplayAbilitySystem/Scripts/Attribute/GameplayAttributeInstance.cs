@@ -80,7 +80,7 @@ public class GameplayAttributeInstance
                 {
                     Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
                 }
-                Debug.Log("Current value of" + Data.Name + " " + CurrentValue);
+                //Debug.Log("Current value of" + Data.Name + " " + CurrentValue);
                 return;
             }
         }
@@ -96,7 +96,7 @@ public class GameplayAttributeInstance
         {
             Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
         }
-        Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
+        // Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
     }
     /*It modifies the value of the instance not of the data if its infinite*/
     public void ModifyRuntimeBase(float deltaOrValue, Modifier mode, bool AttributeCanResponse)

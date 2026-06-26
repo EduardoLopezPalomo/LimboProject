@@ -39,7 +39,6 @@ public class EnemiesGroupContoller : MonoBehaviour
                 agent.SetVariableValue("GroupState", GroupState.Alone);
             }
         }
-        Debug.Log(enemies.Count);
     }
     
     public bool RequestToken()

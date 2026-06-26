@@ -162,6 +162,18 @@ public class AbilityHolder : MonoBehaviour
         }
     }
 
+    public GameplayAbilitySpec GetAbility(string abilityName)
+    {
+        if (specs.TryGetValue(abilityName, out var ability))
+        {
+            return ability;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     public void CancelAbility(string abilityName)
     {
         if (specs.TryGetValue(abilityName, out var ability))

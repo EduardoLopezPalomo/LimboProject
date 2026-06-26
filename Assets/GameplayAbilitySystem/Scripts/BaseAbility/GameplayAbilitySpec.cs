@@ -52,6 +52,13 @@ public class GameplayAbilitySpec
         }
     }
 
+    public float GetCooldown()
+    {
+        if (!bHasCooldown) return 0f;
+        
+        return cooldownTimer;
+    }
+
     public virtual void Tick(float deltaTime)
     {
         if (!bOnCooldown) return;

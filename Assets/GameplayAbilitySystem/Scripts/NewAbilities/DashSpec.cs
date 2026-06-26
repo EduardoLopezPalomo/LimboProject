@@ -7,7 +7,6 @@ public class DashSpec : GameplayAbilitySpec
     private int dashDistance;
     private float dashTime;
     private Animator animator;
-    private RootMotionController rootMotion;
     private CharacterController charactercontroller;
     private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
@@ -44,7 +43,9 @@ public class DashSpec : GameplayAbilitySpec
         }
         animator.SetBool("Dash", true);
         direction = GetAimDirection();
-        abilityHolder.StartCoroutine(waitTillEndFrame());
+        
+        makeInvincible.SetInvincible(true);
+        personcontroller.SetInputAviable(false);
     }
     
     private Vector3 GetAimDirection()
@@ -69,9 +70,6 @@ public class DashSpec : GameplayAbilitySpec
 
     private IEnumerator waitTillEndFrame()
     {
-        makeInvincible.SetInvincible(true);
-        personcontroller.SetInputAviable(false);
-
         float elapsed = 0f;
         float speed = dashDistance / dashTime;
 
@@ -86,6 +84,11 @@ public class DashSpec : GameplayAbilitySpec
         animator.SetBool("Dash", false);
         makeInvincible.SetInvincible(false);
         personcontroller.SetInputAviable(true);
+    }
+
+    public void StartMoving()
+    {
+        abilityHolder.StartCoroutine(waitTillEndFrame());
     }
 
     public override void EndAbility()

@@ -59,7 +59,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         if (owner.CompareTag("Player"))
         {
-            if (!animator.GetBool("Grounded"))
+            if (!animator.GetBool("Grounded") || animator.GetBool("Dash"))
             {
                 return;
             }
