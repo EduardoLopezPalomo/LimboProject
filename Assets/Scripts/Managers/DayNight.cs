@@ -20,6 +20,8 @@ public class DayNight : MonoBehaviour
     public float timeOfDay = 0.25f;
 
     public DayPhase ActualPhase = DayPhase.Day;
+    
+    public bool CanChangePhase = true;
 
     public AnimationCurve SunIntensityCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
     public AnimationCurve SunTemperatureCUrve = AnimationCurve.Linear(0f, 2000f, 1f, 6500f);
@@ -60,16 +62,41 @@ public class DayNight : MonoBehaviour
         }
         RenderSettings.ambientMode = AmbientMode.Trilight;
         ActualPhase = GetPhase(timeOfDay);
+        RotateLights();
+        ChangePhase(ActualPhase);
     }
 
     void Update()
     {
+        if(!CanChangePhase) return;
+        
         timeOfDay += Time.deltaTime / DayDuration;
         if (timeOfDay >= 1f)
         {
             timeOfDay -= 1f;
         }
+        
+        RotateLights();
+        
+        DayPhase newPhase = GetPhase(timeOfDay);
+        ChangePhase(newPhase);
+    }
 
+    Material Pick(Material[] list)
+    {
+        if (list == null || list.Length == 0) return null;
+        return list[UnityEngine.Random.Range(0, list.Length)];
+    }
+
+    void ApplySkybox(Material mat)
+    {
+        if (mat == null || RenderSettings.skybox == mat) return;
+        RenderSettings.skybox = mat;
+        DynamicGI.UpdateEnvironment();
+    }
+
+    void RotateLights()
+    {
         float sunAngle = timeOfDay * 360f - 90f;
         float moonAngle = sunAngle + 180f;
 
@@ -96,8 +123,10 @@ public class DayNight : MonoBehaviour
         Moon.shadows = isDay ? LightShadows.None : LightShadows.Soft;
 
         RenderSettings.ambientIntensity = Mathf.Lerp(0.35f, 1f, daylight);
-
-        DayPhase newPhase = GetPhase(timeOfDay);
+    }
+    
+    void ChangePhase(DayPhase newPhase)
+    {
         if (newPhase != lastPhase)
         {
             Material selected = null;
@@ -132,19 +161,6 @@ public class DayNight : MonoBehaviour
             ApplySkybox(selected);
             lastPhase = newPhase;
         }
-    }
-
-    Material Pick(Material[] list)
-    {
-        if (list == null || list.Length == 0) return null;
-        return list[UnityEngine.Random.Range(0, list.Length)];
-    }
-
-    void ApplySkybox(Material mat)
-    {
-        if (mat == null || RenderSettings.skybox == mat) return;
-        RenderSettings.skybox = mat;
-        DynamicGI.UpdateEnvironment();
     }
 
     DayPhase GetPhase(float t)
