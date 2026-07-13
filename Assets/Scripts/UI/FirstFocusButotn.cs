@@ -10,4 +10,14 @@ public class FirstFocusButotn : MonoBehaviour
     {
         EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
     }
+    
+    private void Update()
+    {
+        if (EventSystem.current.currentSelectedGameObject == null)
+        {
+            EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
+        }
+    }
+   
+    
 }
