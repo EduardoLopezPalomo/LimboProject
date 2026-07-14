@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 1793759196571228849}
   - component: {fileID: 4413409487594959369}
   - component: {fileID: 650107890032772205}
+  - component: {fileID: 6904292568195368657}
+  - component: {fileID: 4012044857472250493}
   m_Layer: 0
   m_Name: GlobalManager
   m_TagString: Untagged
@@ -83,6 +85,7 @@ MonoBehaviour:
   SunYaw: 170
   timeOfDay: 0.2
   ActualPhase: 2
+  CanChangePhase: 1
   SunIntensityCurve:
     serializedVersion: 2
     m_Curve:
@@ -318,3 +321,29 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+--- !u!114 &6904292568195368657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8471566664071759448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7672c69d841ab34cb4ecb5e0f6ca860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundFXManager
+  soundFXObject: {fileID: 5635948945334364298, guid: 3ffa08285f0f3d442a775ea5db8a7584, type: 3}
+--- !u!114 &4012044857472250493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8471566664071759448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7ba6407e9564e540bfacaab1611f083, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SoundMixerManager
+  audioMixer: {fileID: 24100000, guid: b717aa985ef72b74c93c8aff047e0c28, type: 2}
