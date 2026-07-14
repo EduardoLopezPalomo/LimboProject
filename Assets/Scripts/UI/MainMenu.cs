@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    public GameObject OptionMenu;
     public void PlayGame()
     {
         SceneManager.LoadScene(1);
@@ -10,7 +12,8 @@ public class MainMenu : MonoBehaviour
 
     public void Options()
     {
-        Debug.Log("Opciones");
+        OptionMenu.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     public void Credits()
