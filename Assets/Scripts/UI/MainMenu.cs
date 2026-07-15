@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -5,9 +6,19 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public GameObject OptionMenu;
+    public LevelLoader levelLoader;
+    
+    private Canvas canvas;
+
+    private void Awake()
+    {
+        canvas = GetComponent<Canvas>();
+    }
+
     public void PlayGame()
     {
-        SceneManager.LoadScene(1);
+        levelLoader.LoadLevel();
+        canvas.sortingOrder = -1;
     }
 
     public void Options()

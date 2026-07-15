@@ -33,11 +33,6 @@ public class OptionMenuNavigation : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void GoBackAudio()
-    {
-        EventSystem.current.SetSelectedGameObject(navigationButtons[4].ActualButton.gameObject);
-    }
-
     public void UpdateNavigation(Button lastClickButton)
     {
         Navigation nav = lastClickButton.navigation;
