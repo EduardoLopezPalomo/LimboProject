@@ -8,6 +8,11 @@ public class SelectedButtonSound : MonoBehaviour, ISelectHandler
 
     public void OnSelect(BaseEventData eventData)
     {
+        if (ButtonSoundManager.IgnoreNextSelection)
+        {
+            ButtonSoundManager.IgnoreNextSelection = false;
+            return;
+        }
         SoundFXManager.instance.PlaySound(selectSound, transform, volume);
     }
 }

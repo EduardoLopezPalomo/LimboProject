@@ -7,7 +7,7 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject OptionMenu;
     public LevelLoader levelLoader;
-    
+
     private Canvas canvas;
 
     private void Awake()
