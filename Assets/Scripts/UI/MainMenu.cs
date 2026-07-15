@@ -19,6 +19,7 @@ public class MainMenu : MonoBehaviour
     {
         levelLoader.LoadLevel();
         canvas.sortingOrder = -1;
+        DayNight.Instance.CanChangePhase = true;
     }
 
     public void Options()

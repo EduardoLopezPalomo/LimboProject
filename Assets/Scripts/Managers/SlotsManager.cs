@@ -29,6 +29,7 @@ public class SlotsManager : MonoBehaviour
         {
             Instance = this;
             GenerateSlots();
+            LastPosition = player.position;
         }
         else
         {
@@ -36,13 +37,27 @@ public class SlotsManager : MonoBehaviour
         }
     }
     
+    public void SetPlayer(Transform playerTransform)
+    {
+        player = playerTransform;
+        LastPosition = player.position;
+        
+        UpdateRing(closeSlotList, closeRadius);
+        UpdateRing(midSlotList, midRadius);
+        UpdateRing(farSlotList, farRadius);
+    }
+    
     void Update()
     {
+        if (player == null)
+            return;
+        
         if (Vector3.Distance(LastPosition, player.position) > distanceToUpdate)
         {
             UpdateRing(closeSlotList, closeRadius);
             UpdateRing(midSlotList, midRadius);
-            UpdateRing(farSlotList, farRadius);   
+            UpdateRing(farSlotList, farRadius);  
+            LastPosition = player.position;
         }
     }
  

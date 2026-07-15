@@ -8,6 +8,7 @@ public class LevelLoader : MonoBehaviour
 {
     public Animator animator;
     public float transitionTime = 1f;
+    public float MusicFadeTime = 2f;
     public int sceneIndex;
     
     [SerializeField] private PlayerInput playerInput;
@@ -21,9 +22,11 @@ public class LevelLoader : MonoBehaviour
     {
         animator.SetTrigger("StartLoading");
         playerInput.DeactivateInput();
+        SoundMixerManager.instance.FadeOutVolume("MasterVolume",MusicFadeTime);
         
         yield return new WaitForSeconds(transitionTime);
         
+        SoundMixerManager.instance.FadeInVolume("MasterVolume", MusicFadeTime);
         SceneManager.LoadScene(levelIndex);
         playerInput.ActivateInput();
     }
