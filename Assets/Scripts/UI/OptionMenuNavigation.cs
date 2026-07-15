@@ -14,8 +14,15 @@ public struct NavigationButtons
 public class OptionMenuNavigation : MonoBehaviour
 {
     public GameObject LastMenu;
-    public GameObject currentMenu;
+    public GameObject GameplayMenu;
     public List<NavigationButtons> navigationButtons;
+    
+    private GameObject currentMenu;
+
+    void OnEnable()
+    {
+        ShowMenu(GameplayMenu);
+    }
     
     public void ShowMenu(GameObject go)
     {
