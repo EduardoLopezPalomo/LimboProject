@@ -9,24 +9,24 @@ public class LevelLoader : MonoBehaviour
     public Animator animator;
     public float transitionTime = 1f;
     public float MusicFadeTime = 2f;
-    public int sceneIndex;
     
     [SerializeField] private PlayerInput playerInput;
     
-    public void LoadLevel()
+    public void LoadLevel(int index)
     {
-       StartCoroutine(LoadLevel(sceneIndex));
+       StartCoroutine(LoadLevelCoroutine(index));
     }
 
-    IEnumerator LoadLevel(int levelIndex)
+    IEnumerator LoadLevelCoroutine(int levelIndex)
     {
         animator.SetTrigger("StartLoading");
         playerInput.DeactivateInput();
-        SoundMixerManager.instance.FadeOutVolume("MasterVolume",MusicFadeTime);
+        float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
+        SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume",-80f, MusicFadeTime);
         
         yield return new WaitForSeconds(transitionTime);
         
-        SoundMixerManager.instance.FadeInVolume("MasterVolume", MusicFadeTime);
+        SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume", MaxVolume, MusicFadeTime);
         SceneManager.LoadScene(levelIndex);
         playerInput.ActivateInput();
     }

@@ -13,6 +13,11 @@ public class ChangeMainMenuPC : MonoBehaviour
         QualitySettings.renderPipeline = menuPipeline;
     }
 
+    private void Start()
+    {
+        DayNight.Instance.SetTimeOfDay(0.7f);
+    }
+
     private void OnDestroy()
     {
         GraphicsSettings.defaultRenderPipeline = gamePipeline;

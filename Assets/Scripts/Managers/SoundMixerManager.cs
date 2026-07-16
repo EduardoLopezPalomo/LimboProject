@@ -3,10 +3,23 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
+[Serializable]
+public struct MixerNames
+{
+    public static string masterVolume = "MasterVolume";
+    public static string musicVolume = "MusicVolume";
+    public static string sfxVolume = "SFXVolume";
+    public static string ambienceVolume = "AmbienceVolume";
+    public static string pausedVolume = "PauseVolume";
+}
+
 public class SoundMixerManager : MonoBehaviour
 {
     public static SoundMixerManager instance;
     [SerializeField] private AudioMixer audioMixer;
+    [SerializeField] private ApplyAudioData applyAudioData;
+    
+    private Coroutine currentFade;
     
     private void Awake()
     {
@@ -14,36 +27,55 @@ public class SoundMixerManager : MonoBehaviour
         {
             instance = this;
         }
+        LoadAudioSettings();
     }
 
     public void SetMasterVolume(float volume)
     {
-        audioMixer.SetFloat("MasterVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat(MixerNames.masterVolume, Mathf.Log10(volume) * 20);
     }
 
     public void SetMusicVolume(float volume)
     {
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat(MixerNames.musicVolume, Mathf.Log10(volume) * 20);
     }
 
     public void SetSFXVolume(float volume)
     {
-        audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat(MixerNames.sfxVolume, Mathf.Log10(volume) * 20);
     }
     
     public void SetAmbienceVolume(float volume)
     {
-        audioMixer.SetFloat("AmbienceVolume", Mathf.Log10(volume) * 20);
+        audioMixer.SetFloat(MixerNames.ambienceVolume, Mathf.Log10(volume) * 20);
+    }
+
+    public float GetMasterVolume()
+    {
+        return audioMixer.GetFloat(MixerNames.masterVolume, out float volume) ? volume : 0f;
     }
     
-    public void FadeOutVolume(string name, float duration)
+    public float GetMusicVolume()
     {
-        StartCoroutine(FadeVolume(name, -80f , duration));
+        return audioMixer.GetFloat(MixerNames.musicVolume, out float volume) ? volume : 0f;
     }
     
-    public void FadeInVolume(string name,float duration)
+    public float GetSFXVVolume()
     {
-        StartCoroutine(FadeVolume(name, 0f ,duration));
+        return audioMixer.GetFloat(MixerNames.sfxVolume, out float volume) ? volume : 0f;
+    }
+    
+    public float GetAmbienceVolume()
+    {
+        return audioMixer.GetFloat(MixerNames.ambienceVolume, out float volume) ? volume : 0f;
+    }
+    
+    public void FadeVolumeToTarget(string name, float targetDb, float duration)
+    {
+        if (currentFade != null)
+            StopCoroutine(currentFade);
+        
+        currentFade = StartCoroutine(FadeVolume(name, targetDb ,duration));
     }
 
     IEnumerator FadeVolume(string name, float targetDb, float duration)
@@ -57,7 +89,7 @@ public class SoundMixerManager : MonoBehaviour
 
         while (time < duration)
         {
-            time += Time.deltaTime;
+            time += Time.unscaledDeltaTime;
             float linear = Mathf.Lerp(startLinear, targetLinear, time / duration);
             
             linear = Mathf.Max(linear, 0.0001f);
@@ -68,6 +100,30 @@ public class SoundMixerManager : MonoBehaviour
         }
 
         audioMixer.SetFloat(name, targetDb);
+    }
+    
+    public void LoadAudioSettings()
+    {
+        AudioData audioData = SaveSystem.LoadAudioData();
+        if (audioData != null)
+        {
+            StartCoroutine(ApplyAudioSettingsFrame1(audioData.masterVolume, audioData.musicVolume, audioData.sfxVolume, audioData.ambienceVolume));
+        }
+    }
+    
+    IEnumerator ApplyAudioSettingsFrame1(float masterVolume, float musicVolume, float sfxVolume, float ambienceVolume)
+    {
+        yield return null; 
+        
+        SetMasterVolume(DecibelToLinear(masterVolume));
+        SetMusicVolume(DecibelToLinear(musicVolume));
+        SetSFXVolume(DecibelToLinear(sfxVolume));
+        SetAmbienceVolume(DecibelToLinear(ambienceVolume));
+    }
+    
+    private float DecibelToLinear(float dB)
+    {
+        return Mathf.Pow(10, dB / 20);
     }
  
 }

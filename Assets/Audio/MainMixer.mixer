@@ -1,5 +1,24 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!243 &-8355188769501871231
+AudioMixerGroupController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MusicContent
+  m_AudioMixer: {fileID: 24100000}
+  m_GroupID: 303dfd520d17c1b4ea5bfa0adda10358
+  m_Children: []
+  m_Volume: 3716af5f0aeb8d542a00d28c8c236c35
+  m_Pitch: b566c6e3807708b4d867d316d47e8e45
+  m_Send: 00000000000000000000000000000000
+  m_Effects:
+  - {fileID: -6524608594759921060}
+  m_UserColorIndex: 0
+  m_Mute: 0
+  m_Solo: 0
+  m_BypassEffects: 0
 --- !u!244 &-7577510832242006085
 AudioMixerEffectController:
   m_ObjectHideFlags: 3
@@ -14,16 +33,32 @@ AudioMixerEffectController:
   m_SendTarget: {fileID: 0}
   m_EnableWetMix: 0
   m_Bypass: 0
+--- !u!244 &-6524608594759921060
+AudioMixerEffectController:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_EffectID: 74a10cda3fbd03547a68196d5e86ec2d
+  m_EffectName: Attenuation
+  m_MixLevel: b75de201f09290a4fb260d6476e69889
+  m_Parameters: []
+  m_SendTarget: {fileID: 0}
+  m_EnableWetMix: 0
+  m_Bypass: 0
 --- !u!243 &-4847530964277980619
 AudioMixerGroupController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Music
+  m_Name: Paused
   m_AudioMixer: {fileID: 24100000}
   m_GroupID: 2150c3b3038ff4b4599d13fc7b8a5338
-  m_Children: []
+  m_Children:
+  - {fileID: -3421731228491186252}
+  - {fileID: -8355188769501871231}
   m_Volume: 6fd01bdbff6941245bed960fdea18ef9
   m_Pitch: 0372dad6d1e9b334bb1690340318917c
   m_Send: 00000000000000000000000000000000
@@ -106,6 +141,8 @@ AudioMixerController:
   - guid: d2dd0b5df02262c42b487b4f7f0088e8
     name: MasterVolume
   - guid: 6fd01bdbff6941245bed960fdea18ef9
+    name: PauseVolume
+  - guid: 3716af5f0aeb8d542a00d28c8c236c35
     name: MusicVolume
   - guid: b6d4477bd586f1b4f885da09fe58af41
     name: SFXVolume
@@ -115,6 +152,7 @@ AudioMixerController:
     - 94289cee7ae03124ab13c3edc5b7c26f
     - 2150c3b3038ff4b4599d13fc7b8a5338
     - 3f220e4350863c747afd95d3c6cdd1b0
+    - 303dfd520d17c1b4ea5bfa0adda10358
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
@@ -130,7 +168,6 @@ AudioMixerGroupController:
   m_Children:
   - {fileID: -836485672483421316}
   - {fileID: -4847530964277980619}
-  - {fileID: -3421731228491186252}
   m_Volume: d2dd0b5df02262c42b487b4f7f0088e8
   m_Pitch: f7c084109705ecb47b2f0d95b7c2f331
   m_Send: 00000000000000000000000000000000

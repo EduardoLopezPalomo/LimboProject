@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8427871341882655647}
   - component: {fileID: 2603500539632641371}
   - component: {fileID: 4610110265603738119}
+  - component: {fileID: 4838462483246336143}
   m_Layer: 5
   m_Name: Continuar
   m_TagString: Untagged
@@ -90,10 +91,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: -1
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 4894743199155285566}
+    m_SelectOnDown: {fileID: 3022467114614786907}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -120,7 +121,45 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2603500539632641371}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9053984507898714638}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: Continue
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1859816310340602265}
+        m_TargetAssemblyTypeName: ChangeActionMap, Assembly-CSharp
+        m_MethodName: ChangeToPlayer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4838462483246336143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390990481749393917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c19fae47c670940a0e1888f4874e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedButtonSound
+  selectSound: {fileID: 8300000, guid: 9362f97ef5bad6b4e86e46429cce73bc, type: 3}
+  volume: 0.3
 --- !u!1 &1855880040847393786
 GameObject:
   m_ObjectHideFlags: 0
@@ -133,6 +172,7 @@ GameObject:
   - component: {fileID: 8845793527385908073}
   - component: {fileID: 743096679474108593}
   - component: {fileID: 4894743199155285566}
+  - component: {fileID: 5407020025264202496}
   m_Layer: 5
   m_Name: Salir a menu
   m_TagString: Untagged
@@ -211,10 +251,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 8088361737886710995}
+    m_SelectOnDown: {fileID: 4610110265603738119}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -242,18 +282,32 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 9053984507898714638}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: MainMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &5407020025264202496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1855880040847393786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c19fae47c670940a0e1888f4874e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedButtonSound
+  selectSound: {fileID: 8300000, guid: 9362f97ef5bad6b4e86e46429cce73bc, type: 3}
+  volume: 0.3
 --- !u!1 &2207130228302956618
 GameObject:
   m_ObjectHideFlags: 0
@@ -346,7 +400,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24.3
+  m_fontSize: 49.9
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -485,7 +539,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24.8
+  m_fontSize: 51.85
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -542,6 +596,8 @@ GameObject:
   - component: {fileID: 4694702049348145005}
   - component: {fileID: 4232326267745919112}
   - component: {fileID: 7253407341528491731}
+  - component: {fileID: 9053984507898714638}
+  - component: {fileID: 1859816310340602265}
   m_Layer: 5
   m_Name: Pause menu
   m_TagString: Untagged
@@ -632,6 +688,36 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &9053984507898714638
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3489612613636650748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6d65cca240aba14d83be7d2ec821110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
+  OptionMenu: {fileID: 0}
+  levelLoader: {fileID: 0}
+  continueButton: {fileID: 4610110265603738119}
+  levelToLoad: 0
+--- !u!114 &1859816310340602265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3489612613636650748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d959c1c7922d94b9ca7f9c2704dd85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChangeActionMap
+  fromStart: 0
+  playerInput: {fileID: 0}
 --- !u!1 &3946415418110136840
 GameObject:
   m_ObjectHideFlags: 0
@@ -644,6 +730,7 @@ GameObject:
   - component: {fileID: 2803558290974453678}
   - component: {fileID: 1486266365804005074}
   - component: {fileID: 8088361737886710995}
+  - component: {fileID: 4427493091069917756}
   m_Layer: 5
   m_Name: Ajustes
   m_TagString: Untagged
@@ -722,10 +809,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 3022467114614786907}
+    m_SelectOnDown: {fileID: 4894743199155285566}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -752,7 +839,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1486266365804005074}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9053984507898714638}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: Options
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4427493091069917756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3946415418110136840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c19fae47c670940a0e1888f4874e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedButtonSound
+  selectSound: {fileID: 8300000, guid: 9362f97ef5bad6b4e86e46429cce73bc, type: 3}
+  volume: 0.3
 --- !u!1 &4419880709811712245
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,6 +878,7 @@ GameObject:
   - component: {fileID: 7205003326464933576}
   - component: {fileID: 6846341938120429081}
   - component: {fileID: 3022467114614786907}
+  - component: {fileID: 6062256983214691748}
   m_Layer: 5
   m_Name: guardar
   m_TagString: Untagged
@@ -843,10 +957,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 4610110265603738119}
+    m_SelectOnDown: {fileID: 8088361737886710995}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 2
@@ -873,7 +987,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6846341938120429081}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9053984507898714638}
+        m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
+        m_MethodName: Save
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &6062256983214691748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4419880709811712245}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c19fae47c670940a0e1888f4874e3f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectedButtonSound
+  selectSound: {fileID: 8300000, guid: 9362f97ef5bad6b4e86e46429cce73bc, type: 3}
+  volume: 0.3
 --- !u!1 &6346097803070864766
 GameObject:
   m_ObjectHideFlags: 0
@@ -1045,7 +1185,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23.35
+  m_fontSize: 54.6
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1204,7 +1344,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 23.45
+  m_fontSize: 47.2
   m_fontSizeBase: 14
   m_fontWeight: 400
   m_enableAutoSizing: 1

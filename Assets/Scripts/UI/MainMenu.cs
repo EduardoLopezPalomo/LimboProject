@@ -7,6 +7,7 @@ public class MainMenu : MonoBehaviour
 {
     public GameObject OptionMenu;
     public LevelLoader levelLoader;
+    public int levelToLoad = 1;
 
     private Canvas canvas;
 
@@ -17,7 +18,7 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        levelLoader.LoadLevel();
+        levelLoader.LoadLevel(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = true;
     }

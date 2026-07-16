@@ -38,6 +38,7 @@ public class OptionMenuNavigation : MonoBehaviour
     {
         LastMenu.SetActive(true);
         gameObject.SetActive(false);
+        SaveSystem.SaveAudioData(SoundMixerManager.instance);
     }
 
     public void UpdateNavigation(Button lastClickButton)

@@ -8,7 +8,8 @@ public enum DayPhase
     FirstLight,
     Dawn,
     Day,
-    Sunset
+    Sunset,
+    Null
 }
 public class DayNight : MonoBehaviour
 {
@@ -171,5 +172,15 @@ public class DayNight : MonoBehaviour
         if (t < 0.65f) return DayPhase.Day;
         if (t < 0.77f) return DayPhase.Sunset;
         return DayPhase.Night;
+    }
+    
+    public void SetTimeOfDay(float t)
+    {
+        timeOfDay = Mathf.Clamp01(t);
+        RotateLights();
+        DayPhase newPhase = GetPhase(timeOfDay);
+        lastPhase = DayPhase.Null;
+        ChangePhase(newPhase);
+        
     }
 }
