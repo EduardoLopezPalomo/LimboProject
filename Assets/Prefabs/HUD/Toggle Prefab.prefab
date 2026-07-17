@@ -161,6 +161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2408831731437615224}
   - component: {fileID: 7595055942842283458}
+  - component: {fileID: 2651994728034746568}
   m_Layer: 5
   m_Name: Toggle Prefab
   m_TagString: Untagged
@@ -234,5 +235,37 @@ MonoBehaviour:
   m_Group: {fileID: 0}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2651994728034746568}
+        m_TargetAssemblyTypeName: ToggleSound, Assembly-CSharp
+        m_MethodName: OnValueChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_IsOn: 1
+--- !u!114 &2651994728034746568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8604730886072372759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f01375d72205a3e43ab73e44784a2bb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToggleSound
+  trueSound: {fileID: 8300000, guid: 69db6b22f25f91f45b7429d113008d5e, type: 3}
+  volumeTrue: 0.3
+  pitchTrueMin: 0.9
+  pitchTrueMax: 1.1
+  falseSound: {fileID: 8300000, guid: 452062f9f8bf7604eb4e02c18c6d65ca, type: 3}
+  volumeFalse: 0.3
+  pitchFalseMin: 0.9
+  pitchFalseMax: 1.1

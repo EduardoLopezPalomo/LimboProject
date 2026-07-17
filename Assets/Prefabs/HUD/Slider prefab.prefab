@@ -307,6 +307,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1359895459116353475}
   - component: {fileID: 8797245288272907948}
+  - component: {fileID: 2595848236110772935}
   m_Layer: 5
   m_Name: Slider prefab
   m_TagString: Untagged
@@ -386,4 +387,32 @@ MonoBehaviour:
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2595848236110772935}
+        m_TargetAssemblyTypeName: SliderSound, Assembly-CSharp
+        m_MethodName: OnValueChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2595848236110772935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9198059845471259258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f051f6d39f9dade4690a2313347f9be1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SliderSound
+  sound: {fileID: 8300000, guid: dfeb11400ec5f314b8c43a7b63332fa0, type: 3}
+  volume: 0.3
+  pitchMin: 0.9
+  pitchMax: 1.1
