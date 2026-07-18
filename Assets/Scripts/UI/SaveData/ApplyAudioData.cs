@@ -13,10 +13,10 @@ public class ApplyAudioData : MonoBehaviour
         AudioData data = SaveSystem.LoadAudioData();
         if (data != null)
         {
-            masterVolumeSlider.value = DecibelToLinear(data.masterVolume);
-            musicVolumeSlider.value = DecibelToLinear(data.musicVolume);
-            SfxVolumeSlider.value = DecibelToLinear(data.sfxVolume);
-            AmbienceVolumeSlider.value = DecibelToLinear(data.ambienceVolume);   
+            masterVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.masterVolume));
+            musicVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.musicVolume));
+            SfxVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.sfxVolume));
+            AmbienceVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.ambienceVolume));   
         }
     }
     
