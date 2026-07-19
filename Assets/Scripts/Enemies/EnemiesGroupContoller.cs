@@ -59,6 +59,7 @@ public class EnemiesGroupContoller : MonoBehaviour
 
     public void AlertGroup(GameObject alerter)
     {
+        MusicManager.Instance.StartBattle();
         foreach (var v in enemies)
         {
             if(alerter == v) continue;
@@ -67,6 +68,43 @@ public class EnemiesGroupContoller : MonoBehaviour
             aux.SetDetection();
         }
     }
+
+    public void EnemyHasDie(GameObject enemy)
+    {
+        enemies.Remove(enemy);
+        CheckBattleOver();
+    }
+
+    public void EnemyEndPersecution()
+    {
+        CheckBattleOver();
+    }
+
+    private void CheckBattleOver()
+    {
+        foreach (var enemy in enemies)
+        {
+            BehaviorGraphAgent agent = enemy.GetComponent<BehaviorGraphAgent>();
+            BlackboardVariable<BarbarianState> stateVariable;
+
+            if (agent.GetVariable("ActualState", out stateVariable))
+            {
+                
+                if (stateVariable.Value != BarbarianState.Calm && stateVariable.Value != BarbarianState.Death)
+                {
+                    return;
+                }
+            }
+        }
+
+        BattleOver();
+    }
+
+    private void BattleOver()
+    {
+        MusicManager.Instance.EndBattle();
+    }
+    
     //Methods for slots managment
     
     

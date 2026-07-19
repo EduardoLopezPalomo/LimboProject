@@ -24,7 +24,7 @@ public class LevelLoader : MonoBehaviour
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
         SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume",-80f, MusicFadeTime);
         
-        yield return new WaitForSeconds(transitionTime);
+        yield return new WaitForSecondsRealtime(transitionTime);
         
         SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume", MaxVolume, MusicFadeTime);
         SceneManager.LoadScene(levelIndex);

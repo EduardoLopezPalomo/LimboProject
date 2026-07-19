@@ -49,6 +49,7 @@ public class PauseMenu : MonoBehaviour
 
     public void MainMenu()
     {
+        PauseGameManager.ResumeGame();
         levelLoader.LoadLevel(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = false;

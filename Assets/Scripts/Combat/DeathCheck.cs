@@ -11,6 +11,7 @@ public class DeathCheck : MonoBehaviour
         if (IsDeath && controller != null)
         {
             controller.ReturnToken();
+            controller.EnemyHasDie(gameObject);
         }
     }
 
