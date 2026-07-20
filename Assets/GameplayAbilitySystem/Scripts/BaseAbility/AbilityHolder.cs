@@ -18,8 +18,6 @@ public class AbilityHolder : MonoBehaviour
 
     public event Action OnLoadoutChanged;
 
-    public IReadOnlyList<GameplayAbility> OwnedAbilities => abilities;
-
     private void Awake()
     {
         ActiveSpecs = new List<GameplayAbilitySpec>();
@@ -82,10 +80,9 @@ public class AbilityHolder : MonoBehaviour
             Debug.LogWarning($"AbilityHolder: No ability equipped in slot {slot}");
             return;
         }
-        else
-        {
-            ActivateAbility(equipped.Name, owner);
-        }
+        
+        ActivateAbility(equipped.Name, owner);
+        
     }
 
     /*Returns the equipped ability in that slot*/
@@ -106,6 +103,7 @@ public class AbilityHolder : MonoBehaviour
     /*Equips an ability in that slot*/
     public bool EquipAbility(GameplayAbility ability, int slot)
     {
+        
         if (ability == null || slot < 1 || slot > 2)
         {
             Debug.LogWarning($"AbilityHolder: Invalid ability or slot {slot}");
@@ -172,6 +170,11 @@ public class AbilityHolder : MonoBehaviour
         {
             return null;
         }
+    }
+
+    public List<GameplayAbility> GetAbilityList()
+    {
+        return abilities;
     }
 
     public void CancelAbility(string abilityName)
