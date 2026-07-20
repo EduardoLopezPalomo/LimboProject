@@ -6,6 +6,7 @@ public class PlayerUIController : MonoBehaviour
 {
     public GameObject playerUI;
     public GameObject PauseMenu;
+    public GameObject AblityMenu;
     public float TotalVolumeDB = -6f;
     public float DurationMusicFade = 2f;
     
@@ -24,6 +25,30 @@ public class PlayerUIController : MonoBehaviour
         PauseGameManager.PauseGame();
 
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);
+    }
+
+    public void PressAbilityMenuButton()
+    {
+        if (PauseMenu.activeSelf) return;
+        
+        if (AblityMenu.activeSelf)
+        {
+            playerUI.SetActive(true);
+            AblityMenu.SetActive(false);
+            playerInput.SwitchCurrentActionMap("Player");
+            PauseGameManager.ResumeGame();
+
+            SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
+        }
+        else
+        {
+            playerUI.SetActive(false);
+            AblityMenu.SetActive(true);
+            playerInput.SwitchCurrentActionMap("UI");
+            PauseGameManager.PauseGame();
+
+            SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);   
+        }
     }
     
 }

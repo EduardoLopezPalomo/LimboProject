@@ -30,6 +30,8 @@ namespace StarterAssets
         
         [Header("UI Events")]
 		public UnityEvent OnPauseEvent;
+		public UnityEvent OnAbilityMenuEvent;
+		public UnityEvent OnBackEvent;
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -78,6 +80,16 @@ namespace StarterAssets
 		public void OnPause(InputValue value)
 		{
 			if (value.isPressed) OnPauseEvent?.Invoke();
+		}
+
+		public void OnAbilityMenu(InputValue value)
+		{
+			if(value.isPressed) OnAbilityMenuEvent?.Invoke();
+		}
+
+		public void OnBack(InputValue value)
+		{
+			if(value.isPressed) OnBackEvent?.Invoke();
 		}
 #endif
 

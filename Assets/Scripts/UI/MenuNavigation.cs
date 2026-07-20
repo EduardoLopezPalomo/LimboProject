@@ -9,19 +9,20 @@ public struct NavigationButtons
 {
     public Button ActualButton;
     public Selectable RightButtonNav;
+    public Selectable DownButtonNav;
 }
 
-public class OptionMenuNavigation : MonoBehaviour
+public class MenuNavigation : MonoBehaviour
 {
     public GameObject LastMenu;
-    public GameObject GameplayMenu;
+    public GameObject FirstMenu;
     public List<NavigationButtons> navigationButtons;
     
     private GameObject currentMenu;
 
     void OnEnable()
     {
-        ShowMenu(GameplayMenu);
+        ShowMenu(FirstMenu);
     }
     
     public void ShowMenu(GameObject go)
@@ -36,7 +37,10 @@ public class OptionMenuNavigation : MonoBehaviour
 
     public void GoBack()
     {
-        LastMenu.SetActive(true);
+        if (LastMenu != null)
+        {
+            LastMenu.SetActive(true);   
+        }
         gameObject.SetActive(false);
         SaveSystem.SaveAudioData(SoundMixerManager.instance);
     }
@@ -46,12 +50,14 @@ public class OptionMenuNavigation : MonoBehaviour
         Navigation nav = lastClickButton.navigation;
         nav.mode = Navigation.Mode.Explicit;
         nav.selectOnRight = null;
+        nav.selectOnDown = null;
         
         foreach (var data in navigationButtons)
         {
             if (lastClickButton == data.ActualButton)
             {
                 nav.selectOnRight = data.RightButtonNav;
+                nav.selectOnDown = data.DownButtonNav;
                 break;
             }
         }

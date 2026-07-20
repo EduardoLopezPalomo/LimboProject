@@ -50,6 +50,7 @@ public class PauseMenu : MonoBehaviour
     public void MainMenu()
     {
         PauseGameManager.ResumeGame();
+        SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
         levelLoader.LoadLevel(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = false;

@@ -78,6 +78,11 @@ public class SoundMixerManager : MonoBehaviour
         currentFade = StartCoroutine(FadeVolume(name, targetDb ,duration));
     }
 
+    public void ParallelFadeVolume(string name, float targetDb, float duration)
+    {
+        StartCoroutine(FadeVolume(name, targetDb, duration));
+    }
+
     IEnumerator FadeVolume(string name, float targetDb, float duration)
     {
         audioMixer.GetFloat(name, out float startDb);

@@ -22,11 +22,11 @@ public class LevelLoader : MonoBehaviour
         animator.SetTrigger("StartLoading");
         playerInput.DeactivateInput();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
-        SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume",-80f, MusicFadeTime);
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
         
         yield return new WaitForSecondsRealtime(transitionTime);
         
-        SoundMixerManager.instance.FadeVolumeToTarget("MasterVolume", MaxVolume, MusicFadeTime);
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         SceneManager.LoadScene(levelIndex);
         playerInput.ActivateInput();
     }
