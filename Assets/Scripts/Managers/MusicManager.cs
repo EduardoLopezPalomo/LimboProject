@@ -1,14 +1,28 @@
+using System;
 using System.Collections;
 using UnityEngine;
+
+[Serializable]
+public enum MusicState
+{
+    Default, 
+    Normal,
+    Battle
+}
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
     
-    [Header("Loop Settings")]
+    [Header("Normal Loop Settings")]
     public float loopStartSeconds = 0f;
     public float loopEndSeconds = 180f;
     public bool loopTillEnd = true;
+    
+    [Header("Battle Loop Settings")]
+    public float battleStartSeconds = 0f;
+    public float battleEndSeconds = 180f;
+    public bool battleTillEnd = true;
     
     [Header("Battle Music")]
     public AudioClip battleMusic;
@@ -17,6 +31,7 @@ public class MusicManager : MonoBehaviour
     private AudioSource audioSource;
     private AudioClip normalMusic;
     private int normalTimeSample;
+    private MusicState musicState = MusicState.Default;
 
     void Awake()
     {
@@ -31,21 +46,39 @@ public class MusicManager : MonoBehaviour
     
     void Start()
     {
+        if (audioSource == null) return;
         audioSource.loop = false;
         if (loopTillEnd)
         {
             loopEndSeconds = audioSource.clip.length;
         }
+        if (battleTillEnd && battleMusic != null)
+        {
+            battleEndSeconds = battleMusic.length;
+        }
         audioSource.Play();
+        musicState = MusicState.Normal;
     }
     
     void Update()
     {
-        if (audioSource.time >= loopEndSeconds || (!audioSource.isPlaying && loopTillEnd))
+        if (musicState == MusicState.Normal)
         {
-            audioSource.Play();
-            audioSource.time = loopStartSeconds;
+            if (audioSource.time >= loopEndSeconds || (!audioSource.isPlaying && loopTillEnd))
+            {
+                audioSource.Play();
+                audioSource.time = loopStartSeconds;
+            }    
         }
+        else if (musicState == MusicState.Battle)
+        {
+            if (audioSource.time >= battleEndSeconds || (!audioSource.isPlaying && battleTillEnd))
+            {
+                audioSource.Play();
+                audioSource.time = battleStartSeconds;
+            } 
+        }
+        
     }
 
     public void StartBattle()
@@ -74,12 +107,14 @@ public class MusicManager : MonoBehaviour
         if (start)
         {
             normalTimeSample = audioSource.timeSamples;
-            audioSource.clip = battleMusic;   
+            audioSource.clip = battleMusic;
+            musicState = MusicState.Battle;
         }
         else
         {
             audioSource.clip = normalMusic;
             audioSource.timeSamples = normalTimeSample;
+            musicState = MusicState.Normal;
         }
         audioSource.Play();
         
