@@ -16,6 +16,7 @@ public abstract class GameplayAbility : ScriptableObject
     public bool isPasive = false;
     public bool equipable = true;
     public List<GameplayEffect> EffectsToSelf;
+    public string Description;
 
     public virtual void ActivateAbilityEffects(GameObject owner)
     {

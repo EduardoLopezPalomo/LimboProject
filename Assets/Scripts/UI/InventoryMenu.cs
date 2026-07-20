@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -6,8 +8,12 @@ using UnityEngine.UI;
 public class InventoryMenu : MonoBehaviour
 {
     public Button EquipAbilityButton;
+    public TextMeshProUGUI TittleText;
+    public TextMeshProUGUI DescriptionText;
     [SerializeField] private AbilityHolder playerAbilityHolder;
     [SerializeField] private List<AbilitySlotInventory> Slots;
+    [SerializeField] private GameObject SlotAbiity1;
+    [SerializeField] private GameObject SlotAbiity2;
     
     private Dictionary<AbilitySlotInventory, GameplayAbility> dictionary = new Dictionary<AbilitySlotInventory, GameplayAbility>();
     private Button LastButton;
@@ -15,6 +21,8 @@ public class InventoryMenu : MonoBehaviour
 
     void OnEnable()
     {
+        playerAbilityHolder.OnUnequipAbility += UnequipAbility;
+        
         List<GameplayAbility> abilities = playerAbilityHolder.GetAbilityList();
         for (int i = 0; i < Slots.Count; i++)
         {
@@ -25,7 +33,7 @@ public class InventoryMenu : MonoBehaviour
             }
             if (i >= abilities.Count || abilities[i] == null)
             {
-                Slots[i].Image.gameObject.SetActive(false);
+                Slots[i].AbilityImage.gameObject.SetActive(false);
                 continue;
             }
 
@@ -39,6 +47,11 @@ public class InventoryMenu : MonoBehaviour
         
     }
 
+    void OnDisable()
+    {
+        playerAbilityHolder.OnUnequipAbility -= UnequipAbility;
+    }
+
     public void WantToEquipAbility(AbilitySlotInventory Slot)
     {
         if(!dictionary.ContainsKey(Slot) || !dictionary[Slot].equipable) return;
@@ -48,7 +61,7 @@ public class InventoryMenu : MonoBehaviour
         WantToEquipSlot = Slot;
     }
 
-    public void EquipAbility(AbilitySlotInventory Slot)
+    public void EquipAbility(GameObject SlotAbility)
     {
         if (LastButton == null || WantToEquipSlot == null)
         {
@@ -57,23 +70,64 @@ public class InventoryMenu : MonoBehaviour
         
         GameplayAbility ability = dictionary[WantToEquipSlot];
         
-        if (Slot.gameObject.name == "Slot1")
+        if (SlotAbility == SlotAbiity1)
         {
             playerAbilityHolder.EquipAbility(ability, 1);
         }
-        else if (Slot.gameObject.name == "Slot2")
+        else if (SlotAbility == SlotAbiity2)
         {
             playerAbilityHolder.EquipAbility(ability, 2);
         }
         else
         {
-            Debug.LogWarning("El boton " + Slot.name + " no coincide con el nombre Slot1 o Slot2 ");
+            Debug.LogWarning("El boton " + SlotAbility.name + " no coincide con el  Slot1 o Slot2 ");
         }
-        
-        Slot.ChangeSprite(ability.icon);
+
+        AbilitySlotInventory inv =  SlotAbility.GetComponent<AbilitySlotInventory>();
+        if (inv != null)
+        {
+            inv.ChangeSprite(ability.icon);     
+        }
         SelectButton(LastButton);
         LastButton = null;
         WantToEquipSlot = null;
+    }
+
+    private void UnequipAbility(int slot)
+    {
+        if (slot == 1)
+        {
+            AbilitySlotInventory inv =  SlotAbiity1.GetComponent<AbilitySlotInventory>();
+            if (inv != null)
+            {
+                inv.DefaultSprite();     
+            }
+        }
+        else if (slot == 2)
+        {
+            AbilitySlotInventory inv =  SlotAbiity2.GetComponent<AbilitySlotInventory>();
+            if (inv != null)
+            {
+                inv.DefaultSprite();    
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Slot no es 1 o 2");
+        }
+    }
+
+    public void ChangeDescription(AbilitySlotInventory Slot)
+    {
+        if (!dictionary.ContainsKey(Slot))
+        {
+            TittleText.text = "Locked";
+            DescriptionText.text = "";
+            return;
+        }
+            
+        TittleText.text = dictionary[Slot].Name;
+        DescriptionText.text = dictionary[Slot].Description;
     }
 
     private void SelectButton(Button button)

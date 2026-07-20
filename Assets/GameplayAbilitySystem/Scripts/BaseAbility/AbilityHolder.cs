@@ -16,7 +16,7 @@ public class AbilityHolder : MonoBehaviour
 
     public List<GameplayAbilitySpec> ActiveSpecs;
 
-    public event Action OnLoadoutChanged;
+    public event Action<int> OnUnequipAbility;
 
     private void Awake()
     {
@@ -113,11 +113,17 @@ public class AbilityHolder : MonoBehaviour
         {
             case 1:
                 abilitySlot1 = ability;
-                OnLoadoutChanged?.Invoke();
+                if (abilitySlot2 == ability)
+                {
+                    UnequipAbility(2);
+                }
                 return true;
             case 2:
                 abilitySlot2 = ability;
-                OnLoadoutChanged?.Invoke();
+                if (abilitySlot1 == ability)
+                {
+                    UnequipAbility(1);
+                }
                 return true;
             default:
                 Debug.LogWarning($"AbilityHolder: Invalid ability slot {slot}");
@@ -136,11 +142,11 @@ public class AbilityHolder : MonoBehaviour
         {
             case 1:
                 abilitySlot1 = null;
-                OnLoadoutChanged?.Invoke();
+                OnUnequipAbility?.Invoke(1);
                 return true;
             case 2:
                 abilitySlot2 = null;
-                OnLoadoutChanged?.Invoke();
+                OnUnequipAbility?.Invoke(2);
                 return true;
             default:
                 Debug.LogWarning($"AbilityHolder: Invalid ability slot {slot}");

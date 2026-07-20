@@ -1,14 +1,36 @@
+using System;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-public class AbilitySlotInventory : MonoBehaviour
+[System.Serializable]
+public class SelectedEvent : UnityEvent<AbilitySlotInventory>{ }
+
+public class AbilitySlotInventory : MonoBehaviour, ISelectHandler
 {
     public Button Button;
-    public Image Image;
+    public Image AbilityImage;
+    
+    [Header("Events")]
+    public SelectedEvent OnSelected;
+    
+    private Sprite ButtonImageSprite;
 
     public void ChangeSprite(Sprite sprite)
     {
-        Image.sprite = sprite;
-        Image.color = Color.white;
+        AbilityImage.sprite = sprite;
+        AbilityImage.color = Color.white;
+    }
+
+    public void DefaultSprite()
+    {
+        AbilityImage.sprite = null;
+        AbilityImage.color = new Color32(255, 255, 255, 0);
+    }
+    
+    public void OnSelect(BaseEventData eventData)
+    {
+        OnSelected?.Invoke(this);
     }
 }
