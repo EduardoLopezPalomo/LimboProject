@@ -298,7 +298,8 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         if (owner.CompareTag("Player"))
         {
-            controller.SetInputAviable(true);   
+            controller.SetInputAviable(true); 
+            characterController.Move(Vector3.zero);
         }
     }
     
@@ -306,7 +307,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         if (owner.CompareTag("Player"))
         {
-            controller.SetInputAviable(false);   
+            controller.SetInputAviable(false);  
         }
     }
 
@@ -337,5 +338,10 @@ public class LightAttackSpec : GameplayAbilitySpec
     public void EndAttackAssist()
     {
         attackAssistActive = false;
+        if(attackAssistCoroutine != null)
+        {
+            controller.StopCoroutine(attackAssistCoroutine);
+            attackAssistCoroutine = null;
+        }
     }
 }
