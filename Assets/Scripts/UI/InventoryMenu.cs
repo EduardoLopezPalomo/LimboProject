@@ -12,6 +12,7 @@ public class InventoryMenu : MonoBehaviour
     public TextMeshProUGUI DescriptionText;
     [SerializeField] private AbilityHolder playerAbilityHolder;
     [SerializeField] private List<AbilitySlotInventory> Slots;
+    [SerializeField] private List<AbilitySlotInventory> PasiveSlots;
     [SerializeField] private GameObject SlotAbiity1;
     [SerializeField] private GameObject SlotAbiity2;
     
@@ -24,25 +25,43 @@ public class InventoryMenu : MonoBehaviour
         playerAbilityHolder.OnUnequipAbility += UnequipAbility;
         
         List<GameplayAbility> abilities = playerAbilityHolder.GetAbilityList();
-        for (int i = 0; i < Slots.Count; i++)
+        int activeIndex = 0;
+        int passiveIndex = 0;
+        
+        foreach (var slot in Slots)
+            slot.AbilityImage.gameObject.SetActive(false);
+
+        foreach (var slot in PasiveSlots)
+            slot.AbilityImage.gameObject.SetActive(false);
+
+        foreach (GameplayAbility ability in abilities)
         {
-            if (Slots[i] == null)
+            if (ability == null)
             {
-                Debug.LogWarning("la imagen " + i + " es null");
-                continue;
-            }
-            if (i >= abilities.Count || abilities[i] == null)
-            {
-                Slots[i].AbilityImage.gameObject.SetActive(false);
+                Debug.LogWarning("Ability " + ability.name + " is null");
                 continue;
             }
 
-            if (dictionary.ContainsKey(Slots[i])) continue;
-            
-            if(abilities[i].isPasive) continue;
-            
-            dictionary.Add(Slots[i], abilities[i]);
-            Slots[i].ChangeSprite(abilities[i].icon);
+            if (ability.isPasive)
+            {
+                if (passiveIndex >= PasiveSlots.Count)
+                    continue;
+                
+                var slot = PasiveSlots[passiveIndex++];
+                slot.AbilityImage.gameObject.SetActive(true);
+                dictionary[slot] = ability;
+                slot.ChangeSprite(ability.icon);
+            }
+            else
+            {
+                if (activeIndex >= Slots.Count)
+                    continue;
+
+                var slot = Slots[activeIndex++];
+                slot.AbilityImage.gameObject.SetActive(true);
+                dictionary[slot] = ability;
+                slot.ChangeSprite(ability.icon);
+            }
         }
         
     }
