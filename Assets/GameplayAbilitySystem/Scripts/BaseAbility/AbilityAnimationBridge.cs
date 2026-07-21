@@ -76,24 +76,35 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
     
-    public void MakeInvincible()
+    public void StartAttackAssist()
     {
         foreach (var spec in currentSpec)
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
-                lightAttackSpec.MakeInvincible();
+                lightAttackSpec.StartAttackAssist();
             }
         }
     }
     
-    public void DisableInvincible()
+    public void EndAttackAssist()
     {
         foreach (var spec in currentSpec)
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
-                lightAttackSpec.DisableInvincible();
+                lightAttackSpec.EndAttackAssist();
+            }
+        }
+    }
+
+    public void DisableInputPlayer()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is LightAttackSpec lightAttackSpec)
+            {
+                lightAttackSpec.DisableInput();
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using StarterAssets;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -7,39 +8,40 @@ public class LightAttackSpec : GameplayAbilitySpec
     private Animator animator;
     private ThirdPersonController controller;
     private CharacterController characterController;
-    private MakeInvincible invincible;
     private WeaponController weaponController;
     private StarterAssetsInputs starterInputs;
-
-
-
+    
     private int comboIndex;
     private bool inCombo;
     private bool canReceiveInput;
     private bool bufferedInput;
+    private Vector3 attackDirection;
+    private Transform attackTarget;
+    private bool attackAssistActive;
+    private Coroutine attackAssistCoroutine;
+    private Vector3 attackDestination;
     
     private float forwardDistanceRay;
     private float lateralDistanceRay;       
-    private float dashDuration;
+    private float attackAssistSpeed;
     private float dashStopDistance; 
     private float dashDefaultDistance;
     private float rotationSpeed;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float DashDuration, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         controller = owner.GetComponent<ThirdPersonController>();
         weaponController = owner.GetComponent<WeaponController>();
         characterController = owner.GetComponent<CharacterController>();
-        invincible = owner.GetComponent<MakeInvincible>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
         
         lateralDistanceRay = LateralDistanceRay;
         forwardDistanceRay = ForwardDistanceRay;
-        dashDuration = DashDuration;
+        attackAssistSpeed = AttackAssistSpeed;
         dashStopDistance = DashStopDistance;
         dashDefaultDistance = DashDefaultDistance;
         rotationSpeed = RotationSpeed;
@@ -70,7 +72,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             animator.SetInteger("ComboIndex", comboIndex);
             animator.SetTrigger("Attack");  
             
-            TryAimAssistDash();
+            CaptureAttackIntent();
         }
         else if (owner.CompareTag("Enemy"))
         {
@@ -89,7 +91,8 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             comboIndex = 1;
         }
-        TryAimAssistDash();
+
+        CaptureAttackIntent();
         animator.SetInteger("ComboIndex", comboIndex);
         animator.SetTrigger("Attack");
     }
@@ -111,6 +114,11 @@ public class LightAttackSpec : GameplayAbilitySpec
             EndCombo();
         }
         animator.SetBool("InCombo", false);
+        attackAssistActive = false;
+        if (attackAssistCoroutine != null)
+        {
+            controller.StopCoroutine(attackAssistCoroutine);   
+        }
         DisableSwordCollider();
     }
 
@@ -138,27 +146,39 @@ public class LightAttackSpec : GameplayAbilitySpec
 
         return (camForward * move.y + camRight * move.x).normalized;
     }
-    
-    void TryAimAssistDash()
+
+    void CaptureAttackIntent()
     {
-        Transform target = FindTargetInRectangle();
-        if (target != null)
+        attackDirection = GetAimDirection();
+        attackTarget = FindTargetInRectangle(attackDirection);
+        
+        if (attackTarget != null)
         {
-            controller.StartCoroutine(DashTowards(target));
+            attackDestination = CalculateAttackPoint(attackTarget);
         }
         else
         {
-            controller.StartCoroutine(DefaultDash());
+            attackDestination = owner.transform.position + attackDirection * dashDefaultDistance;
         }
     }
     
-    Transform FindTargetInRectangle()
+    Vector3 CalculateAttackPoint(Transform target)
+    {
+        Vector3 direction = (target.position - owner.transform.position).normalized;
+
+        Vector3 point = target.position - direction * dashStopDistance;
+
+        point.y = owner.transform.position.y;
+
+        return point;
+    }
+    
+    Transform FindTargetInRectangle(Vector3 forward)
     {
         Vector3 origin = owner.transform.position;
-        Vector3 forward = GetAimDirection();
 
         Transform best = null;
-        float bestDistance = Mathf.Infinity;
+        float bestScore = Mathf.Infinity;
 
         Collider[] hits = Physics.OverlapBox(
             origin + forward * (forwardDistanceRay / 2f),
@@ -174,69 +194,64 @@ public class LightAttackSpec : GameplayAbilitySpec
             Vector3 toTarget = hit.transform.position - origin;
             toTarget.y = 0f;
             float distance = toTarget.magnitude;
+            float angle = Vector3.Angle(forward, toTarget.normalized);
+            
+            float score = distance + angle * 0.1f;
 
-            if (distance < bestDistance)
+            if (score < bestScore)
             {
-                bestDistance = distance;
+                bestScore = score;
                 best = hit.transform;
             }
         }
 
         return best;
     }
-
-    System.Collections.IEnumerator DashTowards(Transform target)
-    {
-        float elapsed = 0f;
-        
-        Vector3 initialToTarget = target.position - owner.transform.position;
-        initialToTarget.y = 0f;
-        
-        Vector3 dashDestination = target.position - initialToTarget.normalized * dashStopDistance;
-        dashDestination.y = owner.transform.position.y;
-        
-        float travelDistance = Vector3.Distance(owner.transform.position, dashDestination);
-        float speed = travelDistance / dashDuration;
-        
-        Quaternion targetRotation = Quaternion.LookRotation(initialToTarget.normalized);
-
-
-        while (elapsed < dashDuration)
-        {
-            Vector3 toDestination = dashDestination - owner.transform.position;
-            toDestination.y = 0f;
-            float remainingDistance = toDestination.magnitude;
-
-            if (remainingDistance <= 0.05f)
-                break;
-
-            Vector3 dashDirection = toDestination.normalized;
-
-            float step = speed * Time.deltaTime;
-            step = Mathf.Min(step, remainingDistance);
-
-            characterController.Move(dashDirection * step + Vector3.down * 0.05f);
-            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-    }
     
-    System.Collections.IEnumerator DefaultDash()
+    IEnumerator AttackAssist()
     {
-        Vector3 dashDirection = GetAimDirection();
-        Quaternion targetRotation = dashDirection.sqrMagnitude > 0.001f ? Quaternion.LookRotation(dashDirection) : owner.transform.rotation;
-
-        float elapsed = 0f;
-        while (elapsed < dashDuration)
+        while (attackAssistActive)
         {
-            float step = (dashDefaultDistance / dashDuration) * Time.deltaTime;
-            characterController.Move(dashDirection * step + Vector3.down * 0.05f);
-            owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            elapsed += Time.deltaTime;
+            Vector3 destination;
+            Vector3 lookDirection;
+
+            if (attackTarget != null)
+            {
+                destination = CalculateAttackPoint(attackTarget);
+                lookDirection = attackTarget.position - owner.transform.position;
+            }
+            else
+            {
+                destination = attackDestination;
+                lookDirection = attackDirection;
+            }
+            
+            Vector3 direction = destination - owner.transform.position;
+            direction.y = 0;
+            lookDirection.y = 0f;
+
+            if(direction.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation =  Quaternion.LookRotation(lookDirection);
+
+                owner.transform.rotation = Quaternion.Slerp( owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
+            
+            float step = attackAssistSpeed * Time.deltaTime;
+            float distance = direction.magnitude;
+            
+            if (distance < 0.05f)
+            {
+                yield return null;
+                continue;
+            }
+
+            step = Mathf.Min(step, distance);
+            characterController.Move(direction.normalized * step + Vector3.down * 0.05f);
             yield return null;
         }
+
+        attackAssistCoroutine = null;
     }
     
     void DrawDebugRectangle(Vector3 origin, Vector3 forward)
@@ -264,10 +279,6 @@ public class LightAttackSpec : GameplayAbilitySpec
     public void ComboWindowOpen()
     {
         canReceiveInput = true;
-        if (owner.CompareTag("Player"))
-        {
-            controller.SetInputAviable(false);   
-        }
     }
 
     public void ComboWindowClose()
@@ -290,6 +301,14 @@ public class LightAttackSpec : GameplayAbilitySpec
             controller.SetInputAviable(true);   
         }
     }
+    
+    public void DisableInput()
+    {
+        if (owner.CompareTag("Player"))
+        {
+            controller.SetInputAviable(false);   
+        }
+    }
 
     public void EndComboAnimation() => EndCombo();
     
@@ -306,19 +325,17 @@ public class LightAttackSpec : GameplayAbilitySpec
         weaponController.DisableCollision();
     }
 
-    public void MakeInvincible()
+    public void StartAttackAssist()
     {
-        if (invincible)
-        {
-            //invincible.SetInvincible(true);   
-        }
+        attackAssistActive = true;
+        if (attackAssistCoroutine != null)
+            controller.StopCoroutine(attackAssistCoroutine);
+
+        attackAssistCoroutine = controller.StartCoroutine(AttackAssist());
     }
     
-    public void DisableInvincible()
+    public void EndAttackAssist()
     {
-        if (invincible)
-        {
-            //invincible.SetInvincible(false);   
-        }
+        attackAssistActive = false;
     }
 }
