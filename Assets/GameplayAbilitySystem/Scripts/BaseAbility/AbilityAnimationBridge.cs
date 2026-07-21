@@ -242,6 +242,17 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
     
+    public void EndDash()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is DashSpec dashSpec)
+            {
+                dashSpec.EndDash();
+            }
+        }
+    }
+    
     
 
 }

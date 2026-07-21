@@ -26,6 +26,7 @@ public class HitShieldMove : MonoBehaviour
             if (moved >= moveDistance)
             {
                 movingBack = false;
+                controller.Move(Vector3.zero);
                 moved = 0f;
             }
         }

@@ -328,20 +328,26 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void StartAttackAssist()
     {
-        attackAssistActive = true;
-        if (attackAssistCoroutine != null)
-            controller.StopCoroutine(attackAssistCoroutine);
+        if (owner.CompareTag("Player"))
+        {
+            attackAssistActive = true;
+            if (attackAssistCoroutine != null)
+                controller.StopCoroutine(attackAssistCoroutine);
 
-        attackAssistCoroutine = controller.StartCoroutine(AttackAssist());
+            attackAssistCoroutine = controller.StartCoroutine(AttackAssist());   
+        }
     }
     
     public void EndAttackAssist()
     {
-        attackAssistActive = false;
-        if(attackAssistCoroutine != null)
+        if (owner.CompareTag("Player"))
         {
-            controller.StopCoroutine(attackAssistCoroutine);
-            attackAssistCoroutine = null;
+            attackAssistActive = false;
+            if (attackAssistCoroutine != null)
+            {
+                controller.StopCoroutine(attackAssistCoroutine);
+                attackAssistCoroutine = null;
+            }
         }
     }
 }

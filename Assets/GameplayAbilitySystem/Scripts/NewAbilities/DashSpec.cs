@@ -43,6 +43,7 @@ public class DashSpec : GameplayAbilitySpec
         }
         animator.SetBool("Dash", true);
         direction = GetAimDirection();
+        RotateTowardsDashDirection();
         
         makeInvincible.SetInvincible(true);
         personcontroller.SetInputAviable(false);
@@ -67,6 +68,14 @@ public class DashSpec : GameplayAbilitySpec
 
         return (camForward * move.y + camRight * move.x).normalized;
     }
+    
+    private void RotateTowardsDashDirection()
+    {
+        if(direction.sqrMagnitude < 0.001f)
+            return;
+
+        owner.transform.rotation = Quaternion.LookRotation(direction);
+    }
 
     private IEnumerator waitTillEndFrame()
     {
@@ -82,13 +91,18 @@ public class DashSpec : GameplayAbilitySpec
         }
         
         animator.SetBool("Dash", false);
-        makeInvincible.SetInvincible(false);
-        personcontroller.SetInputAviable(true);
     }
 
     public void StartMoving()
     {
         abilityHolder.StartCoroutine(waitTillEndFrame());
+    }
+
+    public void EndDash()
+    {
+        makeInvincible.SetInvincible(false);
+        personcontroller.SetInputAviable(true);
+        charactercontroller.Move(Vector3.zero);
     }
 
     public override void EndAbility()
