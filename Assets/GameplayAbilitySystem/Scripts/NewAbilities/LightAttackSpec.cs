@@ -20,6 +20,8 @@ public class LightAttackSpec : GameplayAbilitySpec
     private bool attackAssistActive;
     private Coroutine attackAssistCoroutine;
     private Vector3 attackDestination;
+    private float comboEndTime;
+    private float comboCooldown = 0.3f;
     
     private float forwardDistanceRay;
     private float lateralDistanceRay;       
@@ -50,70 +52,51 @@ public class LightAttackSpec : GameplayAbilitySpec
     public override void ActivateAbility()
     {
         base.ActivateAbility();
-        if (owner.CompareTag("Player"))
+        if (!inCombo)
+        {
+            if (Time.time < comboEndTime + comboCooldown)
+            {
+                return;
+            }
+            StartCombo();    
+        }
+        else
         {
             if (canReceiveInput)
+            {
                 bufferedInput = true;
-            else if (!inCombo)
-                StartCombo();
+            }
         }
-        else if (owner.CompareTag("Enemy"))
-        {
-            if (!inCombo)
-                StartCombo();   
-        }
+        
     }
 
     void StartCombo()
     {
-        if (owner.CompareTag("Player"))
+        
+        if (!animator.GetBool("Grounded") || animator.GetBool("Dash"))
         {
-            if (!animator.GetBool("Grounded") || animator.GetBool("Dash"))
-            {
-                return;
-            }
-            inCombo = true;
-            comboIndex = 1;
+            return;
+        }
+        inCombo = true;
+        comboIndex = 1;
 
-            animator.SetBool("InCombo", true);
-            animator.SetInteger("ComboIndex", comboIndex);
-            animator.SetTrigger("Attack");  
-            weaponController.EquipWeapon();
-            
-            CaptureAttackIntent();
-        }
-        else if (owner.CompareTag("Enemy"))
-        {
-            weaponController.EquipWeapon();
-            animator.SetBool("InCombo", true);
-            animator.SetTrigger("Attack"); 
-        }
-    }
-    void ContinueCombo()
-    {
-        bufferedInput = false;
-        if (comboIndex < 3)
-        {
-            comboIndex++;   
-        }
-        else
-        {
-            comboIndex = 1;
-        }
-
-        CaptureAttackIntent();
-        animator.SetInteger("ComboIndex", comboIndex);
-        animator.SetTrigger("Attack");
+        animator.SetBool("InCombo", true);
+        animator.SetTrigger("Attack");  
+        weaponController.EquipWeapon();
     }
 
     void EndCombo()
     {
         inCombo = false;
         comboIndex = 0;
-        if (owner.CompareTag("Player"))
+        bufferedInput = false;
+        comboEndTime = Time.time;
+        if (!animator.GetBool("IsStrafing"))
         {
-            weaponController.UnequipWeapon();   
+            weaponController.UnequipWeapon();    
         }
+        controller.SetInputAviable(true); 
+        characterController.Move(Vector3.zero);
         animator.SetBool("InCombo", false);
     }
     public override void CancelAbility()
@@ -298,32 +281,23 @@ public class LightAttackSpec : GameplayAbilitySpec
         canReceiveInput = false;
     }
 
-    public void ComboTransitionReady()
+    public void CanHaveInput()
     {
         if (bufferedInput)
         {
-            ContinueCombo();
+            StartCombo();
+            bufferedInput = false;
+            return;
         }
+        EndAbility();
+        controller.SetInputAviable(true); 
+        characterController.Move(Vector3.zero);
     }
 
-    public void CanHaveInput()
-    {
-        if (owner.CompareTag("Player"))
-        {
-            controller.SetInputAviable(true); 
-            characterController.Move(Vector3.zero);
-        }
-    }
-    
     public void DisableInput()
     {
-        if (owner.CompareTag("Player"))
-        {
-            controller.SetInputAviable(false);  
-        }
+        controller.SetInputAviable(false);
     }
-
-    public void EndComboAnimation() => EndCombo();
     
 
     public void EnableSwordCollider()
@@ -340,26 +314,28 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void StartAttackAssist()
     {
-        if (owner.CompareTag("Player"))
+        if (!bufferedInput && comboIndex != 1)
         {
-            attackAssistActive = true;
-            if (attackAssistCoroutine != null)
-                controller.StopCoroutine(attackAssistCoroutine);
-
-            attackAssistCoroutine = controller.StartCoroutine(AttackAssist());   
+            EndAbility();
+            return;
         }
+        comboIndex ++;
+        attackAssistActive = true;
+        bufferedInput = false;
+        if (attackAssistCoroutine != null)
+            controller.StopCoroutine(attackAssistCoroutine);
+
+        CaptureAttackIntent();
+        attackAssistCoroutine = controller.StartCoroutine(AttackAssist());
     }
     
     public void EndAttackAssist()
     {
-        if (owner.CompareTag("Player"))
+        attackAssistActive = false;
+        if (attackAssistCoroutine != null)
         {
-            attackAssistActive = false;
-            if (attackAssistCoroutine != null)
-            {
-                controller.StopCoroutine(attackAssistCoroutine);
-                attackAssistCoroutine = null;
-            }
+            controller.StopCoroutine(attackAssistCoroutine);
+            attackAssistCoroutine = null;
         }
     }
 }

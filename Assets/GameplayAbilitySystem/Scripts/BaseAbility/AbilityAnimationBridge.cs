@@ -32,28 +32,6 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
 
-    public void EndComboAnimation()
-    {
-        foreach (var spec in currentSpec)
-        {
-            if (spec is LightAttackSpec lightAttackSpec)
-            {
-                lightAttackSpec.EndComboAnimation();
-            }
-        }
-    }
-
-    public void ComboTransitionReady()
-    {
-        foreach (var spec in currentSpec)
-        {
-            if (spec is LightAttackSpec lightAttackSpec)
-            {
-                lightAttackSpec.ComboTransitionReady();
-            }
-        }
-    }
-
     public void EnableSwordCollider()
     {
         foreach (var spec in currentSpec)
