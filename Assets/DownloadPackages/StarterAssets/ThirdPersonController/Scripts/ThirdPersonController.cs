@@ -72,9 +72,9 @@ namespace StarterAssets
 
         [Tooltip("Pitch (rotación X) para la cámara isométrica")]
         public float IsoPitch = 30f;
-
-        [Tooltip("Distancia de la cámara isométrica (usada para el FollowOffset)")]
-        public float IsoDistance = 10f;
+        
+        [Tooltip("Reduccion de velocidad del movimiento de camara")]
+        public float CameraRotationSpeedMultiplier = 0.5f;
 
         [Tooltip("Tamaño ortográfico para la cámara isométrica")]
         public float IsoOrthographicSize = 5f;
@@ -90,9 +90,6 @@ namespace StarterAssets
 
         [Tooltip("Additional degress to override the camera. Useful for fine tuning camera position when locked")]
         public float CameraAngleOverride = 0.0f;
-
-        [Tooltip("For locking the camera position on all axis")]
-        public bool LockCameraPosition = false;
 
         public bool InputAvaible = true;
 
@@ -171,30 +168,16 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
-
+            
             if (IsometricMode && PlayerCameraVcam != null)
             {
                 // lens -> ortográfico
                 PlayerCameraVcam.m_Lens.Orthographic = true;
                 PlayerCameraVcam.m_Lens.OrthographicSize = IsoOrthographicSize;
 
-                // fijar la rotación del target de Cinemachine (target que sigue la cámara)
-                CinemachineCameraTarget.transform.rotation = Quaternion.Euler(IsoPitch, IsoYaw, 0f);
-
-                // ajustar el FollowOffset del Transposer para posicionar la cámara
-                var transposer = PlayerCameraVcam.GetCinemachineComponent<CinemachineTransposer>();
-                if (transposer != null)
-                {
-                    // calculamos un offset "por detrás y arriba" respecto al target, usando los ángulos isométricos
-                    Vector3 offset = Quaternion.Euler(IsoPitch, IsoYaw, 0f) * new Vector3(0f, 0f, -IsoDistance);
-                    // elevarlo un poco para que no quede justo nivel cero (opcional)
-                    offset.y += IsoDistance * 0.5f;
-                    transposer.m_FollowOffset = offset;
-                }
-
-                // opcional: bloquea la rotación por input (no queremos que la cámara se mueva con el ratón)
-                LockCameraPosition = true;
+                _cinemachineTargetPitch = IsoPitch;
             }
+            
         }
 
         private void Update()
@@ -245,11 +228,19 @@ namespace StarterAssets
             if (IsometricMode)
             {
                 // garantizar que el target tenga la rotación isométrica (por si algo la cambió)
+                if (_input.look.sqrMagnitude >= _threshold)
+                {
+                    float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+
+                    IsoYaw += _input.look.x * deltaTimeMultiplier * CameraRotationSpeedMultiplier;
+                }
+
                 CinemachineCameraTarget.transform.rotation = Quaternion.Euler(IsoPitch + CameraAngleOverride, IsoYaw, 0f);
+
                 return;
             }
             // if there is an input and camera position is not fixed
-            if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
+            if (_input.look.sqrMagnitude >= _threshold)
             {
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
