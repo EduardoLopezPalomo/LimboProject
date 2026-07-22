@@ -10,22 +10,22 @@ public class WeaponController : MonoBehaviour
     private WeaponDamage weaponDamage;
     private Animator animator;
     private bool equipped = false;
+    private BoxCollider collider;
 
     private void Awake()
     {
         weaponDamage = weapon.GetComponent<WeaponDamage>();
         animator = GetComponent<Animator>();
+        collider = weapon.GetComponent<BoxCollider>();
     }
     public void EnableCollision(int comboNumber)
     {
-        BoxCollider collider = weapon.GetComponent<BoxCollider>();
         collider.enabled = true;
         weaponDamage.SetComboNumber(comboNumber);
     }
 
     public void DisableCollision()
     {
-        BoxCollider collider = weapon.GetComponent<BoxCollider>();
         collider.enabled = false;
     }
 
@@ -44,6 +44,7 @@ public class WeaponController : MonoBehaviour
         if (!equipped) return;
 
         equipped = false;
+        DisableCollision();
         weapon.transform.SetParent(HipSlot.transform);
         weapon.transform.localPosition = Vector3.zero;
         weapon.transform.localRotation = Quaternion.identity;

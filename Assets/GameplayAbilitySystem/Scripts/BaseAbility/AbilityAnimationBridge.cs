@@ -8,7 +8,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     private List<GameplayAbilitySpec> currentSpec => abilityHolder.ActiveSpecs;
 
     /*
-     *  Notifies of LightAttack
+     *  Notifies of SwordAttack
      */
     public void ComboWindowOpen()
     {
@@ -40,6 +40,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 lightAttackSpec.EnableSwordCollider();
             }
+            if (spec is BarbarianAttackSpec barbarianAttackSpec)
+            {
+                barbarianAttackSpec.EnableSwordCollider();
+            }
         }
     }
 
@@ -50,6 +54,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is LightAttackSpec lightAttackSpec)
             {
                 lightAttackSpec.DisableSwordCollider();
+            }
+            if (spec is BarbarianAttackSpec barbarianAttackSpec)
+            {
+                barbarianAttackSpec.DisableSwordCollider();
             }
         }
     }
@@ -93,6 +101,17 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is LightAttackSpec lightAttackSpec)
             {
                 lightAttackSpec.CanHaveInput();
+            }
+        }
+    }
+
+    public void EndBarbarianAttack()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is BarbarianAttackSpec barbarianAttackSpec)
+            {
+                barbarianAttackSpec.EndAbility();
             }
         }
     }
