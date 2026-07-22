@@ -7,6 +7,7 @@ public class WeaponController : MonoBehaviour
     public GameObject weapon;
 
     private WeaponDamage weaponDamage;
+    private bool equipped = false;
 
     private void Awake()
     {
@@ -28,17 +29,24 @@ public class WeaponController : MonoBehaviour
     void Update()
     {
         Animator animator = GetComponent<Animator>();
-        if (animator.GetBool("InCombo"))
+        if (animator.GetBool("InCombo") || animator.GetBool("IsStrafing"))
         {
-            EquipWeapon();
+            if (!equipped)
+            {
+                EquipWeapon();   
+            }
         }
         else
         {
-            UnequipWeapon();
+            if (equipped)
+            {
+                UnequipWeapon();   
+            }
         }
     }
     public void EquipWeapon()
     {
+        equipped = true;
         weapon.transform.SetParent(RightHandSlot.transform);
         weapon.transform.localPosition = Vector3.zero;
         weapon.transform.localRotation = Quaternion.identity;
@@ -46,6 +54,7 @@ public class WeaponController : MonoBehaviour
 
     public void UnequipWeapon()
     {
+        equipped = false;
         weapon.transform.SetParent(HipSlot.transform);
         weapon.transform.localPosition = Vector3.zero;
         weapon.transform.localRotation = Quaternion.identity;

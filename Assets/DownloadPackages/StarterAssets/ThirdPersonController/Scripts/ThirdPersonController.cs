@@ -59,6 +59,9 @@ namespace StarterAssets
 
         [Tooltip("What layers the character uses as ground")]
         public LayerMask GroundLayers;
+        
+        [Header("Lock-On")]
+        public float lockOnRotationSpeed = 10f;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -115,6 +118,9 @@ namespace StarterAssets
         private int _animIDJump;
         private int _animIDFreeFall;
         private int _animIDMotionSpeed;
+        private int _animIDVelocityX;
+        private int _animIDVelocityZ;
+        private int _animIDIsStrafing;
 
 #if ENABLE_INPUT_SYSTEM 
         private PlayerInput _playerInput;
@@ -123,11 +129,12 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
+        private LockOn lockOnSystem;
 
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
-
+        
         private bool IsCurrentDeviceMouse
         {
             get
@@ -157,6 +164,7 @@ namespace StarterAssets
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
+            lockOnSystem = GetComponent<LockOn>();
 #if ENABLE_INPUT_SYSTEM 
             _playerInput = GetComponent<PlayerInput>();
 #else
@@ -205,6 +213,9 @@ namespace StarterAssets
             _animIDJump = Animator.StringToHash("Jump");
             _animIDFreeFall = Animator.StringToHash("FreeFall");
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDVelocityX = Animator.StringToHash("VelocityX");
+            _animIDVelocityZ = Animator.StringToHash("VelocityZ");
+            _animIDIsStrafing = Animator.StringToHash("IsStrafing");
         }
 
         private void GroundedCheck()
@@ -227,11 +238,20 @@ namespace StarterAssets
         {
             if (IsometricMode)
             {
-                // garantizar que el target tenga la rotación isométrica (por si algo la cambió)
-                if (_input.look.sqrMagnitude >= _threshold)
+                if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
+                {
+                    Vector3 dirToTarget = lockOnSystem.currentTarget.position - CinemachineCameraTarget.transform.position;
+                    dirToTarget.y = 0f; 
+
+                    if (dirToTarget.sqrMagnitude > 0.001f)
+                    {
+                        float targetYaw = Mathf.Atan2(dirToTarget.x, dirToTarget.z) * Mathf.Rad2Deg;
+                        IsoYaw = Mathf.LerpAngle(IsoYaw, targetYaw, Time.deltaTime * lockOnRotationSpeed);
+                    }
+                }
+                else if (_input.look.sqrMagnitude >= _threshold)
                 {
                     float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-
                     IsoYaw += _input.look.x * deltaTimeMultiplier * CameraRotationSpeedMultiplier;
                 }
 
@@ -260,8 +280,18 @@ namespace StarterAssets
 
         private void Move()
         {
+            
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            float targetSpeed;
+            if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
+            {
+                targetSpeed = MoveSpeed;
+            }
+            else
+            {
+                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;    
+            }
+            
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
@@ -302,14 +332,27 @@ namespace StarterAssets
             // if there is a move input rotate player when the player is moving
             if (_input.move != Vector2.zero)
             {
-                float cameraYaw = IsometricMode ? IsoYaw : _mainCamera.transform.eulerAngles.y;
-
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
-
-                // rotate to face input direction relative to camera position (o el yaw isométrico fijo)
-                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
+                {
+                    Vector3 lookDir = lockOnSystem.currentTarget.position - transform.position;
+                    lookDir.y = 0f;
+                    if (lookDir.sqrMagnitude > 0.001f)
+                    {
+                        Quaternion strafeRotation = Quaternion.LookRotation(lookDir);
+                        transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * 10f);
+                    }
+                    
+                    float cameraYaw = _mainCamera.transform.eulerAngles.y;
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
+                }
+                else
+                {
+                    float cameraYaw = IsometricMode ? IsoYaw : _mainCamera.transform.eulerAngles.y;
+                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
+                    
+                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
+                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                }
             }
 
 
@@ -322,8 +365,36 @@ namespace StarterAssets
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetFloat(_animIDSpeed, _animationBlend);
-                _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
+                if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
+                {
+                    Vector3 worldMoveDir = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
+                    
+                    Vector3 localMoveDir = Vector3.zero;
+        
+                    if (_input.move != Vector2.zero)
+                    {
+                        localMoveDir = transform.InverseTransformDirection(targetDirection.normalized);
+                    }
+
+                    float targetVelX = localMoveDir.x * inputMagnitude;
+                    float targetVelZ = localMoveDir.z * inputMagnitude;
+                    
+                    float currentVelX = _animator.GetFloat(_animIDVelocityX);
+                    float currentVelZ = _animator.GetFloat(_animIDVelocityZ);
+
+                    float smoothVelX = Mathf.Lerp(currentVelX, targetVelX, Time.deltaTime * SpeedChangeRate);
+                    float smoothVelZ = Mathf.Lerp(currentVelZ, targetVelZ, Time.deltaTime * SpeedChangeRate);
+
+                    _animator.SetFloat(_animIDVelocityX, smoothVelX);
+                    _animator.SetFloat(_animIDVelocityZ, smoothVelZ);
+                    _animator.SetBool(_animIDIsStrafing, true);
+                }
+                else
+                {
+                    _animator.SetBool(_animIDIsStrafing, false);
+                    _animator.SetFloat(_animIDSpeed, _animationBlend);
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);   
+                }
             }
         }
 
