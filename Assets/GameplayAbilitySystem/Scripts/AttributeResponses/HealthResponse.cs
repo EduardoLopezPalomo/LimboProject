@@ -22,13 +22,15 @@ public class HealthResponse : AttributeResponse
 
     private void HurtBehavior(AttributeSystem owner, bool CanResponse)
     {
-        if (!CanResponse) return;
         if (owner.CompareTag("Enemy"))
         {
-            var enemy = owner.GetComponent<EnemyGraphBridge>();
-            if (enemy != null)
+            if (CanResponse)
             {
-                enemy.SetHurt();
+                var enemy = owner.GetComponent<EnemyGraphBridge>();
+                if (enemy != null)
+                {
+                    enemy.SetHurt();
+                }   
             }
 
             EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
@@ -37,7 +39,10 @@ public class HealthResponse : AttributeResponse
                 UI.ShowHealth();
             }
         }
-            
+        Debug.Log(CanResponse);
+
+        if (!CanResponse) return;
+        
         KnockBack knockBack = owner.GetComponent<KnockBack>();
         if (knockBack)
         {

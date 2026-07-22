@@ -350,7 +350,6 @@ MonoBehaviour:
   - rid: 1614916531033473331
   - rid: 1614916531033473863
   - rid: 1614916531033473864
-  - rid: 1614916531033473866
   - rid: 1614916533857026855
   - rid: 1614916536398512263
   - rid: 1614916537472254124
@@ -359,6 +358,7 @@ MonoBehaviour:
   - rid: 8560592099634839627
   - rid: 8560592099634839628
   - rid: 8560592099634839629
+  - rid: 3198980116385366073
   m_OriginalGraph: {fileID: 6858001970087869445, guid: 55ed58fc6c325154eab1fbccc80e4f11, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -389,14 +389,6 @@ MonoBehaviour:
           m_Value1: 13687378373188549370
         Name: EnemyPlayerDetection
         m_Value: {fileID: 15498091219878750}
-    - rid: 1614916531033473866
-      type: {class: 'BlackboardVariable`1[[UnityEngine.Transform, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 3598534286386443963
-          m_Value1: 12952071848035278286
-        Name: InitialPosition
-        m_Value: {fileID: 0}
     - rid: 1614916533857026855
       type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -437,6 +429,14 @@ MonoBehaviour:
           m_Value1: 13261036465271344195
         Name: EscapeFromPlayer
         m_Value: {fileID: -5770149477959241858}
+    - rid: 3198980116385366073
+      type: {class: 'BlackboardVariable`1[[WeaponController, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 12615590677480004288
+          m_Value1: 16721744282394048596
+        Name: WeaponController
+        m_Value: {fileID: 1747885921639336292}
     - rid: 8560592099634839627
       type: {class: 'BlackboardVariable`1[[TokenTimer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -581,7 +581,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 383c274cb1048aa4eb5f5a5661bee984, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
-  MinAngle: 5
+  MinAngle: 10
   Speed: 150
   player: {fileID: 0}
   hasPlayerRotate: 0
@@ -640,6 +640,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
   cooldownTimeMin: 3
   cooldownTimeMax: 6
+  controller: {fileID: 0}
 --- !u!114 &7442130441389284074
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -656,6 +657,7 @@ MonoBehaviour:
   rotationSpeedAlongPlayer: 25
   selfRotationSpeed: 90
   speed: 1.5
+  sphereDetectRadius: 4
 --- !u!114 &4276034949122878560
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -694,6 +696,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
+  controller: {fileID: 0}
 --- !u!1 &629371062462779084
 GameObject:
   m_ObjectHideFlags: 0

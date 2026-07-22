@@ -50,11 +50,18 @@ public class LightAttackSpec : GameplayAbilitySpec
     public override void ActivateAbility()
     {
         base.ActivateAbility();
-
-        if (canReceiveInput)
-            bufferedInput = true;
-        else if (!inCombo)
-            StartCombo();
+        if (owner.CompareTag("Player"))
+        {
+            if (canReceiveInput)
+                bufferedInput = true;
+            else if (!inCombo)
+                StartCombo();
+        }
+        else if (owner.CompareTag("Enemy"))
+        {
+            if (!inCombo)
+                StartCombo();   
+        }
     }
 
     void StartCombo()
@@ -71,11 +78,13 @@ public class LightAttackSpec : GameplayAbilitySpec
             animator.SetBool("InCombo", true);
             animator.SetInteger("ComboIndex", comboIndex);
             animator.SetTrigger("Attack");  
+            weaponController.EquipWeapon();
             
             CaptureAttackIntent();
         }
         else if (owner.CompareTag("Enemy"))
         {
+            weaponController.EquipWeapon();
             animator.SetBool("InCombo", true);
             animator.SetTrigger("Attack"); 
         }
@@ -101,7 +110,10 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         inCombo = false;
         comboIndex = 0;
-        
+        if (owner.CompareTag("Player"))
+        {
+            weaponController.UnequipWeapon();   
+        }
         animator.SetBool("InCombo", false);
     }
     public override void CancelAbility()
@@ -109,7 +121,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         base.CancelAbility();
         if (inCombo)
         {
-            canReceiveInput = false;
+            canReceiveInput = false;   
             inCombo = false;
             EndCombo();
         }

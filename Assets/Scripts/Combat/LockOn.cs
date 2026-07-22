@@ -15,6 +15,14 @@ public class LockOn : MonoBehaviour
     [HideInInspector] public bool isLocked;
     
     private List<Transform> _enemiesInRange = new List<Transform>();
+    private WeaponController weaponController;
+    private Animator animator;
+
+    private void Awake()
+    {
+        weaponController = GetComponent<WeaponController>();
+        animator = GetComponent<Animator>();
+    }
 
     public void ToggleLockOn()
     {
@@ -34,13 +42,13 @@ public class LockOn : MonoBehaviour
 
         if (_enemiesInRange.Count == 0)
         {
-            isLocked = false;
-            currentTarget = null;
+            ClearLock();
             return;
         }
         
         currentTarget = _enemiesInRange.OrderBy(e => ScreenDistanceFromCenter(e)).First();
-        
+        animator.SetBool("IsStrafing", true);
+        weaponController.EquipWeapon();
         isLocked = true;
     }
 
@@ -80,6 +88,8 @@ public class LockOn : MonoBehaviour
     {
         isLocked = false;
         currentTarget = null;
+        animator.SetBool("IsStrafing", false);
+        weaponController.UnequipWeapon();
     }
 
     private void RefreshEnemiesInRange()

@@ -1,7 +1,11 @@
+using Unity.Behavior;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class WeaponDamage : MonoBehaviour
 {
+    public UnityEvent EnemyCounter;
+    
     private int ComboNumber = 0;
     [SerializeField] private GameplayEffect DamageEffect;
     [SerializeField] private GameplayEffect FinalDamageEffect;
@@ -24,26 +28,64 @@ public class WeaponDamage : MonoBehaviour
         }
         if (other.gameObject.CompareTag(ObjectToDamage))
         {
-            MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
-            GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
-            AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
-            if (effectmanager == null || attributeSystem == null)
+            if (ObjectToDamage == "Player")
             {
-                Debug.Log("effectmanager, attributesystem or makeInvincible is null");
-                return;
+                DamagePlayer(other);
             }
-            if (invincible != null && invincible.IsInvincible())
+
+            if (ObjectToDamage == "Enemy")
             {
-                return;
+                DamageEnemy(other);
             }
-            if (ComboNumber < 3)
-            {
-                effectmanager.ApplyEffect(DamageEffect, attributeSystem);
-            }
-            else
-            {
-                effectmanager.ApplyEffect(FinalDamageEffect, attributeSystem);
-            }
+        }
+    }
+
+    private void DamagePlayer(Collider other)
+    {
+        MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
+        GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
+        AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
+        if (effectmanager == null || attributeSystem == null)
+        {
+            Debug.Log("effectmanager, attributesystem or makeInvincible is null");
+            return;
+        }
+        if (invincible != null && invincible.IsInvincible())
+        {
+            return;
+        }
+        if (ComboNumber < 3)
+        {
+            effectmanager.ApplyEffect(DamageEffect, attributeSystem);
+        }
+        else
+        {
+            effectmanager.ApplyEffect(FinalDamageEffect, attributeSystem);
+        }
+    }
+
+    private void DamageEnemy(Collider other)
+    {
+        BehaviorGraphAgent agent = other.gameObject.GetComponent<BehaviorGraphAgent>();
+        agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
+
+        if (state == AttackingState.Defend)
+        {
+            EnemyCounter.Invoke();
+            agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
+            return;
+        }
+        
+        GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
+        AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
+        
+        if (ComboNumber < 3)
+        {
+            effectmanager.ApplyEffect(DamageEffect, attributeSystem);
+        }
+        else
+        {
+            effectmanager.ApplyEffect(FinalDamageEffect, attributeSystem);
         }
     }
 

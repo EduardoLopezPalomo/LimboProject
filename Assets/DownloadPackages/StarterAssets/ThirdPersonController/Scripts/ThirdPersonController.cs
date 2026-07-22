@@ -120,7 +120,6 @@ namespace StarterAssets
         private int _animIDMotionSpeed;
         private int _animIDVelocityX;
         private int _animIDVelocityZ;
-        private int _animIDIsStrafing;
 
 #if ENABLE_INPUT_SYSTEM 
         private PlayerInput _playerInput;
@@ -215,7 +214,6 @@ namespace StarterAssets
             _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animIDVelocityX = Animator.StringToHash("VelocityX");
             _animIDVelocityZ = Animator.StringToHash("VelocityZ");
-            _animIDIsStrafing = Animator.StringToHash("IsStrafing");
         }
 
         private void GroundedCheck()
@@ -387,11 +385,9 @@ namespace StarterAssets
 
                     _animator.SetFloat(_animIDVelocityX, smoothVelX);
                     _animator.SetFloat(_animIDVelocityZ, smoothVelZ);
-                    _animator.SetBool(_animIDIsStrafing, true);
                 }
                 else
                 {
-                    _animator.SetBool(_animIDIsStrafing, false);
                     _animator.SetFloat(_animIDSpeed, _animationBlend);
                     _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);   
                 }
