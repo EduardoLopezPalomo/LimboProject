@@ -857,6 +857,7 @@ GameObject:
   - component: {fileID: 9190432310100781357}
   - component: {fileID: 5990856953774806192}
   - component: {fileID: 8360464295297684396}
+  - component: {fileID: 5427970844838783959}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -968,6 +969,7 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 4097
+  lockOnRotationSpeed: 10
   CinemachineCameraTarget: {fileID: 4170041277257541513}
   IsometricMode: 1
   IsoYaw: 45
@@ -1314,6 +1316,27 @@ MonoBehaviour:
   AblityMenu: {fileID: 0}
   TotalVolumeDB: -10
   DurationMusicFade: 2
+--- !u!114 &5427970844838783959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520184032351820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50131d8f8f3d61146869fdefc108b81e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LockOn
+  detectionRadius: 15
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  enemyTag: Enemy
+  playerRoot: {fileID: 4986658054915990}
+  mainCamera: {fileID: 0}
+  currentTarget: {fileID: 0}
+  isLocked: 0
 --- !u!1 &1521465169146536
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 #if ENABLE_INPUT_SYSTEM
@@ -32,6 +33,13 @@ namespace StarterAssets
 		public UnityEvent OnPauseEvent;
 		public UnityEvent OnAbilityMenuEvent;
 		public UnityEvent OnBackEvent;
+		
+		private LockOn lockOnSystem;
+
+		private void Awake()
+		{
+			lockOnSystem = GetComponent<LockOn>();
+		}
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputValue value)
@@ -55,6 +63,18 @@ namespace StarterAssets
 		public void OnSprint(InputValue value)
 		{
 			SprintInput(value.isPressed);
+		}
+		
+		public void OnLockOn(InputValue value)
+		{
+			if (value.isPressed) lockOnSystem.ToggleLockOn();
+		}
+
+		public void OnSwitchTarget(InputValue value)
+		{
+			float v = value.Get<float>();
+			if (Mathf.Abs(v) > 0.5f)
+				lockOnSystem.SwitchTarget(v);
 		}
 
 		public void OnLightAttack(InputValue value)
