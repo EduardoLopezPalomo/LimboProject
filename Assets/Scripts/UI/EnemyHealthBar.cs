@@ -6,11 +6,13 @@ public class EnemyHealthBar : MonoBehaviour
     [SerializeField] private AttributeSystem attributeSystem;
     [SerializeField] private Transform followTarget;
     [SerializeField] private Vector3 offset = new Vector3(0, 2f, 0);
-    [Header("Health Bar")]
+    [Header("Health Bar")] 
+    public GameObject HealthBar;
     [SerializeField] private string healthAttributeName = "EnemyHealth";
     [SerializeField] private Image hFillImage;
     [SerializeField] private Image hOverFillImage;
     [Header("Resistance")]
+    public GameObject ResistanceBar;
     [SerializeField] private string resistanceAttributeName = "BlockResistance";
     [SerializeField] private Image rFillImage;
     [SerializeField] private Image rRecoveryImage;
@@ -26,6 +28,7 @@ public class EnemyHealthBar : MonoBehaviour
     private float recoveryTargetValue;
     private float recoveryTimer;
     private float lastKnownResistance;
+    private float trackedResistance;
     
     private void OnEnable()
     {
@@ -50,20 +53,25 @@ public class EnemyHealthBar : MonoBehaviour
         maxResistance = attributeSystem.GetAttributeMaxValue(resistanceAttributeName);
         
         lastKnownResistance = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        trackedResistance = lastKnownResistance;
         rFillImage.fillAmount = Mathf.Clamp01(lastKnownResistance / maxResistance);
         rRecoveryImage.fillAmount = rFillImage.fillAmount;
         
-        gameObject.SetActive(false);
+        ResistanceBar.SetActive(false);
+        HealthBar.SetActive(false);
     }
 
     private void LateUpdate()
     {
-        Debug.Log(attributeSystem.GetAttributeValue(resistanceAttributeName));
-        UpdatePosition();
-        UpdateFill();
-        UpdateOverFill();
-        UpdateResistanceRecovery(Time.deltaTime);
-        FaceCamera();
+        if (ResistanceBar.activeSelf || HealthBar.activeSelf)
+        {
+            UpdatePosition();
+            UpdateFill();
+            UpdateOverFill();
+            UpdateResistanceRecovery(Time.deltaTime);
+            FaceCamera();
+            trackedResistance = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        }
     }
 
     void UpdateFill()
@@ -96,7 +104,7 @@ public class EnemyHealthBar : MonoBehaviour
         float t = Mathf.Clamp01(recoveryTimer / recoveryDuration);
 
         float value = Mathf.Lerp(recoveryStartValue, recoveryTargetValue, t);
-        rRecoveryImage.fillAmount = Mathf.Clamp01(value / maxResistance);
+        rRecoveryImage.fillAmount = Mathf.Clamp01(value / maxResistance);;
 
         if (t >= 1f)
         {
@@ -111,15 +119,15 @@ public class EnemyHealthBar : MonoBehaviour
         if (sender != attributeSystem.gameObject) return;
         if (maxResistance <= 0) return;
 
-        float current = attributeSystem.GetAttributeValue(resistanceAttributeName); 
-        float previous = lastKnownResistance;
-        
-        float droppedFill = Mathf.Clamp01(current / maxResistance);
-        rFillImage.fillAmount = droppedFill;
-        rRecoveryImage.fillAmount = droppedFill;
-        
-        recoveryStartValue = current;
-        recoveryTargetValue = previous;
+        float current = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        float consumedAmount = trackedResistance - current;
+
+        rFillImage.fillAmount = Mathf.Clamp01(current / maxResistance);
+
+        float currentGhostValue = rRecoveryImage.fillAmount * maxResistance;
+        recoveryStartValue = Mathf.Clamp(currentGhostValue - consumedAmount, 0f, maxResistance);
+
+        recoveryTargetValue = lastKnownResistance;
         recoveryTimer = 0f;
         isRecovering = true;
     }

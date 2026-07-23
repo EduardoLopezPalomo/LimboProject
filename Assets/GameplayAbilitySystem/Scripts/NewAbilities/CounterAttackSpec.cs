@@ -10,6 +10,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
     private Animator animator;
     private EnemyWeaponController weaponController;
     private CharacterController characterController;
+    private AttributeSystem attributeSystem;
 
     private Coroutine StunnedCoroutine;
    
@@ -33,6 +34,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         animator = owner.GetComponent<Animator>();
         characterController = owner.GetComponent<CharacterController>();
         weaponController = owner.GetComponent<EnemyWeaponController>();
+        attributeSystem = owner.GetComponent<AttributeSystem>();
         playerlayer = LayerMask.GetMask("Player");
         
         lateralDistanceRay = LateralDistanceRay;
@@ -47,7 +49,14 @@ public class CounterAttackSpec : GameplayAbilitySpec
     {
         base.ActivateAbility();
         OnResistanceConsumed?.Invoke(owner);
-        StartCounter();    
+        if (attributeSystem.GetAttributeValue("BlockResistance") > 0f)
+        {
+            StartCounter();     
+        }
+        else
+        {
+            EndAbility();
+        }
     }
 
     void StartCounter()

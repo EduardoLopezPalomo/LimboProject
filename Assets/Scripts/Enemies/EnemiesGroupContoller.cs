@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System;
 using Unity.Behavior;
 using UnityEngine;
 
 public class EnemiesGroupContoller : MonoBehaviour
 {
+    public static event Action<List<GameObject>> OnHideEnemyHud;
     public int maxTokens = 2;
     
     private int currentToken = 0;
@@ -103,6 +105,7 @@ public class EnemiesGroupContoller : MonoBehaviour
     private void BattleOver()
     {
         MusicManager.Instance.EndBattle();
+        OnHideEnemyHud?.Invoke(enemies);
     }
     
     //Methods for slots managment

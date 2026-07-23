@@ -12,5 +12,11 @@ public class ResistanceResponse : AttributeResponse
             OnResistanceBack?.Invoke(owner.gameObject);
         }
         
+        EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
+        if (UI != null)
+        {
+            UI.ShowResistance();
+        }
+        
     }
 }
