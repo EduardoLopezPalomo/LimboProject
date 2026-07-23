@@ -1,9 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Unity.Behavior;
 using UnityEngine;
 
 public class CounterAttackSpec : GameplayAbilitySpec
 {
+    public static event Action<GameObject> OnResistanceConsumed;
+    
     private Animator animator;
     private EnemyWeaponController weaponController;
     private CharacterController characterController;
@@ -43,7 +46,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
     public override void ActivateAbility()
     {
         base.ActivateAbility();
-        
+        OnResistanceConsumed?.Invoke(owner);
         StartCounter();    
     }
 

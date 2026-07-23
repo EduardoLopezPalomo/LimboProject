@@ -75,7 +75,7 @@ public class AttributeSystem : MonoBehaviour
     {
         foreach (var attribute in attributes)
         {
-            if (attribute.Data.name == name)
+            if (attribute.Data.Name == name)
             {
                 return attribute.CurrentValue;
             }
@@ -88,7 +88,7 @@ public class AttributeSystem : MonoBehaviour
     {
         foreach (var attribute in attributes)
         {
-            if (attribute.Data.name == name)
+            if (attribute.Data.Name == name)
             {
                 return attribute.Data.MaxValue;
             }
