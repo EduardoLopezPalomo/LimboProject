@@ -27,6 +27,7 @@ public class AbilityHolder : MonoBehaviour
             if (ability != null && !specs.ContainsKey(ability.Name))
             {
                 GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
+                spec.OnAbilityEnded += RemoveFromSpec;
                 specs.Add(ability.Name, spec);
                 ActivePasiveAbilities(spec);
             }
@@ -37,7 +38,7 @@ public class AbilityHolder : MonoBehaviour
     {
         if (ability == null || specs.ContainsKey(ability.Name)) return;
         GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
-
+        spec.OnAbilityEnded += RemoveFromSpec;
         abilities.Add(ability);
         specs.Add(ability.Name, spec);
 
@@ -47,6 +48,10 @@ public class AbilityHolder : MonoBehaviour
     public void RemoveAbility(GameplayAbility ability)
     {
         if (ability == null) return;
+        if (specs.TryGetValue(ability.Name, out var spec))
+        {
+            spec.OnAbilityEnded -= RemoveFromSpec;
+        }
         abilities.Remove(ability);
         specs.Remove(ability.Name);
     }
@@ -183,12 +188,17 @@ public class AbilityHolder : MonoBehaviour
         return abilities;
     }
 
+    private void RemoveFromSpec(GameplayAbilitySpec spec)
+    {
+        ActiveSpecs.Remove(spec);
+    }
+
     public void CancelAbility(string abilityName)
     {
         if (specs.TryGetValue(abilityName, out var ability))
         {
             ability.CancelAbility();
-            ActiveSpecs.Remove(ability);
+            RemoveFromSpec(ability);
         }
         else
         {
@@ -207,6 +217,7 @@ public class AbilityHolder : MonoBehaviour
     /*Does the tick for every spec if they doesnt have cooldown they dont use it*/
     void Update()
     {
+        Debug.Log($"AbilityHolder: {ActiveSpecs.Count}");
         float dt = Time.deltaTime;
 
         foreach (var spec in specs.Values)

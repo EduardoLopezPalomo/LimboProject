@@ -44,6 +44,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 barbarianAttackSpec.EnableSwordCollider();
             }
+            if (spec is CounterAttackSpec barbarianCounterAttackSpec)
+            {
+                barbarianCounterAttackSpec.EnableSwordCollider();
+            }
         }
     }
 
@@ -59,6 +63,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 barbarianAttackSpec.DisableSwordCollider();
             }
+            if (spec is CounterAttackSpec barbarianCounterAttackSpec)
+            {
+                barbarianCounterAttackSpec.DisableSwordCollider();
+            }
         }
     }
     
@@ -70,6 +78,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 lightAttackSpec.StartAttackAssist();
             }
+            if (spec is CounterAttackSpec barbarianCounterAttackSpec)
+            {
+                barbarianCounterAttackSpec.StartAttackAssist();
+            }
         }
     }
     
@@ -80,6 +92,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is LightAttackSpec lightAttackSpec)
             {
                 lightAttackSpec.EndAttackAssist();
+            }
+            if (spec is CounterAttackSpec barbarianCounterAttackSpec)
+            {
+                barbarianCounterAttackSpec.EndAttackAssist();
             }
         }
     }
@@ -112,6 +128,21 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is BarbarianAttackSpec barbarianAttackSpec)
             {
                 barbarianAttackSpec.EndAbility();
+            }
+            if (spec is CounterAttackSpec barbarianCounterAttackSpec)
+            {
+                barbarianCounterAttackSpec.EndAbility();
+            }
+        }
+    }
+    
+    public void StayStunned()
+    {
+        foreach (var spec in currentSpec)
+        {
+            if (spec is BarbarianAttackSpec barbarianAttackSpec)
+            {
+                barbarianAttackSpec.StartStunned();
             }
         }
     }

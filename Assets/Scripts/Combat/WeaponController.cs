@@ -7,26 +7,27 @@ public class WeaponController : MonoBehaviour
     public GameObject RightHandSlot;
     public GameObject weapon;
 
-    private WeaponDamage weaponDamage;
+    [HideInInspector] public WeaponDamage weaponDamage;
+    
     private Animator animator;
     private bool equipped = false;
-    private BoxCollider collider;
+    private BoxCollider weaponCollider;
 
     private void Awake()
     {
         weaponDamage = weapon.GetComponent<WeaponDamage>();
         animator = GetComponent<Animator>();
-        collider = weapon.GetComponent<BoxCollider>();
+        weaponCollider = weapon.GetComponent<BoxCollider>();
     }
     public void EnableCollision(int comboNumber)
     {
-        collider.enabled = true;
+        weaponCollider.enabled = true;
         weaponDamage.SetComboNumber(comboNumber);
     }
 
     public void DisableCollision()
     {
-        collider.enabled = false;
+        weaponCollider.enabled = false;
     }
 
     public void EquipWeapon()

@@ -1,17 +1,24 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using Unity.Behavior;
+using UnityEngine;
 
 public class BarbarianAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private WeaponController weaponController;
+    private BehaviorGraphAgent behaviorGraphAgent;
+    private float timeStuned;
     private int comboIndex;
+
+    private Coroutine StunnedCoroutine;
    
 
-    public BarbarianAttackSpec(GameplayAbility ability, GameObject owner)
-        : base(ability, owner)
+    public BarbarianAttackSpec(GameplayAbility ability, GameObject owner, float TimeStuned) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         weaponController = owner.GetComponent<WeaponController>();
+        behaviorGraphAgent = owner.GetComponent<BehaviorGraphAgent>();
+        timeStuned = TimeStuned;
     }
 
     public override void ActivateAbility()
@@ -28,7 +35,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
         {
             return;
         }
-
+        weaponController.weaponDamage.SetHasHitPlayer(false);
         comboIndex = 0;
         animator.SetBool("InCombo", true);
         animator.SetTrigger("Attack");
@@ -54,7 +61,31 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
 
     public override void EndAbility()
     {
+        base.EndAbility();
         EndCombo();
+    }
+
+    IEnumerator StayStunned()
+    {
+        animator.speed = 0f;
+        yield return new WaitForSeconds(timeStuned);
+        
+        animator.speed = 1f;
+    }
+
+    public void StartStunned()
+    {
+        if (weaponController.weaponDamage.GetHasHitPlayer())
+        {
+            return;
+        }
+           
+        if (StunnedCoroutine != null)
+        {
+            weaponController.StopCoroutine(StunnedCoroutine);
+        }
+        behaviorGraphAgent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.Vulnerable);
+        StunnedCoroutine = weaponController.StartCoroutine(StayStunned());
     }
     
 

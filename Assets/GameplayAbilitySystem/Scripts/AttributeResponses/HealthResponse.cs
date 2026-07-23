@@ -39,7 +39,6 @@ public class HealthResponse : AttributeResponse
                 UI.ShowHealth();
             }
         }
-        Debug.Log(CanResponse);
 
         if (!CanResponse) return;
         

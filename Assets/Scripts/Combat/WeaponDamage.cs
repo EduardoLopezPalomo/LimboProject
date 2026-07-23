@@ -6,6 +6,7 @@ public class WeaponDamage : MonoBehaviour
 {
     public UnityEvent EnemyCounter;
     
+    private bool HasHitPlayer = false;
     private int ComboNumber = 0;
     [SerializeField] private GameplayEffect DamageEffect;
     [SerializeField] private GameplayEffect FinalDamageEffect;
@@ -54,6 +55,9 @@ public class WeaponDamage : MonoBehaviour
         {
             return;
         }
+        
+        HasHitPlayer = true;
+        
         if (ComboNumber < 3)
         {
             effectmanager.ApplyEffect(DamageEffect, attributeSystem);
@@ -92,5 +96,15 @@ public class WeaponDamage : MonoBehaviour
     public void SetComboNumber(int value)
     {
         ComboNumber = value;
+    }
+
+    public bool GetHasHitPlayer()
+    {
+        return HasHitPlayer;
+    }
+
+    public void SetHasHitPlayer(bool value)
+    {
+        HasHitPlayer = value;
     }
 }

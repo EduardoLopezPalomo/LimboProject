@@ -4,6 +4,7 @@ using UnityEngine;
 public class GameplayAbilitySpec
 {
     public GameplayAbility ability;
+    public event Action<GameplayAbilitySpec> OnAbilityEnded;
     protected GameObject owner;
 
     protected bool bOnCooldown;
@@ -41,7 +42,7 @@ public class GameplayAbilitySpec
 
     public virtual void EndAbility()
     {
-
+        OnAbilityEnded?.Invoke(this);
     }
     public virtual void CancelAbility()
     {

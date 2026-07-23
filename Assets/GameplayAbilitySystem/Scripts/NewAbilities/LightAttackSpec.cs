@@ -119,6 +119,7 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public override void EndAbility()
     {
+        base.EndAbility();
         EndCombo();
     }
     
