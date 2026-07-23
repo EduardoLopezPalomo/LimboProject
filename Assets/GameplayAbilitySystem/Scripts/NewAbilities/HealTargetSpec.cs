@@ -106,17 +106,9 @@ public class HealTargetSpec : GameplayAbilitySpec
             rotateToTarget.SetTarget(null);
         }
     }
-    
-   
-    public override void EndAbility()
-    {
-       base.EndAbility();
-    }
+
 
     // Animation Events
-
-    public void EnableRootMotion() => rootMotion.EnableAnimRootMotion();
-    public void DisableRootMotion() => rootMotion.DisableAnimRootMotion();
     
     public void HealTarget()
     {
@@ -128,6 +120,7 @@ public class HealTargetSpec : GameplayAbilitySpec
     public void StopHealParticle()
     {
         particleController.DeactivateParticle();
+        EndAbility();
     }
     
 }

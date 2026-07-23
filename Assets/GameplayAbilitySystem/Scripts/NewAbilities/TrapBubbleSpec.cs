@@ -30,11 +30,7 @@ public class TrapBubbleSpec : GameplayAbilitySpec
         Object obj = Object.Instantiate(bubble, initialPosition, player.transform.rotation);
         BubbleTrap trap = obj.GetComponent<BubbleTrap>();
         trap.InitializeBubble(TrapTime);
+        EndAbility();
     }
 
-
-    public override void EndAbility()
-    {
-        base.EndAbility();
-    }
 }

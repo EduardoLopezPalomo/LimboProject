@@ -30,11 +30,6 @@ public class FireAttackSpec : GameplayAbilitySpec
         animator.SetBool("IsAttacking", false);
     }
 
-    public override void EndAbility()
-    {
-       base.EndAbility();
-    }
-
     // Animation Events
     
     public void SpawnFire()
@@ -48,6 +43,8 @@ public class FireAttackSpec : GameplayAbilitySpec
         {
             Fire.Init(owner);
         }
+        
+        EndAbility();
     }
 
 }

@@ -41,6 +41,7 @@ public class LightAuraSpec : GameplayAbilitySpec
                 effectmanager.ApplyEffect(damageEffect, attributeSystem);
             }
         }
+        EndAbility();
     }
 
     private void ShowSphereVisual(Vector3 position, float radius, float duration)
@@ -49,10 +50,5 @@ public class LightAuraSpec : GameplayAbilitySpec
         sphere.transform.localScale = Vector3.one * radius * 2f;
 
         Object.Destroy(sphere, duration);
-    }
-
-    public override void EndAbility()
-    {
-        base.EndAbility();
     }
 }

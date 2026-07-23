@@ -26,11 +26,7 @@ public class SleepProyectileSpec : GameplayAbilitySpec
         Vector3 initialPosition = player.transform.position + new Vector3(0f, 1f, 0f);
         initialPosition += player.transform.forward * 1f;
         Object obj = Object.Instantiate(proyectile, initialPosition, player.transform.rotation);
+        EndAbility();
     }
 
-
-    public override void EndAbility()
-    {
-        base.EndAbility();
-    }
 }

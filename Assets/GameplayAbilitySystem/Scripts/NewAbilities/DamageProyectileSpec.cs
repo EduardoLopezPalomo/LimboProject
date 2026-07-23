@@ -41,6 +41,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         CreateProyectile(initialPosition, player.transform.rotation);
         CreateProyectile(position1, Quaternion.LookRotation(direction1));
         CreateProyectile(position2, Quaternion.LookRotation(direction2));
+        EndAbility();
     }
 
     private void CreateProyectile(Vector3 position, Quaternion direction)
@@ -48,9 +49,4 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         Object.Instantiate(proyectile, position, direction);
     }
 
-
-    public override void EndAbility()
-    {
-        base.EndAbility();
-    }
 }

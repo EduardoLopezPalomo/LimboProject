@@ -103,10 +103,6 @@ public class DashSpec : GameplayAbilitySpec
         makeInvincible.SetInvincible(false);
         personcontroller.SetInputAviable(true);
         charactercontroller.Move(Vector3.zero);
-    }
-
-    public override void EndAbility()
-    {
-        base.EndAbility();
+        EndAbility();
     }
 }

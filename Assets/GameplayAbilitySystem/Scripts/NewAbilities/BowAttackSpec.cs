@@ -46,11 +46,6 @@ public class BowAttackSpec : GameplayAbilitySpec
 
     }
 
-    public override void EndAbility()
-    {
-       base.EndAbility();
-    }
-
     // Animation Events
 
     public void AlreadyShoot()
