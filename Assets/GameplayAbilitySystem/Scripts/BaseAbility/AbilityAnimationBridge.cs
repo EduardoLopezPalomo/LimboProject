@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AbilityAnimationBridge : MonoBehaviour
@@ -12,7 +13,7 @@ public class AbilityAnimationBridge : MonoBehaviour
      */
     public void ComboWindowOpen()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -23,7 +24,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void ComboWindowClose()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -34,7 +35,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void EnableSwordCollider()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -53,7 +54,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void DisableSwordCollider()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -72,7 +73,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void StartAttackAssist()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -87,7 +88,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void EndAttackAssist()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -102,7 +103,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void DisableInputPlayer()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -112,7 +113,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     }
     public void CanHaveInput()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAttackSpec lightAttackSpec)
             {
@@ -123,7 +124,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void EndBarbarianAttack()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BarbarianAttackSpec barbarianAttackSpec)
             {
@@ -138,7 +139,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void StayStunned()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BarbarianAttackSpec barbarianAttackSpec)
             {
@@ -153,7 +154,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void ShootArrow()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BowAttackSpec BowAttackSpec)
             {
@@ -163,7 +164,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     }
     public void AlreadyShoot()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BowAttackSpec BowAttackSpec)
             {
@@ -174,7 +175,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void ShowArrowPath()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BowAttackSpec BowAttackSpec)
             {
@@ -185,7 +186,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void EndBowAbility()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is BowAttackSpec barbarianAttackSpec)
             {
@@ -202,7 +203,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void AreaRayAttack()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is AreaRayAttackSpec areaRayAttackSpec)
             {
@@ -218,7 +219,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void LightAura()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is LightAuraSpec lightAuraSpec)
             {
@@ -234,7 +235,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void SpawnFire()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is FireAttackSpec fireAttackSpec)
             {
@@ -248,7 +249,7 @@ public class AbilityAnimationBridge : MonoBehaviour
      */
     public void HealTarget()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is HealTargetSpec healTargetSpec)
             {
@@ -259,7 +260,7 @@ public class AbilityAnimationBridge : MonoBehaviour
 
     public void StopHealParticle()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is HealTargetSpec healTargetSpec)
             {
@@ -273,7 +274,7 @@ public class AbilityAnimationBridge : MonoBehaviour
      */
     public void StartMoving()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is DashSpec dashSpec)
             {
@@ -284,7 +285,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     
     public void EndDash()
     {
-        foreach (var spec in currentSpec)
+        foreach (var spec in currentSpec.ToList())
         {
             if (spec is DashSpec dashSpec)
             {

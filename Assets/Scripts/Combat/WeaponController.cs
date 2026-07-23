@@ -6,31 +6,26 @@ public class WeaponController : MonoBehaviour
     public GameObject HipSlot;
     public GameObject RightHandSlot;
     public GameObject weapon;
-
-    [HideInInspector] public WeaponDamage weaponDamage;
     
-    private Animator animator;
     private bool equipped = false;
     private BoxCollider weaponCollider;
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        weaponDamage = weapon.GetComponent<WeaponDamage>();
-        animator = GetComponent<Animator>();
         weaponCollider = weapon.GetComponent<BoxCollider>();
     }
-    public void EnableCollision(int comboNumber)
+
+    public virtual void EnableCollision()
     {
         weaponCollider.enabled = true;
-        weaponDamage.SetComboNumber(comboNumber);
     }
 
-    public void DisableCollision()
+    public virtual void DisableCollision()
     {
         weaponCollider.enabled = false;
     }
 
-    public void EquipWeapon()
+    public virtual void EquipWeapon()
     {
         if (equipped) return;
 
@@ -40,7 +35,7 @@ public class WeaponController : MonoBehaviour
         weapon.transform.localRotation = Quaternion.identity;
     }
 
-    public void UnequipWeapon()
+    public virtual void UnequipWeapon()
     {
         if (!equipped) return;
 
@@ -49,5 +44,10 @@ public class WeaponController : MonoBehaviour
         weapon.transform.SetParent(HipSlot.transform);
         weapon.transform.localPosition = Vector3.zero;
         weapon.transform.localRotation = Quaternion.identity;
+    }
+
+    public virtual void SetComboNumber(int number)
+    {
+        
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class PlayerHealth : MonoBehaviour
 {
     [SerializeField] private AttributeSystem attributeSystem;
-    [SerializeField] private string healthAttributeName = "Health";
+    [SerializeField] private string healthAttributeName = "PlayerHealth";
     [SerializeField] private Image fillImage;
     [SerializeField] private Image overFillImage;
     

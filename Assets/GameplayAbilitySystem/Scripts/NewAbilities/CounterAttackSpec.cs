@@ -5,7 +5,7 @@ using UnityEngine;
 public class CounterAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private WeaponController weaponController;
+    private EnemyWeaponController weaponController;
     private CharacterController characterController;
 
     private Coroutine StunnedCoroutine;
@@ -29,7 +29,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         characterController = owner.GetComponent<CharacterController>();
-        weaponController = owner.GetComponent<WeaponController>();
+        weaponController = owner.GetComponent<EnemyWeaponController>();
         playerlayer = LayerMask.GetMask("Player");
         
         lateralDistanceRay = LateralDistanceRay;
@@ -55,13 +55,14 @@ public class CounterAttackSpec : GameplayAbilitySpec
             return;
         }
         animator.SetTrigger("CounterAttack");
+        weaponController.CounterAttack(true);
         weaponController.EquipWeapon();
     }
     
     public override void CancelAbility()
     {
         base.CancelAbility();
-        
+        weaponController.CounterAttack(false);
         DisableSwordCollider();
     }
 
@@ -72,6 +73,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         {
             weaponController.UnequipWeapon();    
         }
+        weaponController.CounterAttack(false);
     }
     
     void CaptureAttackIntent()
@@ -182,7 +184,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
 
     public void EnableSwordCollider()
     {
-        weaponController.EnableCollision(1);
+        weaponController.EnableCollision();
     }
 
     public void DisableSwordCollider()

@@ -217,7 +217,6 @@ public class AbilityHolder : MonoBehaviour
     /*Does the tick for every spec if they doesnt have cooldown they dont use it*/
     void Update()
     {
-        Debug.Log($"AbilityHolder: {ActiveSpecs.Count}");
         float dt = Time.deltaTime;
 
         foreach (var spec in specs.Values)

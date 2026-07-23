@@ -15,12 +15,12 @@ public class LockOn : MonoBehaviour
     [HideInInspector] public bool isLocked;
     
     private List<Transform> _enemiesInRange = new List<Transform>();
-    private WeaponController weaponController;
+    private PlayerWeaponController weaponController;
     private Animator animator;
 
     private void Awake()
     {
-        weaponController = GetComponent<WeaponController>();
+        weaponController = GetComponent<PlayerWeaponController>();
         animator = GetComponent<Animator>();
     }
 

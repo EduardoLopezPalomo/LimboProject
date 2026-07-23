@@ -65,7 +65,7 @@ PrefabInstance:
       addedObject: {fileID: 361571033164368526}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: d9cb89b0bc352ec4a8a17c56c39dbefb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7076799322393272066}
+      addedObject: {fileID: 3806625053082553858}
   m_SourcePrefab: {fileID: 100100000, guid: d9cb89b0bc352ec4a8a17c56c39dbefb, type: 3}
 --- !u!1 &9055589456794605990 stripped
 GameObject:
@@ -91,9 +91,9 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 0
   serializedVersion: 3
-  m_Size: {x: 0.29, y: 1.7, z: 0.05522267}
+  m_Size: {x: 0.29, y: 1.7, z: 0.5}
   m_Center: {x: 0, y: 0.8, z: 0.00000039115548}
---- !u!114 &7076799322393272066
+--- !u!114 &3806625053082553858
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -102,9 +102,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 9055589456794605990}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be70bed3bbf7e964a972f43aaeb9a868, type: 3}
+  m_Script: {fileID: 11500000, guid: f210e58bc6466e04880e1f4504c3f479, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponDamage
-  DamageEffect: {fileID: 11400000, guid: befbe455adeed0e47b4221b249956d57, type: 2}
-  FinalDamageEffect: {fileID: 11400000, guid: 8c0e7877b6034a0448a240693d924936, type: 2}
-  ObjectToDamage: Player
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyWeaponDamage
+  gameplayEffects:
+  - {fileID: 11400000, guid: befbe455adeed0e47b4221b249956d57, type: 2}
+  - {fileID: 11400000, guid: befbe455adeed0e47b4221b249956d57, type: 2}
+  - {fileID: 11400000, guid: 8c0e7877b6034a0448a240693d924936, type: 2}
+  counterEffect: {fileID: 11400000, guid: 8c0e7877b6034a0448a240693d924936, type: 2}

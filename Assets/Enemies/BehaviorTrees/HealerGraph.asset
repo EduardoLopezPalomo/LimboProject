@@ -33,7 +33,7 @@ MonoBehaviour:
         BlackboardGroupReferences: []
         Root:
           rid: 3198980050963661799
-        m_VersionTimestamp: 639200905279469717
+        m_VersionTimestamp: 639204135989361498
     - rid: 1614916554515546311
       type: {class: BlackboardReference, ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1681,6 +1681,10 @@ MonoBehaviour:
           rid: 3198980050975981620
         Speed:
           rid: 3198980050963661312
+        HasTimer:
+          rid: 3198980134753271830
+        MaxTime:
+          rid: 3198980134753271831
         DistanceThreshold:
           rid: 3198980050963661313
         AnimatorSpeedParam:
@@ -1903,6 +1907,22 @@ MonoBehaviour:
           rid: 3198980050975981628
         SecondsToWait:
           rid: 3198980050963661331
+    - rid: 3198980134753271830
+      type: {class: 'BlackboardVariable`1[[System.Boolean, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 0
+    - rid: 3198980134753271831
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 5
 --- !u!114 &-418756239548778919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2176,7 +2196,7 @@ MonoBehaviour:
   - rid: 3198980050824200498
   - rid: 3198980050824200589
   - rid: 3198980050963661183
-  m_VersionTimestamp: 639200905279469717
+  m_VersionTimestamp: 639204135989361498
   m_SerializedVersion: 2
   m_DebugInfo: {fileID: 8589239187900630048}
   m_RuntimeGraph: {fileID: -2958111290060846793}
@@ -2444,6 +2464,16 @@ MonoBehaviour:
           Culture=neutral, PublicKeyToken=null
       Tooltip: 
     - Name: Speed
+      Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      Tooltip: 
+    - Name: HasTimer
+      Type:
+        m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      Tooltip: 
+    - Name: MaxTime
       Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
@@ -5847,6 +5877,8 @@ MonoBehaviour:
         - rid: 1614916601084117610
         - rid: 1614916601084117611
         - rid: 1614916601084117612
+        - rid: 3198980134753271838
+        - rid: 3198980134753271839
         - rid: 1614916601084117613
         - rid: 1614916601084117614
         - rid: 1614916601084117615
@@ -8352,6 +8384,44 @@ MonoBehaviour:
           m_Value1: 0
         Name: 
         m_Value: 0
+    - rid: 3198980134753271838
+      type: {class: BehaviorGraphNodeModel/FieldModel, ns: Unity.Behavior, asm: Unity.Behavior.Authoring}
+      data:
+        FieldName: HasTimer
+        Type:
+          m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        LocalValue:
+          rid: 3198980134753271840
+        LinkedVariable:
+          rid: -2
+    - rid: 3198980134753271839
+      type: {class: BehaviorGraphNodeModel/FieldModel, ns: Unity.Behavior, asm: Unity.Behavior.Authoring}
+      data:
+        FieldName: MaxTime
+        Type:
+          m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        LocalValue:
+          rid: 3198980134753271841
+        LinkedVariable:
+          rid: -2
+    - rid: 3198980134753271840
+      type: {class: 'BlackboardVariable`1[[System.Boolean, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 0
+    - rid: 3198980134753271841
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 5
     - rid: 8560592100431233165
       type: {class: FloatingPortNodeModel, ns: Unity.Behavior.GraphFramework, asm: Unity.Behavior.GraphFramework}
       data:

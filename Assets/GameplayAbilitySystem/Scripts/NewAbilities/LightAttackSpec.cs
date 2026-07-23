@@ -8,7 +8,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     private Animator animator;
     private ThirdPersonController controller;
     private CharacterController characterController;
-    private WeaponController weaponController;
+    private PlayerWeaponController weaponController;
     private StarterAssetsInputs starterInputs;
     
     private int comboIndex;
@@ -36,7 +36,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         controller = owner.GetComponent<ThirdPersonController>();
-        weaponController = owner.GetComponent<WeaponController>();
+        weaponController = owner.GetComponent<PlayerWeaponController>();
         characterController = owner.GetComponent<CharacterController>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
@@ -78,7 +78,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             return;
         }
         inCombo = true;
-        comboIndex = 1;
+        comboIndex = 0;
 
         animator.SetBool("InCombo", true);
         animator.SetTrigger("Attack");  
@@ -303,8 +303,9 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void EnableSwordCollider()
     {
-
-        weaponController.EnableCollision(comboIndex);
+        weaponController.SetComboNumber(comboIndex);
+        comboIndex ++;
+        weaponController.EnableCollision();
     }
 
     public void DisableSwordCollider()
@@ -315,12 +316,11 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public void StartAttackAssist()
     {
-        if (!bufferedInput && comboIndex != 1)
+        if (!bufferedInput && comboIndex != 0)
         {
             EndAbility();
             return;
         }
-        comboIndex ++;
         attackAssistActive = true;
         bufferedInput = false;
         if (attackAssistCoroutine != null)

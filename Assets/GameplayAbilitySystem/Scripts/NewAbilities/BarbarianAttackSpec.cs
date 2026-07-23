@@ -5,7 +5,7 @@ using UnityEngine;
 public class BarbarianAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private WeaponController weaponController;
+    private EnemyWeaponController weaponController;
     private BehaviorGraphAgent behaviorGraphAgent;
     private float timeStuned;
     private int comboIndex;
@@ -16,7 +16,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     public BarbarianAttackSpec(GameplayAbility ability, GameObject owner, float TimeStuned) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        weaponController = owner.GetComponent<WeaponController>();
+        weaponController = owner.GetComponent<EnemyWeaponController>();
         behaviorGraphAgent = owner.GetComponent<BehaviorGraphAgent>();
         timeStuned = TimeStuned;
     }
@@ -35,7 +35,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
         {
             return;
         }
-        weaponController.weaponDamage.SetHasHitPlayer(false);
+        weaponController.WeaponDamage.SetHasHitPlayer(false);
         comboIndex = 0;
         animator.SetBool("InCombo", true);
         animator.SetTrigger("Attack");
@@ -75,7 +75,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
 
     public void StartStunned()
     {
-        if (weaponController.weaponDamage.GetHasHitPlayer())
+        if (weaponController.WeaponDamage.GetHasHitPlayer())
         {
             return;
         }
@@ -91,8 +91,9 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
 
     public void EnableSwordCollider()
     {
+        weaponController.SetComboNumber(comboIndex);
         comboIndex++;
-        weaponController.EnableCollision(comboIndex);
+        weaponController.EnableCollision();
     }
 
     public void DisableSwordCollider()

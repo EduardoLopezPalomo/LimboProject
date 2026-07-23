@@ -18,7 +18,7 @@ public class RotateAlongPlayer : MonoBehaviour
     private NavMeshAgent agent;
     private Animator Animator;
     private GoingToPlayer SlotPosition;
-    private WeaponController weaponController;
+    private EnemyWeaponController weaponController;
     private LayerMask enemyLayer;
     
     void Start()
@@ -26,7 +26,7 @@ public class RotateAlongPlayer : MonoBehaviour
         Animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         SlotPosition = GetComponent<GoingToPlayer>();
-        weaponController = GetComponent<WeaponController>();
+        weaponController = GetComponent<EnemyWeaponController>();
         enemyLayer= LayerMask.GetMask("EnemyLayer");
         agent.updateRotation = false;
         agent.stoppingDistance = 0f;

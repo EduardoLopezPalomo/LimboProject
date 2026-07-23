@@ -351,7 +351,7 @@ MonoBehaviour:
   - rid: 3198980050893406578
   - rid: 3198980050975982088
   - rid: 3198980050975982240
-  m_VersionTimestamp: 639200905662010270
+  m_VersionTimestamp: 639204135977681393
   m_SerializedVersion: 2
   m_DebugInfo: {fileID: -4918337309936116493}
   m_RuntimeGraph: {fileID: 6858001970087869445}
@@ -417,6 +417,16 @@ MonoBehaviour:
           Culture=neutral, PublicKeyToken=null
       Tooltip: 
     - Name: Speed
+      Type:
+        m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      Tooltip: 
+    - Name: HasTimer
+      Type:
+        m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+          PublicKeyToken=b77a5c561934e089
+      Tooltip: 
+    - Name: MaxTime
       Type:
         m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
           PublicKeyToken=b77a5c561934e089
@@ -2706,6 +2716,8 @@ MonoBehaviour:
         - rid: 1614916531033473454
         - rid: 1614916531033473455
         - rid: 1614916531033473456
+        - rid: 3198980134753271846
+        - rid: 3198980134753271847
         - rid: 1614916531033473457
         - rid: 1614916531033473458
         - rid: 1614916531033473459
@@ -6679,6 +6691,44 @@ MonoBehaviour:
           m_Value1: 0
         Name: 
         m_Value: 0
+    - rid: 3198980134753271846
+      type: {class: BehaviorGraphNodeModel/FieldModel, ns: Unity.Behavior, asm: Unity.Behavior.Authoring}
+      data:
+        FieldName: HasTimer
+        Type:
+          m_SerializableType: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        LocalValue:
+          rid: 3198980134753271848
+        LinkedVariable:
+          rid: -2
+    - rid: 3198980134753271847
+      type: {class: BehaviorGraphNodeModel/FieldModel, ns: Unity.Behavior, asm: Unity.Behavior.Authoring}
+      data:
+        FieldName: MaxTime
+        Type:
+          m_SerializableType: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        LocalValue:
+          rid: 3198980134753271849
+        LinkedVariable:
+          rid: -2
+    - rid: 3198980134753271848
+      type: {class: 'BlackboardVariable`1[[System.Boolean, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 0
+    - rid: 3198980134753271849
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 5
     - rid: 8560592099634840511
       type: {class: ActionNodeModel, ns: Unity.Behavior, asm: Unity.Behavior.Authoring}
       data:
@@ -7529,7 +7579,7 @@ MonoBehaviour:
         BlackboardGroupReferences: []
         Root:
           rid: 3198980050975982454
-        m_VersionTimestamp: 639200905662010270
+        m_VersionTimestamp: 639204135977681393
     - rid: 1614916531033473260
       type: {class: BlackboardReference, ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -9135,6 +9185,10 @@ MonoBehaviour:
           rid: 3198980050975982532
         Speed:
           rid: 3198980050975982209
+        HasTimer:
+          rid: 3198980134753271834
+        MaxTime:
+          rid: 3198980134753271835
         DistanceThreshold:
           rid: 3198980050975982210
         AnimatorSpeedParam:
@@ -9420,3 +9474,19 @@ MonoBehaviour:
           rid: 3198980050975982537
         Controller:
           rid: 3198980050975982359
+    - rid: 3198980134753271834
+      type: {class: 'BlackboardVariable`1[[System.Boolean, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 0
+    - rid: 3198980134753271835
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 0
+          m_Value1: 0
+        Name: 
+        m_Value: 5

@@ -19,6 +19,19 @@ public class KnockBack : MonoBehaviour
         abilityHolder = GetComponent<AbilityHolder>();
     }
 
+    public void StartKnockBackCounter()
+    {
+        if (!CanKnockBack) return;
+        
+        animator.SetTrigger("KnockBack");
+        if (abilityHolder.HasAbility("LightAttack"))
+        {
+            abilityHolder.CancelAbility("LightAttack");   
+        }
+        
+        StartCoroutine(Timer(true));
+    }
+
     
     public void StartKnockBack()
     {
@@ -37,13 +50,13 @@ public class KnockBack : MonoBehaviour
         {
             abilityHolder.CancelAbility("FireAttack");   
         } ;
-        StartCoroutine(Timer());
+        StartCoroutine(Timer(false));
     }
     
         
-    private IEnumerator Timer()
+    private IEnumerator Timer(bool counter)
     {
-        if (CompareTag("Player"))
+        if (CompareTag("Player") && !counter)
         {
             makeInvincible.SetInvincible(true);   
         }
