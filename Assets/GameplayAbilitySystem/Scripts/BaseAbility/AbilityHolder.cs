@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using System.Linq;
 using UnityEngine;
 /*
  *  This class is teh one that has all the abiliites of the character
@@ -203,6 +204,15 @@ public class AbilityHolder : MonoBehaviour
         else
         {
             Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
+        }
+    }
+    
+    public void CancelAllAbility()
+    {
+        foreach (var activeAbility in ActiveSpecs.ToList())
+        {
+            activeAbility.CancelAbility();
+            RemoveFromSpec(activeAbility);
         }
     }
 

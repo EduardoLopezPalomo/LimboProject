@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Cinemachine;
 using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.Events;
@@ -14,6 +16,16 @@ public class EnemyWeaponDamage : MonoBehaviour
     [Header("Counter attack effect")]
     [SerializeField] private GameplayEffect counterEffect;
     
+    [Header("Camera shakes")]
+    public CameraShakeData CameraShakeData;
+
+    private CinemachineImpulseSource impulseSource;
+
+    private void Awake()
+    {
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
@@ -36,7 +48,8 @@ public class EnemyWeaponDamage : MonoBehaviour
         {
             return;
         }
-
+        
+        CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
         if (isCounter)
         {
             effectmanager.ApplyEffect(counterEffect, attributeSystem);

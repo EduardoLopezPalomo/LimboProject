@@ -7,11 +7,17 @@ public class EnemyHealthResponse : GeneralHealthResponse
     {
         if (CanResponse)
         {
+            var knockBack = owner.GetComponent<KnockBack>();
             var enemy = owner.GetComponent<EnemyGraphBridge>();
             if (enemy != null)
             {
                 enemy.SetHurt();
-            }   
+            }
+
+            if (knockBack != null)
+            {
+                knockBack.StartKnockBack();
+            }
         }
 
         EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
