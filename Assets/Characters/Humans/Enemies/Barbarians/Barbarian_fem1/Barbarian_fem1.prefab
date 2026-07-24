@@ -221,6 +221,7 @@ GameObject:
   - component: {fileID: 4276034949122878560}
   - component: {fileID: 5020726046340138555}
   - component: {fileID: 4871226525049616792}
+  - component: {fileID: 7065174264325033766}
   m_Layer: 9
   m_Name: Barbarian_fem1
   m_TagString: Enemy
@@ -245,6 +246,7 @@ Transform:
   - {fileID: 7359964598057017950}
   - {fileID: 5792530311163916669}
   - {fileID: 7018859149562455517}
+  - {fileID: 1320455227974261775}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &5059916729741597658
@@ -709,6 +711,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
   controller: {fileID: 0}
+--- !u!114 &7065174264325033766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580124438056508130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717ba0e38f326314fa621edeaaa007be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
+  vfxSpawnPoint: {fileID: 1320455227974261775}
+  VFXDefinitions:
+  - {fileID: 11400000, guid: d8b9a7398811e664593a975fbee8b8a9, type: 2}
 --- !u!1 &629371062462779084
 GameObject:
   m_ObjectHideFlags: 0
@@ -2068,6 +2085,37 @@ Transform:
   - {fileID: 5292433104068227660}
   - {fileID: 3086599728573412280}
   m_Father: {fileID: 734231163090894247}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5413382278129889856
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1320455227974261775}
+  m_Layer: 9
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1320455227974261775
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5413382278129889856}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.041, z: 0.416}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5377895593990783589}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5464064535833041134
 GameObject:

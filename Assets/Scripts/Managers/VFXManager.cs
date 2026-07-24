@@ -1,0 +1,60 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class VFXManager : MonoBehaviour
+{
+    public static VFXManager Instance { get; private set; }
+
+    private Dictionary<VFXDefinition, Queue<GameObject>> pools = new();
+    
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+    }
+    
+    public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation)
+    {
+        Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
+        GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
+
+        vfx.transform.SetPositionAndRotation(position, finalRot);
+        vfx.transform.localScale = def.scaleOverride;
+        vfx.SetActive(true);
+
+        if (def.useObjectPool)
+            StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
+        else
+            Destroy(vfx, def.lifetime);
+
+        return vfx;
+    }
+    
+    public GameObject Play(VFXDefinition def, Transform spawnPoint) => Play(def, spawnPoint.position, spawnPoint.rotation);
+
+    private GameObject GetFromPool(VFXDefinition def)
+    {
+        if (!pools.TryGetValue(def, out var queue))
+        {
+            queue = new Queue<GameObject>();
+            pools[def] = queue;
+        }
+
+        if (queue.Count > 0)
+        {
+            var obj = queue.Dequeue();
+            return obj;
+        }
+
+        return Instantiate(def.prefab);
+    }
+
+    private System.Collections.IEnumerator ReturnToPoolAfter(VFXDefinition def, GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        obj.SetActive(false);
+        pools[def].Enqueue(obj);
+    }
+}

@@ -80,6 +80,11 @@ public class PlayerWeaponDamage : MonoBehaviour
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);
+            CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
+            if (vfx != null)
+            {
+                vfx.SpawnVFX(VFXType.Counter);
+            }
             return;
         }
         
