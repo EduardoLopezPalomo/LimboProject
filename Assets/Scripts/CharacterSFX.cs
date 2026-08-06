@@ -15,4 +15,15 @@ public class CharacterSFX : MonoBehaviour
             }
         }
     }
+    public void SpawnRandomSFX(SFXType sfxType)
+    {
+        SFXDefinition[] filteredDefs = System.Array.FindAll(SFXDefinitions, def => def.type == sfxType);
+        if (filteredDefs.Length > 0)
+        {
+            int randomIndex = Random.Range(0, filteredDefs.Length);
+            SFXDefinition randomDef = filteredDefs[randomIndex];
+            SoundFXManager.instance.PlaySoundRandomPitch(randomDef.sfx, transform, randomDef.volume, randomDef.minPitch, randomDef.maxPitch);
+        }
+
+    }
 }

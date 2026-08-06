@@ -31,18 +31,23 @@ public class EnemyHealthResponse : GeneralHealthResponse
     {
         DeathCheck deathCheck = owner.gameObject.GetComponent<DeathCheck>();
         if (deathCheck.GetIsDeath()) return;
-        
+
         deathCheck.SetIsDeath(true);
         GameObject target = owner.gameObject;
         EnemyGraphBridge enemy = owner.GetComponent<EnemyGraphBridge>();
-                
+        CharacterSFX sfx = owner.GetComponent<CharacterSFX>();
+        if (sfx != null)
+        {
+            sfx.SpawnRandomSFX(SFXType.Death);
+        }
+
         enemy.SetDeath();
-                
+
         KarmaManager.Instance.AddKarma(-10);
-                
-        Destroy(target, 2f); 
+
+        Destroy(target, 2f);
     }
-    
+
     protected override void OverHealthBehavior(AttributeSystem owner)
     {
         EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
