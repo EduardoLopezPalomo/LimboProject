@@ -26,13 +26,13 @@ public class CameraShakeEntry
 public class PlayerWeaponDamage : MonoBehaviour
 {
     public UnityEvent EnemyCounter;
-    
+
     [Header("Combo effects")]
     [SerializeField] private List<GameplayEffect> gameplayEffects;
-    
+
     [Header("Camera shakes")]
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
-    
+
     private int ComboNumber = 0;
     private CinemachineImpulseSource impulseSource;
     private Dictionary<CameraShakeState, CameraShakeData> cameraShakeDict;
@@ -40,7 +40,7 @@ public class PlayerWeaponDamage : MonoBehaviour
     void Awake()
     {
         impulseSource = GetComponent<CinemachineImpulseSource>();
-        
+
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
 
         foreach (var entry in cameraShakes)
@@ -59,10 +59,10 @@ public class PlayerWeaponDamage : MonoBehaviour
             {
                 animator.SetBool("InCombo", false);
                 animator.SetTrigger("HitShield");
-                abilityHolder.CancelAbility("LightAttack");   
+                abilityHolder.CancelAbility("LightAttack");
             }
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.hitShield], impulseSource);
-            return; 
+            return;
         }
         if (other.gameObject.layer == LayerMask.NameToLayer("EnemyLayer"))
         {
@@ -81,13 +81,15 @@ public class PlayerWeaponDamage : MonoBehaviour
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);
             CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
-            if (vfx != null)
+            CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
+            if (vfx != null && sfx != null)
             {
                 vfx.SpawnVFX(VFXType.Counter);
+                sfx.SpawnSFX(SFXType.Counter);
             }
             return;
         }
-        
+
         GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
         AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
 
@@ -96,7 +98,7 @@ public class PlayerWeaponDamage : MonoBehaviour
             Debug.LogWarning("the combo is " + ComboNumber + "But the list doent have that number");
             return;
         }
-        
+
         GameplayEffect effect = gameplayEffects[ComboNumber];
         MakeComboCameraShake(ComboNumber);
 
@@ -105,7 +107,7 @@ public class PlayerWeaponDamage : MonoBehaviour
             Debug.LogWarning("the combo number has no effect on the player weapon");
             return;
         }
-        
+
         effectmanager.ApplyEffect(effect, attributeSystem);
     }
 
@@ -113,16 +115,16 @@ public class PlayerWeaponDamage : MonoBehaviour
     {
         switch (combo)
         {
-            case 0: 
+            case 0:
                 CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack1], impulseSource);
                 return;
-            case 1: 
+            case 1:
                 CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack2], impulseSource);
                 return;
-            case 2: 
+            case 2:
                 CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack3], impulseSource);
                 return;
-            case 3: 
+            case 3:
                 CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack4], impulseSource);
                 return;
         }

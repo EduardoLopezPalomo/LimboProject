@@ -9,7 +9,7 @@ public class LightAttack : GameplayAbility
     public float dashStopDistance = 1.5f;
     public float dashDefaultDistance = 1f;
     public float RotationSpeed = 0.15f;
-    public SFX[] sounds;
+    public SFXDefinition[] sounds;
 
     public override GameplayAbilitySpec CreateSpec(GameObject owner)
     {

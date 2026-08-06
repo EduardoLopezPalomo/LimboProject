@@ -29,10 +29,10 @@ public class LightAttackSpec : GameplayAbilitySpec
     private float dashStopDistance;
     private float dashDefaultDistance;
     private float rotationSpeed;
-    private SFX[] slashSounds;
+    private SFXDefinition[] slashSounds;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed, SFX[] sounds)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed, SFXDefinition[] sounds)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -252,12 +252,17 @@ public class LightAttackSpec : GameplayAbilitySpec
         attackAssistCoroutine = null;
     }
 
-    public void StartSFX(SFX[] SFXes)
+    public void StartSFX(SFXDefinition[] SFXes)
     {
         if (SFXes == null || SFXes.Length == 0) return;
         int random = Random.Range(0, SFXes.Length);
 
-        SoundFXManager.instance.PlaySoundRandomPitch(SFXes[random].sfx, owner.transform, SFXes[random].volume, SFXes[random].minPitch, SFXes[random].maxPitch);
+        if (SFXes[random].type == SFXType.Attack)
+        {
+            SoundFXManager.instance.PlaySoundRandomPitch(
+                SFXes[random].sfx, owner.transform, SFXes[random].volume, SFXes[random].minPitch, SFXes[random].maxPitch);
+        }
+
     }
 
     void DrawDebugRectangle(Vector3 origin, Vector3 forward)

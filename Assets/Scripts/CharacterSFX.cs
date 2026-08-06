@@ -1,24 +1,18 @@
-using System;
 using UnityEngine;
-
-[Serializable]
-public struct SFX
-{
-    public AudioClip sfx;
-    public float volume;
-    public float minPitch;
-    public float maxPitch;
-}
 
 public class CharacterSFX : MonoBehaviour
 {
+    [SerializeField] private SFXDefinition[] SFXDefinitions;
 
-    public void StartSFX(SFX[] SFXes)
+
+    public void SpawnSFX(SFXType sfxType)
     {
-        if (SFXes == null || SFXes.Length == 0) return;
-        int random = UnityEngine.Random.Range(0, SFXes.Length);
-
-        SoundFXManager.instance.PlaySoundRandomPitch(SFXes[random].sfx, transform, SFXes[random].volume, SFXes[random].minPitch, SFXes[random].maxPitch);
+        foreach (var def in SFXDefinitions)
+        {
+            if (def.type == sfxType)
+            {
+                SoundFXManager.instance.PlaySoundRandomPitch(def.sfx, transform, def.volume, def.minPitch, def.maxPitch);
+            }
+        }
     }
-
 }
