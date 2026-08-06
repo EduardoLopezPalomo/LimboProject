@@ -7,10 +7,10 @@ public class EnemiesGroupContoller : MonoBehaviour
 {
     public static event Action<List<GameObject>> OnHideEnemyHud;
     public int maxTokens = 2;
-    
+
     private int currentToken = 0;
     private List<GameObject> enemies = new List<GameObject>();
-    
+
     void Awake()
     {
         currentToken = maxTokens;
@@ -42,7 +42,7 @@ public class EnemiesGroupContoller : MonoBehaviour
             }
         }
     }
-    
+
     public bool RequestToken()
     {
         if (currentToken > 0)
@@ -52,7 +52,7 @@ public class EnemiesGroupContoller : MonoBehaviour
         }
         return false;
     }
-    
+
     public void ReturnToken()
     {
         currentToken++;
@@ -64,8 +64,8 @@ public class EnemiesGroupContoller : MonoBehaviour
         MusicManager.Instance.StartBattle();
         foreach (var v in enemies)
         {
-            if(alerter == v) continue;
-            
+            if (alerter == v) continue;
+
             EnemyGraphBridge aux = v.GetComponent<EnemyGraphBridge>();
             aux.SetDetection();
         }
@@ -91,7 +91,7 @@ public class EnemiesGroupContoller : MonoBehaviour
 
             if (agent.GetVariable("ActualState", out stateVariable))
             {
-                
+
                 if (stateVariable.Value != BarbarianState.Calm && stateVariable.Value != BarbarianState.Death)
                 {
                     return;
@@ -107,8 +107,8 @@ public class EnemiesGroupContoller : MonoBehaviour
         MusicManager.Instance.EndBattle();
         OnHideEnemyHud?.Invoke(enemies);
     }
-    
+
     //Methods for slots managment
-    
-    
+
+
 }
