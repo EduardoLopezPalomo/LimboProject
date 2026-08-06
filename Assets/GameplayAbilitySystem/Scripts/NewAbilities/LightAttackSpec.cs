@@ -10,7 +10,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     private CharacterController characterController;
     private PlayerWeaponController weaponController;
     private StarterAssetsInputs starterInputs;
-    
+
     private int comboIndex;
     private bool inCombo;
     private bool canReceiveInput;
@@ -22,16 +22,17 @@ public class LightAttackSpec : GameplayAbilitySpec
     private Vector3 attackDestination;
     private float comboEndTime;
     private float comboCooldown = 0.3f;
-    
+
     private float forwardDistanceRay;
-    private float lateralDistanceRay;       
+    private float lateralDistanceRay;
     private float attackAssistSpeed;
-    private float dashStopDistance; 
+    private float dashStopDistance;
     private float dashDefaultDistance;
     private float rotationSpeed;
+    private SFX[] slashSounds;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed, SFX[] sounds)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -40,13 +41,14 @@ public class LightAttackSpec : GameplayAbilitySpec
         characterController = owner.GetComponent<CharacterController>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
-        
+
         lateralDistanceRay = LateralDistanceRay;
         forwardDistanceRay = ForwardDistanceRay;
         attackAssistSpeed = AttackAssistSpeed;
         dashStopDistance = DashStopDistance;
         dashDefaultDistance = DashDefaultDistance;
         rotationSpeed = RotationSpeed;
+        slashSounds = sounds;
     }
 
     public override void ActivateAbility()
@@ -58,7 +60,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             {
                 return;
             }
-            StartCombo();    
+            StartCombo();
         }
         else
         {
@@ -67,12 +69,12 @@ public class LightAttackSpec : GameplayAbilitySpec
                 bufferedInput = true;
             }
         }
-        
+
     }
 
     void StartCombo()
     {
-        
+
         if (!animator.GetBool("Grounded") || animator.GetBool("Dash"))
         {
             return;
@@ -81,7 +83,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         comboIndex = 0;
 
         animator.SetBool("InCombo", true);
-        animator.SetTrigger("Attack");  
+        animator.SetTrigger("Attack");
         weaponController.EquipWeapon();
     }
 
@@ -93,9 +95,9 @@ public class LightAttackSpec : GameplayAbilitySpec
         comboEndTime = Time.time;
         if (!animator.GetBool("IsStrafing"))
         {
-            weaponController.UnequipWeapon();    
+            weaponController.UnequipWeapon();
         }
-        controller.SetInputAviable(true); 
+        controller.SetInputAviable(true);
         characterController.Move(Vector3.zero);
         animator.SetBool("InCombo", false);
     }
@@ -104,7 +106,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         base.CancelAbility();
         if (inCombo)
         {
-            canReceiveInput = false;   
+            canReceiveInput = false;
             inCombo = false;
             EndCombo();
         }
@@ -112,7 +114,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         attackAssistActive = false;
         if (attackAssistCoroutine != null)
         {
-            controller.StopCoroutine(attackAssistCoroutine);   
+            controller.StopCoroutine(attackAssistCoroutine);
         }
         DisableSwordCollider();
     }
@@ -122,11 +124,11 @@ public class LightAttackSpec : GameplayAbilitySpec
         base.EndAbility();
         EndCombo();
     }
-    
+
     private Vector3 GetAimDirection()
     {
         Vector2 move = starterInputs != null ? starterInputs.move : Vector2.zero;
-        
+
         if (move.sqrMagnitude < 0.0001f)
         {
             return owner.transform.forward;
@@ -147,7 +149,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         attackDirection = GetAimDirection();
         attackTarget = FindTargetInRectangle(attackDirection);
-        
+
         if (attackTarget != null)
         {
             attackDestination = CalculateAttackPoint(attackTarget);
@@ -157,7 +159,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             attackDestination = owner.transform.position + attackDirection * dashDefaultDistance;
         }
     }
-    
+
     Vector3 CalculateAttackPoint(Transform target)
     {
         Vector3 direction = (target.position - owner.transform.position).normalized;
@@ -168,7 +170,7 @@ public class LightAttackSpec : GameplayAbilitySpec
 
         return point;
     }
-    
+
     Transform FindTargetInRectangle(Vector3 forward)
     {
         Vector3 origin = owner.transform.position;
@@ -191,7 +193,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             toTarget.y = 0f;
             float distance = toTarget.magnitude;
             float angle = Vector3.Angle(forward, toTarget.normalized);
-            
+
             float score = distance + angle * 0.1f;
 
             if (score < bestScore)
@@ -203,7 +205,7 @@ public class LightAttackSpec : GameplayAbilitySpec
 
         return best;
     }
-    
+
     IEnumerator AttackAssist()
     {
         while (attackAssistActive)
@@ -221,21 +223,21 @@ public class LightAttackSpec : GameplayAbilitySpec
                 destination = attackDestination;
                 lookDirection = attackDirection;
             }
-            
+
             Vector3 direction = destination - owner.transform.position;
             direction.y = 0;
             lookDirection.y = 0f;
 
-            if(direction.sqrMagnitude > 0.001f)
+            if (direction.sqrMagnitude > 0.001f)
             {
-                Quaternion targetRotation =  Quaternion.LookRotation(lookDirection);
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
 
-                owner.transform.rotation = Quaternion.Slerp( owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
-            
+
             float step = attackAssistSpeed * Time.deltaTime;
             float distance = direction.magnitude;
-            
+
             if (distance < 0.05f)
             {
                 yield return null;
@@ -249,23 +251,31 @@ public class LightAttackSpec : GameplayAbilitySpec
 
         attackAssistCoroutine = null;
     }
-    
+
+    public void StartSFX(SFX[] SFXes)
+    {
+        if (SFXes == null || SFXes.Length == 0) return;
+        int random = Random.Range(0, SFXes.Length);
+
+        SoundFXManager.instance.PlaySoundRandomPitch(SFXes[random].sfx, owner.transform, SFXes[random].volume, SFXes[random].minPitch, SFXes[random].maxPitch);
+    }
+
     void DrawDebugRectangle(Vector3 origin, Vector3 forward)
     {
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
         Vector3 originRaised = origin + Vector3.up * 0.1f;
 
         // Las 4 esquinas del rectangulo
-        Vector3 frontLeft  = originRaised + forward * forwardDistanceRay - right * lateralDistanceRay;
+        Vector3 frontLeft = originRaised + forward * forwardDistanceRay - right * lateralDistanceRay;
         Vector3 frontRight = originRaised + forward * forwardDistanceRay + right * lateralDistanceRay;
-        Vector3 backLeft   = originRaised - right * lateralDistanceRay;
-        Vector3 backRight  = originRaised + right * lateralDistanceRay;
+        Vector3 backLeft = originRaised - right * lateralDistanceRay;
+        Vector3 backRight = originRaised + right * lateralDistanceRay;
 
         // Lados del rectangulo
-        Debug.DrawLine(backLeft,   frontLeft,  Color.cyan, 2f);
-        Debug.DrawLine(backRight,  frontRight, Color.cyan, 2f);
-        Debug.DrawLine(backLeft,   backRight,  Color.cyan, 2f);
-        Debug.DrawLine(frontLeft,  frontRight, Color.cyan, 2f);
+        Debug.DrawLine(backLeft, frontLeft, Color.cyan, 2f);
+        Debug.DrawLine(backRight, frontRight, Color.cyan, 2f);
+        Debug.DrawLine(backLeft, backRight, Color.cyan, 2f);
+        Debug.DrawLine(frontLeft, frontRight, Color.cyan, 2f);
 
         // Linea central hacia delante
         Debug.DrawRay(originRaised, forward * forwardDistanceRay, Color.yellow, 2f);
@@ -291,7 +301,7 @@ public class LightAttackSpec : GameplayAbilitySpec
             return;
         }
         EndAbility();
-        controller.SetInputAviable(true); 
+        controller.SetInputAviable(true);
         characterController.Move(Vector3.zero);
     }
 
@@ -299,13 +309,14 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         controller.SetInputAviable(false);
     }
-    
+
 
     public void EnableSwordCollider()
     {
         weaponController.SetComboNumber(comboIndex);
-        comboIndex ++;
+        comboIndex++;
         weaponController.EnableCollision();
+        StartSFX(slashSounds);
     }
 
     public void DisableSwordCollider()
@@ -329,7 +340,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         CaptureAttackIntent();
         attackAssistCoroutine = controller.StartCoroutine(AttackAssist());
     }
-    
+
     public void EndAttackAssist()
     {
         attackAssistActive = false;

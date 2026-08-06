@@ -6414,10 +6414,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1520184032351820, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1830882371}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
 --- !u!1 &325975548 stripped
 GameObject:
@@ -23092,7 +23089,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1131696744}
   - component: {fileID: 1131696747}
-  - component: {fileID: 1131696746}
   - component: {fileID: 1131696745}
   - component: {fileID: 1131696748}
   m_Layer: 11
@@ -23161,14 +23157,6 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
---- !u!81 &1131696746
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1131696743}
-  m_Enabled: 1
 --- !u!20 &1131696747
 Camera:
   m_ObjectHideFlags: 0
@@ -23232,7 +23220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd2fc2090fe6dab479da8922901e026d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapFollow
-  player: {fileID: 0}
+  player: {fileID: 563563228}
   height: 100
 --- !u!1001 &1133856912
 PrefabInstance:
@@ -37106,6 +37094,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 8593021724327182396, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
+      propertyPath: overlapDepth
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 8593021724327182396, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: virtualCamera
       value: 
       objectReference: {fileID: 1166906459}
@@ -37113,10 +37105,6 @@ PrefabInstance:
       propertyPath: playerTransform
       value: 
       objectReference: {fileID: 563563228}
-    - target: {fileID: 8593021724327182396, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
-      propertyPath: wallLayer.m_Bits
-      value: 8256
-      objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409496, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: far clip plane
       value: 50
@@ -37831,22 +37819,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
---- !u!114 &1830882371
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 325975548}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
-  iconColor: {r: 0.86415094, g: 0.6108858, b: 0, a: 1}
-  iconSize: 3
-  heightOffset: 3
-  minimapLayerName: MinimapIcon
 --- !u!1 &1840478892 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1619780560133676, guid: 634d59ffe836de04c96be01de6904b85, type: 3}
