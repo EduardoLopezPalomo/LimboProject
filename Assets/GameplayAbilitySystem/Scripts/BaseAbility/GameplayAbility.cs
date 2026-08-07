@@ -9,6 +9,8 @@ using System.Collections.Generic;
 [CreateAssetMenu(menuName = "AbilitySystem/Ability")]
 public abstract class GameplayAbility : ScriptableObject
 {
+    [SerializeField] private int id;
+    public int Id => id;
     public string Name;
     public Sprite icon;
     public float Cooldown;
@@ -17,6 +19,11 @@ public abstract class GameplayAbility : ScriptableObject
     public bool equipable = true;
     public List<GameplayEffect> EffectsToSelf;
     public string Description;
+
+    private void OnValidate()
+    {
+        id = Animator.StringToHash(Name);
+    }
 
     public virtual void ActivateAbilityEffects(GameObject owner)
     {

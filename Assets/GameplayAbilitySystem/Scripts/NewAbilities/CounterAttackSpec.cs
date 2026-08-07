@@ -6,37 +6,39 @@ using UnityEngine;
 public class CounterAttackSpec : GameplayAbilitySpec
 {
     public static event Action<GameObject> OnResistanceConsumed;
-    
+
     private Animator animator;
     private EnemyWeaponController weaponController;
     private CharacterController characterController;
     private AttributeSystem attributeSystem;
+    private CharacterSFX characterSFX;
 
     private Coroutine StunnedCoroutine;
-   
+
     private float forwardDistanceRay;
-    private float lateralDistanceRay;       
+    private float lateralDistanceRay;
     private float attackAssistSpeed;
-    private float dashStopDistance; 
+    private float dashStopDistance;
     private float dashDefaultDistance;
     private float rotationSpeed;
     private LayerMask playerlayer;
-    
+
     private Vector3 attackDirection;
     private Transform attackTarget;
     private bool attackAssistActive;
     private Coroutine attackAssistCoroutine;
     private Vector3 attackDestination;
-    
-    
+
+
     public CounterAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         characterController = owner.GetComponent<CharacterController>();
         weaponController = owner.GetComponent<EnemyWeaponController>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
+        characterSFX = owner.GetComponent<CharacterSFX>();
         playerlayer = LayerMask.GetMask("Player");
-        
+
         lateralDistanceRay = LateralDistanceRay;
         forwardDistanceRay = ForwardDistanceRay;
         attackAssistSpeed = AttackAssistSpeed;
@@ -51,7 +53,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         OnResistanceConsumed?.Invoke(owner);
         if (attributeSystem.GetAttributeValue("BlockResistance") > 0f)
         {
-            StartCounter();     
+            StartCounter();
         }
         else
         {
@@ -61,7 +63,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
 
     void StartCounter()
     {
-        
+
         if (!animator.GetBool("Grounded"))
         {
             return;
@@ -70,7 +72,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         weaponController.CounterAttack(true);
         weaponController.EquipWeapon();
     }
-    
+
     public override void CancelAbility()
     {
         base.CancelAbility();
@@ -83,16 +85,16 @@ public class CounterAttackSpec : GameplayAbilitySpec
         base.EndAbility();
         if (!animator.GetBool("IsStrafing"))
         {
-            weaponController.UnequipWeapon();    
+            weaponController.UnequipWeapon();
         }
         weaponController.CounterAttack(false);
     }
-    
+
     void CaptureAttackIntent()
     {
         attackDirection = owner.transform.forward;
         attackTarget = FindTargetInRectangle(attackDirection);
-        
+
         if (attackTarget != null)
         {
             attackDestination = CalculateAttackPoint(attackTarget);
@@ -102,7 +104,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
             attackDestination = owner.transform.position + attackDirection * dashDefaultDistance;
         }
     }
-    
+
     Vector3 CalculateAttackPoint(Transform target)
     {
         Vector3 direction = (target.position - owner.transform.position).normalized;
@@ -113,7 +115,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
 
         return point;
     }
-    
+
     Transform FindTargetInRectangle(Vector3 forward)
     {
         Vector3 origin = owner.transform.position;
@@ -134,7 +136,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
             toTarget.y = 0f;
             float distance = toTarget.magnitude;
             float angle = Vector3.Angle(forward, toTarget.normalized);
-            
+
             float score = distance + angle * 0.1f;
 
             if (score < bestScore)
@@ -164,21 +166,21 @@ public class CounterAttackSpec : GameplayAbilitySpec
                 destination = attackDestination;
                 lookDirection = attackDirection;
             }
-            
+
             Vector3 direction = destination - owner.transform.position;
             direction.y = 0;
             lookDirection.y = 0f;
 
-            if(direction.sqrMagnitude > 0.001f)
+            if (direction.sqrMagnitude > 0.001f)
             {
-                Quaternion targetRotation =  Quaternion.LookRotation(lookDirection);
+                Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
 
-                owner.transform.rotation = Quaternion.Slerp( owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                owner.transform.rotation = Quaternion.Slerp(owner.transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
-            
+
             float step = attackAssistSpeed * Time.deltaTime;
             float distance = direction.magnitude;
-            
+
             if (distance < 0.05f)
             {
                 yield return null;
@@ -192,11 +194,12 @@ public class CounterAttackSpec : GameplayAbilitySpec
 
         attackAssistCoroutine = null;
     }
-    
+
 
     public void EnableSwordCollider()
     {
         weaponController.EnableCollision();
+        characterSFX.SpawnRandomSFX(SFXType.Attack);
     }
 
     public void DisableSwordCollider()
@@ -204,10 +207,10 @@ public class CounterAttackSpec : GameplayAbilitySpec
 
         weaponController.DisableCollision();
     }
-    
+
     public void StartAttackAssist()
     {
-       
+
         attackAssistActive = true;
         if (attackAssistCoroutine != null)
             weaponController.StopCoroutine(attackAssistCoroutine);
@@ -215,7 +218,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         CaptureAttackIntent();
         attackAssistCoroutine = weaponController.StartCoroutine(AttackAssist());
     }
-    
+
     public void EndAttackAssist()
     {
         attackAssistActive = false;

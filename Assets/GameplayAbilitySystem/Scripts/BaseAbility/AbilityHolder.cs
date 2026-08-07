@@ -10,7 +10,7 @@ public class AbilityHolder : MonoBehaviour
 {
     [SerializeField] private List<GameplayAbility> abilities;
 
-    private Dictionary<string, GameplayAbilitySpec> specs;
+    private Dictionary<int, GameplayAbilitySpec> specs;
 
     private GameplayAbility abilitySlot1;
     private GameplayAbility abilitySlot2;
@@ -22,14 +22,14 @@ public class AbilityHolder : MonoBehaviour
     private void Awake()
     {
         ActiveSpecs = new List<GameplayAbilitySpec>();
-        specs = new Dictionary<string, GameplayAbilitySpec>();
+        specs = new Dictionary<int, GameplayAbilitySpec>();
         foreach (var ability in abilities)
         {
-            if (ability != null && !specs.ContainsKey(ability.Name))
+            if (ability != null && !specs.ContainsKey(ability.Id))
             {
                 GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
                 spec.OnAbilityEnded += RemoveFromSpec;
-                specs.Add(ability.Name, spec);
+                specs.Add(ability.Id, spec);
                 ActivePasiveAbilities(spec);
             }
         }
@@ -37,11 +37,11 @@ public class AbilityHolder : MonoBehaviour
     /*It add the ability to the dictionary*/
     public void AddAbility(GameplayAbility ability)
     {
-        if (ability == null || specs.ContainsKey(ability.Name)) return;
+        if (ability == null || specs.ContainsKey(ability.Id)) return;
         GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
         spec.OnAbilityEnded += RemoveFromSpec;
         abilities.Add(ability);
-        specs.Add(ability.Name, spec);
+        specs.Add(ability.Id, spec);
 
         ActivePasiveAbilities(spec);
     }
@@ -49,27 +49,29 @@ public class AbilityHolder : MonoBehaviour
     public void RemoveAbility(GameplayAbility ability)
     {
         if (ability == null) return;
-        if (specs.TryGetValue(ability.Name, out var spec))
+        if (specs.TryGetValue(ability.Id, out var spec))
         {
             spec.OnAbilityEnded -= RemoveFromSpec;
         }
         abilities.Remove(ability);
-        specs.Remove(ability.Name);
+        specs.Remove(ability.Id);
     }
     /*Activates normal ability*/
-    public void ActivateAbility(string abilityName, GameObject owner)
+
+    public void ActivateAbility(string abilityName, GameObject owner) => ActivateAbility(Animator.StringToHash(abilityName), owner);
+    public void ActivateAbility(int abilityId, GameObject owner)
     {
-        if (specs.TryGetValue(abilityName, out var ability))
+        if (specs.TryGetValue(abilityId, out var ability))
         {
             if (!ActiveSpecs.Contains(ability))
             {
-                ActiveSpecs.Add(ability);   
+                ActiveSpecs.Add(ability);
             }
             ability.ActivateAbility();
         }
         else
         {
-            Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
+            Debug.LogWarning($"AbilityHolder: Ability {abilityId} not found");
         }
     }
     /*Activates equipped ability*/
@@ -86,9 +88,9 @@ public class AbilityHolder : MonoBehaviour
             Debug.LogWarning($"AbilityHolder: No ability equipped in slot {slot}");
             return;
         }
-        
+
         ActivateAbility(equipped.Name, owner);
-        
+
     }
 
     /*Returns the equipped ability in that slot*/
@@ -109,7 +111,7 @@ public class AbilityHolder : MonoBehaviour
     /*Equips an ability in that slot*/
     public bool EquipAbility(GameplayAbility ability, int slot)
     {
-        
+
         if (ability == null || slot < 1 || slot > 2)
         {
             Debug.LogWarning($"AbilityHolder: Invalid ability or slot {slot}");
@@ -160,29 +162,15 @@ public class AbilityHolder : MonoBehaviour
         }
     }
 
-    public bool HasAbility(string abilityName)
-    {
-        if (specs.TryGetValue(abilityName, out var ability))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
+    public bool HasAbility(string abilityName) => specs.ContainsKey(Animator.StringToHash(abilityName));
+
+    public bool HasAbility(int abilityId) => specs.ContainsKey(abilityId);
 
     public GameplayAbilitySpec GetAbility(string abilityName)
-    {
-        if (specs.TryGetValue(abilityName, out var ability))
-        {
-            return ability;
-        }
-        else
-        {
-            return null;
-        }
-    }
+        => specs.TryGetValue(Animator.StringToHash(abilityName), out var s) ? s : null;
+
+    public GameplayAbilitySpec GetAbility(int abilityId)
+        => specs.TryGetValue(abilityId, out var s) ? s : null;
 
     public List<GameplayAbility> GetAbilityList()
     {
@@ -194,19 +182,21 @@ public class AbilityHolder : MonoBehaviour
         ActiveSpecs.Remove(spec);
     }
 
-    public void CancelAbility(string abilityName)
+    public void CancelAbility(string abilityName) => CancelAbility(Animator.StringToHash(abilityName));
+
+    public void CancelAbility(int abilityId)
     {
-        if (specs.TryGetValue(abilityName, out var ability))
+        if (specs.TryGetValue(abilityId, out var ability))
         {
             ability.CancelAbility();
             RemoveFromSpec(ability);
         }
         else
         {
-            Debug.LogWarning($"AbilityHolder: Ability {abilityName} not found");
+            Debug.LogWarning($"AbilityHolder: Ability id {abilityId} not found");
         }
     }
-    
+
     public void CancelAllAbility()
     {
         foreach (var activeAbility in ActiveSpecs.ToList())
