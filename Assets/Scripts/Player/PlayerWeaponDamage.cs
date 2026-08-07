@@ -73,6 +73,8 @@ public class PlayerWeaponDamage : MonoBehaviour
     private void DamageEnemy(Collider other)
     {
         BehaviorGraphAgent agent = other.gameObject.GetComponent<BehaviorGraphAgent>();
+        CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
+        CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
         agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
 
         if (state == AttackingState.Defend)
@@ -80,8 +82,6 @@ public class PlayerWeaponDamage : MonoBehaviour
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);
-            CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
-            CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
             if (vfx != null && sfx != null)
             {
                 vfx.SpawnVFX(VFXType.Counter);
@@ -109,6 +109,12 @@ public class PlayerWeaponDamage : MonoBehaviour
         }
 
         effectmanager.ApplyEffect(effect, attributeSystem);
+        if (vfx != null && sfx != null)
+        {
+            vfx.SpawnVFX(VFXType.Damaged);
+            sfx.SpawnSFX(SFXType.Damaged);
+        }
+
     }
 
     private void MakeComboCameraShake(int combo)

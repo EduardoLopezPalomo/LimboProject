@@ -9,7 +9,9 @@ public enum VFXType
     Slash3,
     Slash4,
     Counter,
+    Damaged,
 }
+
 [CreateAssetMenu(fileName = "VFX", menuName = "VFX/VFX Definition")]
 public class VFXDefinition : ScriptableObject
 {
@@ -19,5 +21,5 @@ public class VFXDefinition : ScriptableObject
     public Vector3 scaleOverride = Vector3.one;
     public float lifetime = 2f;
     public bool useObjectPool = true;
-    
+
 }

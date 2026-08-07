@@ -10,6 +10,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     private CharacterController characterController;
     private PlayerWeaponController weaponController;
     private StarterAssetsInputs starterInputs;
+    private CharacterSFX characterSFX;
 
     private int comboIndex;
     private bool inCombo;
@@ -29,10 +30,9 @@ public class LightAttackSpec : GameplayAbilitySpec
     private float dashStopDistance;
     private float dashDefaultDistance;
     private float rotationSpeed;
-    private SFXDefinition[] slashSounds;
     private LayerMask enemyLayer;
 
-    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed, SFXDefinition[] sounds)
+    public LightAttackSpec(GameplayAbility ability, GameObject owner, float ForwardDistanceRay, float LateralDistanceRay, float AttackAssistSpeed, float DashStopDistance, float DashDefaultDistance, float RotationSpeed)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -40,6 +40,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         weaponController = owner.GetComponent<PlayerWeaponController>();
         characterController = owner.GetComponent<CharacterController>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
+        characterSFX = owner.GetComponent<CharacterSFX>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
 
         lateralDistanceRay = LateralDistanceRay;
@@ -48,7 +49,6 @@ public class LightAttackSpec : GameplayAbilitySpec
         dashStopDistance = DashStopDistance;
         dashDefaultDistance = DashDefaultDistance;
         rotationSpeed = RotationSpeed;
-        slashSounds = sounds;
     }
 
     public override void ActivateAbility()
@@ -252,19 +252,6 @@ public class LightAttackSpec : GameplayAbilitySpec
         attackAssistCoroutine = null;
     }
 
-    public void StartSFX(SFXDefinition[] SFXes)
-    {
-        if (SFXes == null || SFXes.Length == 0) return;
-        int random = Random.Range(0, SFXes.Length);
-
-        if (SFXes[random].type == SFXType.Attack)
-        {
-            SoundFXManager.instance.PlaySoundRandomPitch(
-                SFXes[random].sfx, owner.transform, SFXes[random].volume, SFXes[random].minPitch, SFXes[random].maxPitch);
-        }
-
-    }
-
     void DrawDebugRectangle(Vector3 origin, Vector3 forward)
     {
         Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;
@@ -321,7 +308,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         weaponController.SetComboNumber(comboIndex);
         comboIndex++;
         weaponController.EnableCollision();
-        StartSFX(slashSounds);
+        characterSFX.SpawnRandomSFX(SFXType.Attack);
     }
 
     public void DisableSwordCollider()

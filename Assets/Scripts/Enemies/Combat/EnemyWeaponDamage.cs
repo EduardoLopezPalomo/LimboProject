@@ -12,10 +12,10 @@ public class EnemyWeaponDamage : MonoBehaviour
     private int ComboNumber = 0;
     [Header("Combo effects")]
     [SerializeField] private List<GameplayEffect> gameplayEffects;
-    
+
     [Header("Counter attack effect")]
     [SerializeField] private GameplayEffect counterEffect;
-    
+
     [Header("Camera shakes")]
     public CameraShakeData CameraShakeData;
 
@@ -39,6 +39,8 @@ public class EnemyWeaponDamage : MonoBehaviour
         MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
         GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
         AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
+        CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
+        CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
         if (effectmanager == null || attributeSystem == null)
         {
             Debug.Log("effectmanager, attributesystem or makeInvincible is null");
@@ -48,7 +50,7 @@ public class EnemyWeaponDamage : MonoBehaviour
         {
             return;
         }
-        
+
         CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
         if (isCounter)
         {
@@ -56,15 +58,15 @@ public class EnemyWeaponDamage : MonoBehaviour
             isCounter = false;
             return;
         }
-        
+
         HasHitPlayer = true;
-        
+
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
         {
             Debug.LogWarning("the combo is " + ComboNumber + " But the list doent have that number");
             return;
         }
-        
+
         GameplayEffect effect = gameplayEffects[ComboNumber];
 
         if (effect == null)
@@ -72,9 +74,13 @@ public class EnemyWeaponDamage : MonoBehaviour
             Debug.LogWarning("the combo number has no effect on the player weapon");
             return;
         }
-        
+        if (vfx != null && sfx != null)
+        {
+            vfx.SpawnVFX(VFXType.Damaged);
+            sfx.SpawnSFX(SFXType.Damaged);
+        }
         effectmanager.ApplyEffect(effect, attributeSystem);
-        
+
     }
 
     public void SetComboNumber(int value)
