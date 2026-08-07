@@ -18,6 +18,14 @@ public abstract class GameplayAbility : ScriptableObject
     public List<GameplayEffect> EffectsToSelf;
     public string Description;
 
+    [SerializeField] private int id;
+    public int Id => id;
+
+    private void OnValidate()
+    {
+        id = Animator.StringToHash(Name);
+    }
+
     public virtual void ActivateAbilityEffects(GameObject owner)
     {
         var effectManager = owner.GetComponent<GameplayEffectManager>();
