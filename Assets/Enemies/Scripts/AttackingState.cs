@@ -7,5 +7,6 @@ public enum AttackingState
 	Defend,
 	Attack,
 	Vulnerable,
-	CounterAttack
+	CounterAttack,
+	Recovery
 }

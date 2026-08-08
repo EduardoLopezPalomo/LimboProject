@@ -34,6 +34,7 @@ public class PlayerWeaponDamage : MonoBehaviour
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
 
     private int ComboNumber = 0;
+    int aux = 0;
     private CinemachineImpulseSource impulseSource;
     private Dictionary<CameraShakeState, CameraShakeData> cameraShakeDict;
 
@@ -76,9 +77,11 @@ public class PlayerWeaponDamage : MonoBehaviour
         CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
         CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
         agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
+        RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponent<RotateAlongPlayer>();
 
-        if (state == AttackingState.Defend)
+        if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking)
         {
+            Debug.Log("Defending " + aux++);
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);

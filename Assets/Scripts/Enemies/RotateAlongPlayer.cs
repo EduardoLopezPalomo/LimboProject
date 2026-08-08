@@ -9,7 +9,9 @@ public class RotateAlongPlayer : MonoBehaviour
     public float selfRotationSpeed = 60f;
     public float speed = 1.5f;
     public float sphereDetectRadius = 4f;
-    
+
+    [HideInInspector] public bool isBlocking = false;
+
     private bool StopRotation = true;
     private int direction = 1;
     private float currentAngle;
@@ -20,18 +22,18 @@ public class RotateAlongPlayer : MonoBehaviour
     private GoingToPlayer SlotPosition;
     private EnemyWeaponController weaponController;
     private LayerMask enemyLayer;
-    
+
     void Start()
     {
         Animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         SlotPosition = GetComponent<GoingToPlayer>();
         weaponController = GetComponent<EnemyWeaponController>();
-        enemyLayer= LayerMask.GetMask("EnemyLayer");
+        enemyLayer = LayerMask.GetMask("EnemyLayer");
         agent.updateRotation = false;
         agent.stoppingDistance = 0f;
     }
-    
+
     void Update()
     {
         if (!StopRotation)
@@ -63,7 +65,7 @@ public class RotateAlongPlayer : MonoBehaviour
             currentRadius = actualDistance;
         }
     }
-    
+
     private void UpdateAnimatorMovement()
     {
         Vector3 worldVelocity = agent.velocity;
@@ -92,36 +94,38 @@ public class RotateAlongPlayer : MonoBehaviour
     {
         Vector3 direction = player.position - transform.position;
         direction.y = 0;
-        
+
         Quaternion rotation = Quaternion.LookRotation(direction);
-        
+
         transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, selfRotationSpeed * Time.deltaTime);
     }
-    
+
     public void StopRotating()
     {
         StopRotation = true;
+        isBlocking = false;
         Animator.SetBool("IsStrafing", false);
         Animator.SetFloat("VelocityX", 0f);
         Animator.SetFloat("VelocityZ", 0f);
         agent.speed = previusSpeed;
         if (agent.isOnNavMesh)
         {
-            agent.ResetPath();   
+            agent.ResetPath();
         }
     }
 
     public void StartRotating()
     {
         StopRotation = false;
+        isBlocking = true;
         Animator.SetBool("IsStrafing", true);
         weaponController.EquipWeapon();
-        
+
         previusSpeed = agent.speed;
         agent.speed = speed;
-        
+
         direction = DetectOtherEnemies() ? -1 : 1;
-        
+
         Vector3 toPlayer = transform.position - player.position;
         toPlayer.y = 0f;
         currentAngle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
@@ -134,7 +138,7 @@ public class RotateAlongPlayer : MonoBehaviour
         }
         else
         {
-            currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));   
+            currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));
         }
     }
 
@@ -149,7 +153,7 @@ public class RotateAlongPlayer : MonoBehaviour
                 continue;
 
             Vector3 local = transform.InverseTransformPoint(hit.transform.position);
-            
+
             if (local.z < 0)
                 continue;
 
