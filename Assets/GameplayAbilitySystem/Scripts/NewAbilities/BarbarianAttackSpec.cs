@@ -98,14 +98,10 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
         float chance = specialAttackChance;
         float resistanceRatio = attributeSystem.GetAttributeValue(resistanceAttributeName) / maxResistance;
         float healthRatio = attributeSystem.GetAttributeValue(healthAttributeName) / maxHealth;
-
-        Debug.Log($"Health: {attributeSystem.GetAttributeValue(healthAttributeName)}/{maxHealth} | Resistance: {attributeSystem.GetAttributeValue(resistanceAttributeName)}/{maxResistance}");
         
-        chance += (1f - healthRatio) * 0.3f; // hasta +30%
+        chance += (1f - healthRatio) * 0.2f; // hasta +30%
         
         chance += (resistanceRatio - 0.5f) * 0.4f;// penaliza hasta -20%
-        
-        Debug.Log("Special Attack Chance: " + chance);
     
         return Random.value < Mathf.Clamp01(chance);
     }

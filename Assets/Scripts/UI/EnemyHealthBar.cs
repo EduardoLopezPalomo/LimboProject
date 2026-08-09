@@ -126,7 +126,7 @@ public class EnemyHealthBar : MonoBehaviour
 
         float currentGhostValue = rRecoveryImage.fillAmount * maxResistance;
         recoveryStartValue = Mathf.Clamp(currentGhostValue - consumedAmount, 0f, maxResistance);
-        Debug.Log(duration);
+        
         recoveryTargetValue = lastKnownResistance;
         recoveryDuration = duration;
         recoveryTimer = 0f;
