@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class CounterAttackSpec : GameplayAbilitySpec
 {
-    public static event Action<GameObject> OnResistanceConsumed;
-
     private Animator animator;
     private EnemyWeaponController weaponController;
     private CharacterController characterController;
@@ -50,7 +48,6 @@ public class CounterAttackSpec : GameplayAbilitySpec
     public override void ActivateAbility()
     {
         base.ActivateAbility();
-        OnResistanceConsumed?.Invoke(owner);
         if (attributeSystem.GetAttributeValue("BlockResistance") > 0f)
         {
             StartCounter();

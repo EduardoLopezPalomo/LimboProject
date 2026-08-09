@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class GeneralHealthResponse : AttributeResponse
 {
-    public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner, bool CanResponse)
+    public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner, bool CanResponse, float duration = 0f)
     {
         if(attributeInstance.CurrentValue > attributeInstance.Data.BaseValue)
         {

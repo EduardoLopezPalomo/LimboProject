@@ -31,7 +31,7 @@ public class AttributeSystem : MonoBehaviour
         }
     }
     /*Add the modifier to the attribute instance, that way it can change*/
-    public void AddModifier(GameplayAttributeData data, Guid id, Modifier modifier, float value, bool AttributeCanResponse)
+    public void AddModifier(GameplayAttributeData data, Guid id, Modifier modifier, float value, bool AttributeCanResponse, float duration)
     {
         if (!_lookup.TryGetValue(data, out var inst))
         {
@@ -39,7 +39,7 @@ public class AttributeSystem : MonoBehaviour
             return;
         }
 
-        inst.AddModifier(id, modifier, value, AttributeCanResponse);
+        inst.AddModifier(id, modifier, value, AttributeCanResponse, duration);
     }
     /*Remove the modifier in order to go back to the previous value*/
     public void RemoveModifier(GameplayAttributeData data, Guid id, bool AttributeCanResponse)

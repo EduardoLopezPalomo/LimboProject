@@ -27,7 +27,7 @@ public class GameplayAttributeInstance
         RecalculateCurrent();
     }
     /* Add the type of modifier in his diccionary in order to remove it later*/
-    public void AddModifier(Guid id, Modifier modifier, float value, bool AttributeCanResponse)
+    public void AddModifier(Guid id, Modifier modifier, float value, bool AttributeCanResponse, float duration)
     {
         switch (modifier)
         {
@@ -42,7 +42,7 @@ public class GameplayAttributeInstance
                 overrideTimestamps[id] = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                 break;
         }
-        RecalculateCurrent(AttributeCanResponse);
+        RecalculateCurrent(AttributeCanResponse, duration);
     }
     /* Remove the modifier and the attribute goes back to the previous value*/
     public void RemoveModifier(Guid id, bool AttributeCanResponse)
@@ -57,7 +57,7 @@ public class GameplayAttributeInstance
     }
 
     /*Recalculate the current value of the attribute if some effects is active*/
-    private void RecalculateCurrent(bool AttributeCanResponse = false)
+    private void RecalculateCurrent(bool AttributeCanResponse = false, float duration = 0f)
     {
         float OldValue = CurrentValue;
 
@@ -78,7 +78,7 @@ public class GameplayAttributeInstance
                 CurrentValue = Mathf.Clamp(ov, 0f, Data.MaxValue);
                 if(Data.Response != null)
                 {
-                    Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
+                    Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse, duration);
                 }
                 //Debug.Log("Current value of" + Data.Name + " " + CurrentValue);
                 return;
@@ -94,7 +94,7 @@ public class GameplayAttributeInstance
         CurrentValue = Mathf.Clamp((RuntimeBaseValue + sumAdds) * productMult, 0f, Data.MaxValue); 
         if (Data.Response != null)
         {
-            Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse);
+            Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse, duration);
         }
         // Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
     }

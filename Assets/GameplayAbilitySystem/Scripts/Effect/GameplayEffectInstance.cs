@@ -22,7 +22,7 @@ public class GameplayEffectInstance
     /*Apply the effect*/
     public void Apply()
     {
-        Target.AddModifier(Effect.TargetAttribute, Id, Effect.Modifier, Effect.Value, Effect.CanAttributeResponse);
+        Target.AddModifier(Effect.TargetAttribute, Id, Effect.Modifier, Effect.Value, Effect.CanAttributeResponse, Effect.Duration);
     }
     /*If the effect has a duration check the timer*/
     public void Tick(float deltaTime)

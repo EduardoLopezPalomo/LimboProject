@@ -37,7 +37,7 @@ public abstract class GameplayAbility : ScriptableObject
 
         foreach (var effect in EffectsToSelf)
         {
-            effectManager.ApplyEffect(effect, owner.GetComponent<AttributeSystem>());
+            effectManager.ApplyEffect(effect, attributeSystem);
         }
     }
 

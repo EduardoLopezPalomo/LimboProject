@@ -16,8 +16,8 @@ public class EnemyHealthBar : MonoBehaviour
     [SerializeField] private string resistanceAttributeName = "BlockResistance";
     [SerializeField] private Image rFillImage;
     [SerializeField] private Image rRecoveryImage;
-    [SerializeField] private float recoveryDuration = 4f;
     
+    private float recoveryDuration;
     private float maxHealth;
     private float overFillMaxhealth;
     private float maxResistance;
@@ -32,12 +32,12 @@ public class EnemyHealthBar : MonoBehaviour
     
     private void OnEnable()
     {
-        CounterAttackSpec.OnResistanceConsumed += HandleResistanceConsumed;
+        ResistanceResponse.OnResistanceConsumed += HandleResistanceConsumed;
         ResistanceResponse.OnResistanceBack += HandleResistanceBack;
     }
     private void OnDisable()
     {
-        CounterAttackSpec.OnResistanceConsumed -= HandleResistanceConsumed;
+        ResistanceResponse.OnResistanceConsumed -= HandleResistanceConsumed;
         ResistanceResponse.OnResistanceBack -= HandleResistanceBack;
     }
 
@@ -114,7 +114,7 @@ public class EnemyHealthBar : MonoBehaviour
         }
     }
     
-    void HandleResistanceConsumed(GameObject sender)
+    void HandleResistanceConsumed(GameObject sender, float duration)
     {
         if (sender != attributeSystem.gameObject) return;
         if (maxResistance <= 0) return;
@@ -126,8 +126,9 @@ public class EnemyHealthBar : MonoBehaviour
 
         float currentGhostValue = rRecoveryImage.fillAmount * maxResistance;
         recoveryStartValue = Mathf.Clamp(currentGhostValue - consumedAmount, 0f, maxResistance);
-
+        Debug.Log(duration);
         recoveryTargetValue = lastKnownResistance;
+        recoveryDuration = duration;
         recoveryTimer = 0f;
         isRecovering = true;
     }

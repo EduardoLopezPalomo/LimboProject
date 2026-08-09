@@ -7,20 +7,36 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     private Animator animator;
     private EnemyWeaponController weaponController;
     private BehaviorGraphAgent behaviorGraphAgent;
+    private AttributeSystem attributeSystem;
+    private GameplayEffectManager effectManager;
     private CharacterSFX characterSFX;
     private float timeStuned;
+    private float specialAttackChance;
     private int comboIndex;
+    private GameplayEffect effect;
 
     private Coroutine StunnedCoroutine;
+    
+    private string healthAttributeName = "EnemyHealth";
+    private string resistanceAttributeName = "BlockResistance";
+    
+    private float maxHealth;
+    private float maxResistance;
 
-
-    public BarbarianAttackSpec(GameplayAbility ability, GameObject owner, float TimeStuned) : base(ability, owner)
+    public BarbarianAttackSpec(GameplayAbility ability, GameObject owner, float TimeStuned, float SpecialAttackChance, GameplayEffect SpecialAttackEffect) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         weaponController = owner.GetComponent<EnemyWeaponController>();
         behaviorGraphAgent = owner.GetComponent<BehaviorGraphAgent>();
         characterSFX = owner.GetComponent<CharacterSFX>();
+        attributeSystem = owner.GetComponent<AttributeSystem>();
+        effectManager = owner.GetComponent<GameplayEffectManager>();
         timeStuned = TimeStuned;
+        specialAttackChance = SpecialAttackChance;
+        effect = SpecialAttackEffect;
+        
+        maxHealth = attributeSystem.GetAttributeMaxValue(healthAttributeName);
+        maxResistance = attributeSystem.GetAttributeMaxValue(resistanceAttributeName);
     }
 
     public override void ActivateAbility()
@@ -38,8 +54,18 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
             return;
         }
         weaponController.WeaponDamage.SetHasHitPlayer(false);
-        comboIndex = 0;
         animator.SetBool("InCombo", true);
+        if (ShouldDoSpecialAttack())
+        {
+            comboIndex = 2;
+            effectManager.ApplyEffect(effect, attributeSystem);
+            animator.SetInteger("AttackNumber", 1);
+        }
+        else
+        {
+            comboIndex = 0;
+            animator.SetInteger("AttackNumber", 0);
+        }
         animator.SetTrigger("Attack");
         weaponController.EquipWeapon();
     }
@@ -65,6 +91,23 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     {
         base.EndAbility();
         EndCombo();
+    }
+    
+    bool ShouldDoSpecialAttack()
+    {
+        float chance = specialAttackChance;
+        float resistanceRatio = attributeSystem.GetAttributeValue(resistanceAttributeName) / maxResistance;
+        float healthRatio = attributeSystem.GetAttributeValue(healthAttributeName) / maxHealth;
+
+        Debug.Log($"Health: {attributeSystem.GetAttributeValue(healthAttributeName)}/{maxHealth} | Resistance: {attributeSystem.GetAttributeValue(resistanceAttributeName)}/{maxResistance}");
+        
+        chance += (1f - healthRatio) * 0.3f; // hasta +30%
+        
+        chance += (resistanceRatio - 0.5f) * 0.4f;// penaliza hasta -20%
+        
+        Debug.Log("Special Attack Chance: " + chance);
+    
+        return Random.value < Mathf.Clamp01(chance);
     }
 
     IEnumerator StayStunned()
