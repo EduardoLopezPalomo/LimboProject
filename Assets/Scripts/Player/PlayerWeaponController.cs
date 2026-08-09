@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PlayerWeaponController : WeaponController
 {
-    
     [HideInInspector] public PlayerWeaponDamage WeaponDamage;
 
     protected override void Awake()
@@ -15,5 +14,15 @@ public class PlayerWeaponController : WeaponController
     public override void SetComboNumber(int number)
     {
         WeaponDamage.SetComboNumber(number);
+    }
+
+    public override void EnableCollision()
+    {
+        WeaponDamage.ActivateHitbox();
+    }
+    
+    public override void DisableCollision()
+    {
+        WeaponDamage.DeactivateHitbox();
     }
 }

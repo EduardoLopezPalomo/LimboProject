@@ -26,22 +26,34 @@ public class CameraShakeEntry
 public class PlayerWeaponDamage : MonoBehaviour
 {
     public UnityEvent EnemyCounter;
+    
+    public int sweepSteps = 5;
+    public bool drawGizmos = true;
 
     [Header("Combo effects")]
     [SerializeField] private List<GameplayEffect> gameplayEffects;
 
     [Header("Camera shakes")]
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
-
+    
+    private BoxCollider weaponCollider;
     private int ComboNumber = 0;
-    int aux = 0;
+    private int enemyLayerMask;
     private CinemachineImpulseSource impulseSource;
     private Dictionary<CameraShakeState, CameraShakeData> cameraShakeDict;
+    
+    private bool isActive = false;
+    private HashSet<Collider> alreadyHit = new HashSet<Collider>();
+
+    private Vector3 lastCenter;
+    private Quaternion lastRotation;
+    private bool hasLastFrame = false;
 
     void Awake()
     {
         impulseSource = GetComponent<CinemachineImpulseSource>();
-
+        weaponCollider = GetComponent<BoxCollider>();
+        enemyLayerMask = 1 << LayerMask.NameToLayer("EnemyLayer");
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
 
         foreach (var entry in cameraShakes)
@@ -49,7 +61,49 @@ public class PlayerWeaponDamage : MonoBehaviour
             cameraShakeDict[entry.State] = entry.Data;
         }
     }
+    
+    void FixedUpdate()
+    {
+        if (!isActive) return;
 
+        Vector3 currentCenter = weaponCollider.transform.TransformPoint(weaponCollider.center);
+        Quaternion currentRotation = weaponCollider.transform.rotation;
+        Vector3 halfExtents = Vector3.Scale(weaponCollider.size * 0.5f, weaponCollider.transform.lossyScale);
+
+        if (!hasLastFrame)
+        {
+            CheckOverlap(currentCenter, halfExtents, currentRotation);
+        }
+        else
+        {
+            for (int i = 1; i <= sweepSteps; i++)
+            {
+                float t = i / (float)sweepSteps;
+                Vector3 pos = Vector3.Lerp(lastCenter, currentCenter, t);
+                Quaternion rot = Quaternion.Slerp(lastRotation, currentRotation, t);
+                CheckOverlap(pos, halfExtents, rot);
+            }
+        }
+
+        lastCenter = currentCenter;
+        lastRotation = currentRotation;
+        hasLastFrame = true;
+    }
+
+    void CheckOverlap(Vector3 center, Vector3 halfExtents, Quaternion rotation)
+    {
+        Collider[] hits = Physics.OverlapBox(center, halfExtents, rotation, enemyLayerMask, QueryTriggerInteraction.Collide);
+        foreach (var hit in hits)
+        {
+            if (!alreadyHit.Contains(hit))
+            {
+                alreadyHit.Add(hit);
+                DamageEnemy(hit);
+            }
+        }
+    }
+
+    /*
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == LayerMask.NameToLayer("Shield"))
@@ -70,18 +124,18 @@ public class PlayerWeaponDamage : MonoBehaviour
             DamageEnemy(other);
         }
     }
+    */
 
     private void DamageEnemy(Collider other)
     {
-        BehaviorGraphAgent agent = other.gameObject.GetComponent<BehaviorGraphAgent>();
-        CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
-        CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
+        BehaviorGraphAgent agent = other.gameObject.GetComponentInParent<BehaviorGraphAgent>();
+        CharacterVFX vfx = other.gameObject.GetComponentInParent<CharacterVFX>();
+        CharacterSFX sfx = other.gameObject.GetComponentInParent<CharacterSFX>();
         agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
-        RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponent<RotateAlongPlayer>();
+        RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponentInParent<RotateAlongPlayer>();
 
         if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking)
         {
-            Debug.Log("Defending " + aux++);
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
             CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);
@@ -93,8 +147,8 @@ public class PlayerWeaponDamage : MonoBehaviour
             return;
         }
 
-        GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
-        AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
+        GameplayEffectManager effectmanager = other.gameObject.GetComponentInParent<GameplayEffectManager>();
+        AttributeSystem attributeSystem = other.gameObject.GetComponentInParent<AttributeSystem>();
 
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
         {
@@ -142,6 +196,31 @@ public class PlayerWeaponDamage : MonoBehaviour
     public void SetComboNumber(int value)
     {
         ComboNumber = value;
+    }
+    
+    public void ActivateHitbox()
+    {
+        isActive = true;
+        alreadyHit.Clear();
+        hasLastFrame = false;
+    }
+
+    public void DeactivateHitbox()
+    {
+        isActive = false;
+        hasLastFrame = false;
+    }
+    
+    void OnDrawGizmosSelected()
+    {
+        if (!drawGizmos || weaponCollider == null) return;
+        Gizmos.color = isActive ? Color.red : Color.green;
+        Matrix4x4 rotMatrix = Matrix4x4.TRS(
+            weaponCollider.transform.TransformPoint(weaponCollider.center),
+            weaponCollider.transform.rotation,
+            weaponCollider.transform.lossyScale);
+        Gizmos.matrix = rotMatrix;
+        Gizmos.DrawWireCube(Vector3.zero, weaponCollider.size);
     }
 
 }
