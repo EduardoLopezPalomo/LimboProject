@@ -3,39 +3,97 @@ using UnityEngine.UI;
 
 public class PlayerStamina : MonoBehaviour
 {
-    [SerializeField] private AbilityHolder abilityHolder;
-    [SerializeField] private string abilityName = "Dash";
-    [SerializeField] private Image fillImage;
-    [SerializeField] private float interpGoingDown;
+    [SerializeField] private AttributeSystem attributeSystem;
+    [SerializeField] private string resistanceAttributeName = "Resistance";
+    [SerializeField] private Image rFillImage;
+    [SerializeField] private Image rRecoveryImage;
     
-    private float MaxCooldown;
-    private float displayedCooldown = 0f;
-    private GameplayAbilitySpec abilitySpec;
+    private float recoveryDuration;
+    private float maxResistance;
+    
+    private bool isRecovering;
+    private float recoveryStartValue;
+    private float recoveryTargetValue;
+    private float recoveryTimer;
+    private float lastKnownResistance;
+    private float trackedResistance;
+    
+    
+    private void OnEnable()
+    {
+        ResistanceResponse.OnResistanceConsumed += HandleResistanceConsumed;
+        ResistanceResponse.OnResistanceBack += HandleResistanceBack;
+    }
+    private void OnDisable()
+    {
+        ResistanceResponse.OnResistanceConsumed -= HandleResistanceConsumed;
+        ResistanceResponse.OnResistanceBack -= HandleResistanceBack;
+    }
     
     private void Start()
     {
-        if (abilityHolder == null)
-            abilityHolder = GetComponentInParent<AbilityHolder>();
-
-        abilitySpec = abilityHolder.GetAbility(abilityName);
-        MaxCooldown = abilitySpec.ability.Cooldown;
+        maxResistance = attributeSystem.GetAttributeMaxValue(resistanceAttributeName);
+        
+        lastKnownResistance = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        trackedResistance = lastKnownResistance;
+        rFillImage.fillAmount = Mathf.Clamp01(lastKnownResistance / maxResistance);
+        rRecoveryImage.fillAmount = rFillImage.fillAmount;
     }
     
     private void LateUpdate()
     {
-        UpdateFill();
+        UpdateResistanceRecovery(Time.deltaTime);
     }
     
-    void UpdateFill()
+    void UpdateResistanceRecovery(float deltaTime)
     {
-        float current = abilitySpec.GetCooldown();
+        if (maxResistance <= 0 || !isRecovering) return;
+
+        recoveryTimer += deltaTime;
+        float t = Mathf.Clamp01(recoveryTimer / recoveryDuration);
+
+        float value = Mathf.Lerp(recoveryStartValue, recoveryTargetValue, t);
+        rRecoveryImage.fillAmount = Mathf.Clamp01(value / maxResistance);
         
-        if (current > displayedCooldown)
-            displayedCooldown = Mathf.Lerp(displayedCooldown, current, Time.deltaTime * interpGoingDown);
-        else
-            displayedCooldown = current;
+        trackedResistance = attributeSystem.GetAttributeValue(resistanceAttributeName);
         
-        fillImage.fillAmount = Mathf.Clamp01(( MaxCooldown - displayedCooldown) / MaxCooldown);
+        if (t >= 1f)
+        {
+            rFillImage.fillAmount = rRecoveryImage.fillAmount;
+            lastKnownResistance = recoveryTargetValue; 
+            isRecovering = false;
+        }
+    }
+    
+    void HandleResistanceConsumed(GameObject sender, float duration)
+    {
+        if (sender != attributeSystem.gameObject) return;
+        if (maxResistance <= 0) return;
+
+        float current = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        float consumedAmount = trackedResistance - current;
+
+        rFillImage.fillAmount = Mathf.Clamp01(current / maxResistance);
+
+        float currentGhostValue = rRecoveryImage.fillAmount * maxResistance;
+        recoveryStartValue = Mathf.Clamp(currentGhostValue - consumedAmount, 0f, maxResistance);
+        
+        recoveryTargetValue = lastKnownResistance;
+        recoveryDuration = duration;
+        recoveryTimer = 0f;
+        isRecovering = true;
+    }
+    
+    void HandleResistanceBack(GameObject sender)
+    {
+        if (sender != attributeSystem.gameObject) return;
+        if (maxResistance <= 0) return;
+
+        float current = attributeSystem.GetAttributeValue(resistanceAttributeName);
+        float fillAmount = Mathf.Clamp01(current / maxResistance);
+
+        rFillImage.fillAmount = fillAmount;
+        rRecoveryImage.fillAmount = fillAmount;
     }
 
 }
