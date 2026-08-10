@@ -25,4 +25,10 @@ public class PlayerWeaponController : WeaponController
     {
         WeaponDamage.DeactivateHitbox();
     }
+    
+    public void ResetTransform()
+    {
+        weapon.transform.localPosition = Vector3.zero;
+        weapon.transform.localRotation = Quaternion.identity;
+    }
 }

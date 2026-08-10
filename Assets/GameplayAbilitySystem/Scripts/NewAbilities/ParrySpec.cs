@@ -107,6 +107,7 @@ public class ParrySpec : GameplayAbilitySpec
         personController.SetInputAviable(true);
         defenseState.SetState(GuardState.Idle, this);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
+        weaponController.ResetTransform();
         if (!lockOn.isLocked)
         {
             weaponController.UnequipWeapon();   
@@ -125,6 +126,7 @@ public class ParrySpec : GameplayAbilitySpec
         animator.SetTrigger("GuardBreak");
         defenseState.SetState(GuardState.Recovery, this);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
+        weaponController.ResetTransform();
         EndAbility();
     }
     
@@ -134,6 +136,7 @@ public class ParrySpec : GameplayAbilitySpec
         defenseState.SetState(GuardState.Idle, this);
         personController.SetInputAviable(true);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
+        weaponController.ResetTransform();
         EndAbility();
     }
 }
