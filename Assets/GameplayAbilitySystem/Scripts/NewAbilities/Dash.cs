@@ -7,6 +7,6 @@ public class Dash : GameplayAbility
     public float dashTime = 3;
     public override GameplayAbilitySpec CreateSpec(GameObject owner)
     {
-        return new DashSpec(this, owner, dashDistance, dashTime);
+        return new DashSpec(this, owner, dashDistance, dashTime, Mathf.Abs(EffectsToSelf[0].Value));
     }
 }

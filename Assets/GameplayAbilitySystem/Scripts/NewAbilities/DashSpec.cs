@@ -6,7 +6,9 @@ public class DashSpec : GameplayAbilitySpec
 {
     private int dashDistance;
     private float dashTime;
+    private float resistanceNeeded;
     private Animator animator;
+    private AttributeSystem attributeSystem;
     private CharacterController charactercontroller;
     private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
@@ -16,7 +18,7 @@ public class DashSpec : GameplayAbilitySpec
     private Vector3 direction;
 
 
-    public DashSpec(GameplayAbility ability, GameObject owner, int dashForce, float dashTimeIn) : base(ability, owner)
+    public DashSpec(GameplayAbility ability, GameObject owner, int dashForce, float dashTimeIn, float resistanceNeededIn) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         charactercontroller = owner.GetComponent<CharacterController>();
@@ -24,16 +26,18 @@ public class DashSpec : GameplayAbilitySpec
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
+        attributeSystem = owner.GetComponent<AttributeSystem>();
         dashTime = dashTimeIn;
         dashDistance = dashForce;
+        resistanceNeeded = resistanceNeededIn;
 
     }
 
     public override void ActivateAbility()
     {
-        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this))
+        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this) || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
         {
-            base.EndAbility();
+            EndDash();
             return;
         }
         base.ActivateAbility();
@@ -93,6 +97,11 @@ public class DashSpec : GameplayAbilitySpec
     public void StartMoving()
     {
         abilityHolder.StartCoroutine(waitTillEndFrame());
+    }
+
+    public override void CancelAbility()
+    {
+        EndDash();
     }
 
     public void EndDash()

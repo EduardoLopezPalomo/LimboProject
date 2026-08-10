@@ -9,11 +9,13 @@ public class DefenseState : MonoBehaviour
 
     private AttributeSystem attributeSystem;
     private ParrySpec activeSpec;
+    private Animator animator;
     private string resistanceName = "Resistance";
 
     private void Awake()
     {
         attributeSystem = GetComponent<AttributeSystem>();
+        animator = GetComponent<Animator>();
     }
     
     public void SetState(GuardState newState, ParrySpec caller)
@@ -39,5 +41,10 @@ public class DefenseState : MonoBehaviour
             default:
                 return HitResult.FullDamage;
         }
+    }
+
+    public void SetHitBLockFalse()
+    {
+        animator.SetBool("BlockHit", false);
     }
 }
