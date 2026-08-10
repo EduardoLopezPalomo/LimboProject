@@ -161,6 +161,25 @@ public class AbilityHolder : MonoBehaviour
                 return false;
         }
     }
+    
+    public bool IsAbilityActive(string abilityName) => IsAbilityActive(Animator.StringToHash(abilityName));
+
+    public bool IsAbilityActive(int abilityId)
+    {
+        GameplayAbilitySpec ability = GetAbility(abilityId);
+        if (ability == null) return false;
+
+        return ActiveSpecs.Contains(ability);
+    }
+    
+    public bool HasAnyActiveAbility(GameplayAbilitySpec excludeSpec)
+    {
+        foreach (var spec in ActiveSpecs)
+        {
+            Debug.Log(spec.ability.Name);
+        }
+        return ActiveSpecs.Any(spec => spec != excludeSpec);
+    }
 
     public bool HasAbility(string abilityName) => specs.ContainsKey(Animator.StringToHash(abilityName));
 

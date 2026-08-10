@@ -31,16 +31,13 @@ public class DashSpec : GameplayAbilitySpec
 
     public override void ActivateAbility()
     {
-        if (bOnCooldown)
+        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this))
         {
+            base.EndAbility();
             return;
         }
         base.ActivateAbility();
-        if (animator.GetBool("InCombo"))
-        {
-            abilityHolder.CancelAbility("LightAttack");
-            animator.SetBool("InCombo", false);
-        }
+        
         animator.SetBool("Dash", true);
         direction = GetAimDirection();
         RotateTowardsDashDirection();

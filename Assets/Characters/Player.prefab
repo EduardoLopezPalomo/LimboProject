@@ -860,6 +860,7 @@ GameObject:
   - component: {fileID: 5427970844838783959}
   - component: {fileID: 3329059217729061267}
   - component: {fileID: 1810138069914868542}
+  - component: {fileID: 5536700599689674020}
   - component: {fileID: 5088752880255100858}
   m_Layer: 11
   m_Name: Player
@@ -1034,6 +1035,36 @@ MonoBehaviour:
           m_StringArgument: Dash
           m_BoolArgument: 0
         m_CallState: 2
+  OnParryPressedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3207525953370191971}
+        m_TargetAssemblyTypeName: PlayerAbilityController, Assembly-CSharp
+        m_MethodName: ActivateAbility
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Parry
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnParryReleasedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8662427420636072550}
+        m_TargetAssemblyTypeName: AbilityHolder, Assembly-CSharp
+        m_MethodName: CancelAbility
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Parry
+          m_BoolArgument: 0
+        m_CallState: 2
   OnAbilityOneEvent:
     m_PersistentCalls:
       m_Calls:
@@ -1169,6 +1200,7 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 02b4e9b7c9ec66a4f80a03ad9056452f, type: 2}
   - {fileID: 11400000, guid: 762f380c374fa0f4ab9d5153fa44d073, type: 2}
+  - {fileID: 11400000, guid: 8af484bd59080764fb76e90b69d3e697, type: 2}
   - {fileID: 11400000, guid: 57f4910eec4edae448947b4af6323022, type: 2}
   - {fileID: 11400000, guid: 7822422f53c178245a8fff222b50bc14, type: 2}
   - {fileID: 11400000, guid: 39ee8e8466768f24a8a79d16025bf832, type: 2}
@@ -1376,6 +1408,19 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 227cae8ed6b54804ba8641f76cb5b36c, type: 2}
   - {fileID: 11400000, guid: a2d9b0f3f843fcf4dacd50f4e7a9667d, type: 2}
   - {fileID: 11400000, guid: 66900e92e826528488916dbd20213207, type: 2}
+--- !u!114 &5536700599689674020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520184032351820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d5f3281e3f2bb04c9857868bff53bc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DefenseState
+  BlockEffect: {fileID: 11400000, guid: a6846f40d5086e0479584129582c2a65, type: 2}
 --- !u!114 &5088752880255100858
 MonoBehaviour:
   m_ObjectHideFlags: 0

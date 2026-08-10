@@ -11,6 +11,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     private PlayerWeaponController weaponController;
     private StarterAssetsInputs starterInputs;
     private CharacterSFX characterSFX;
+    private AbilityHolder abilityHolder;
 
     private int comboIndex;
     private bool inCombo;
@@ -37,6 +38,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         controller = owner.GetComponent<ThirdPersonController>();
+        abilityHolder = owner.GetComponent<AbilityHolder>();
         weaponController = owner.GetComponent<PlayerWeaponController>();
         characterController = owner.GetComponent<CharacterController>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
@@ -53,6 +55,11 @@ public class LightAttackSpec : GameplayAbilitySpec
 
     public override void ActivateAbility()
     {
+        if (abilityHolder.HasAnyActiveAbility(this))
+        {
+            base.EndAbility();
+            return;
+        }
         base.ActivateAbility();
         if (!inCombo)
         {

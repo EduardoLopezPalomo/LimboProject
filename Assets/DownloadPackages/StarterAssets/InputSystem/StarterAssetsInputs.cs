@@ -25,6 +25,8 @@ namespace StarterAssets
 		[Header("Ability Events")]
 		public UnityEvent OnLightAttackEvent;
 		public UnityEvent OnDashEvent;
+		public UnityEvent OnParryPressedEvent;
+		public UnityEvent OnParryReleasedEvent;
 
 		public UnityEvent OnAbilityOneEvent;
         public UnityEvent OnAbilityTwoEvent;
@@ -85,6 +87,14 @@ namespace StarterAssets
 		public void OnDash(InputValue value)
 		{
 			if (value.isPressed) OnDashEvent?.Invoke();
+		}
+		
+		public void OnParry(InputValue value)
+		{
+			if (value.isPressed)
+				OnParryPressedEvent?.Invoke();
+			else
+				OnParryReleasedEvent?.Invoke();
 		}
 
 		public void OnAbilityOne(InputValue value)
