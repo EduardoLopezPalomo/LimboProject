@@ -5,6 +5,7 @@ public class GameplayAbilitySpec
 {
     public GameplayAbility ability;
     public event Action<GameplayAbilitySpec> OnAbilityEnded;
+    public virtual bool AllowReactivationWhileActive => false;
     protected GameObject owner;
 
     protected bool bOnCooldown;

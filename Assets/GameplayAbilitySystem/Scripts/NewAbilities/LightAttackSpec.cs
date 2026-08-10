@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class LightAttackSpec : GameplayAbilitySpec
 {
+    public override bool AllowReactivationWhileActive => true;
+    
     private Animator animator;
     private ThirdPersonController controller;
     private CharacterController characterController;
@@ -55,7 +57,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     
     public override bool CanActivateAbility()
     {
-        if (abilityHolder.HasAnyActiveAbility(this))
+        if (abilityHolder.IsAbilityActive("Dash") || abilityHolder.IsAbilityActive("Parry"))
         {
             return false;
         }

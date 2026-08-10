@@ -61,15 +61,15 @@ public class AbilityHolder : MonoBehaviour
     public void ActivateAbility(string abilityName, GameObject owner) => ActivateAbility(Animator.StringToHash(abilityName), owner);
     public void ActivateAbility(int abilityId, GameObject owner)
     {
-        foreach (var spec in ActiveSpecs)
-        {
-            Debug.Log("Active ability: " + spec.ability.Name);
-        }
         if (specs.TryGetValue(abilityId, out var ability))
         {
-            if (!ActiveSpecs.Contains(ability) && ability.CanActivateAbility())
+            bool alreadyActive = ActiveSpecs.Contains(ability);
+
+            if ((!alreadyActive || ability.AllowReactivationWhileActive) && ability.CanActivateAbility())
             {
-                ActiveSpecs.Add(ability);
+                if (!alreadyActive)
+                    ActiveSpecs.Add(ability);
+
                 ability.ActivateAbility();
             }
         }

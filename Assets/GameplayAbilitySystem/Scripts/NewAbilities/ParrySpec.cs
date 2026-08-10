@@ -8,6 +8,8 @@ public class ParrySpec : GameplayAbilitySpec
     private AbilityHolder abilityHolder;
     private DefenseState defenseState;
     private ThirdPersonController personController;
+    private LockOn lockOn;
+    private Transform ownerTransform;
 
     private float parryWindowDuration;
 
@@ -19,6 +21,8 @@ public class ParrySpec : GameplayAbilitySpec
         abilityHolder = owner.GetComponent<AbilityHolder>();
         defenseState = owner.GetComponent<DefenseState>();
         personController = owner.GetComponent<ThirdPersonController>();
+        lockOn = owner.GetComponent<LockOn>();
+        ownerTransform = owner.transform;
 
         parryWindowDuration = parryWindowDurationIn;
     }
@@ -52,6 +56,8 @@ public class ParrySpec : GameplayAbilitySpec
             if (defenseState.State != GuardState.Parry)
                 yield break;
 
+            RotateTowardsLockOnTarget();
+
             t += Time.deltaTime;
             yield return null;
         }
@@ -66,11 +72,27 @@ public class ParrySpec : GameplayAbilitySpec
         
         while (holdingButton && defenseState.State == GuardState.Block)
         {
+            RotateTowardsLockOnTarget();
             yield return null;
         }
 
         if (defenseState.State == GuardState.Block)
             EndGuard();
+    }
+    
+    private void RotateTowardsLockOnTarget()
+    {
+        if (lockOn == null || !lockOn.isLocked || lockOn.currentTarget == null)
+            return;
+
+        Vector3 lookDir = lockOn.currentTarget.position - ownerTransform.position;
+        lookDir.y = 0f;
+
+        if (lookDir.sqrMagnitude > 0.001f)
+        {
+            Quaternion strafeRotation = Quaternion.LookRotation(lookDir);
+            ownerTransform.rotation = Quaternion.Slerp(ownerTransform.rotation, strafeRotation, Time.deltaTime * 10f);
+        }
     }
 
     public override void CancelAbility()
