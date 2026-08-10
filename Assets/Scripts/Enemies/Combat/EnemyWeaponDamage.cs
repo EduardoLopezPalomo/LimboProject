@@ -30,6 +30,8 @@ public class EnemyWeaponDamage : MonoBehaviour
     private AttributeSystem OwnAttributeSystem;
     private CharacterVFX vfx;
     private CharacterSFX sfx;
+    
+    private bool AlreadyHitPlayer = false;
 
     private void Awake()
     {
@@ -42,8 +44,9 @@ public class EnemyWeaponDamage : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
+        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !AlreadyHitPlayer)
         {
+            AlreadyHitPlayer = true;
             DamagePlayer(other);
         }
     }
@@ -127,6 +130,7 @@ public class EnemyWeaponDamage : MonoBehaviour
     public void SetComboNumber(int value)
     {
         ComboNumber = value;
+        AlreadyHitPlayer = false;
     }
 
     public bool GetHasHitPlayer()
@@ -142,5 +146,6 @@ public class EnemyWeaponDamage : MonoBehaviour
     public void IsCounterAttack(bool value)
     {
         isCounter = value;
+        AlreadyHitPlayer = false;
     }
 }

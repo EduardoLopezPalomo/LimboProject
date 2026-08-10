@@ -4,23 +4,34 @@ using System;
 [CreateAssetMenu(menuName = "AbilitySystem/Responses/ResistanceResponse")]
 public class ResistanceResponse : AttributeResponse
 {
-    public static event Action<GameObject> OnResistanceBack;
-    public static event Action<GameObject, float> OnResistanceConsumed;
     public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner, bool CanResponse, float duration = 0f)
     {
-        if (attributeInstance.CurrentValue > oldValue)
+        if (owner.gameObject.CompareTag("Player"))
         {
-            OnResistanceBack?.Invoke(owner.gameObject);
+            if (attributeInstance.CurrentValue <= 0)
+            {
+                KnockBack knockBack = owner.GetComponent<KnockBack>();
+                if (knockBack != null)
+                {
+                    knockBack.StartKnockBack();
+                }
+            }
         }
-        else if (attributeInstance.CurrentValue < oldValue)
+        else
         {
-            OnResistanceConsumed?.Invoke(owner.gameObject, duration);
-        }
-        
-        EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
-        if (UI != null)
-        {
-            UI.ShowResistance();
+             EnemyUIbridge UI = owner.GetComponent<EnemyUIbridge>();
+             if (UI != null)
+             {
+                 UI.ShowResistance();
+             }   
+             if (attributeInstance.CurrentValue <= 0)
+             {
+                 var enemy = owner.GetComponent<EnemyGraphBridge>();
+                 if (enemy)
+                 {
+                     enemy.SetVulnerable();
+                 }
+             }
         }
         
     }

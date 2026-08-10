@@ -7,7 +7,6 @@ public class ParrySpec : GameplayAbilitySpec
     private Animator animator;
     private AbilityHolder abilityHolder;
     private DefenseState defenseState;
-    private KnockBack kncokBack;
     private ThirdPersonController personController;
 
     private float parryWindowDuration;
@@ -19,7 +18,6 @@ public class ParrySpec : GameplayAbilitySpec
         animator = owner.GetComponent<Animator>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         defenseState = owner.GetComponent<DefenseState>();
-        kncokBack = owner.GetComponent<KnockBack>();
         personController = owner.GetComponent<ThirdPersonController>();
 
         parryWindowDuration = parryWindowDurationIn;
@@ -90,7 +88,6 @@ public class ParrySpec : GameplayAbilitySpec
     {
         animator.SetBool("Blocking", false);
         animator.SetTrigger("GuardBreak");
-        kncokBack.StartKnockBack();
         defenseState.SetState(GuardState.Recovery, this);
         EndAbility();
     }

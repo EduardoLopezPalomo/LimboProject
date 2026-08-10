@@ -19,6 +19,9 @@ public class GameplayAttributeInstance
     private Dictionary<Guid, float> multModifiers = new();
     private Dictionary<Guid, float> overrideModifiers = new();
     private Dictionary<Guid, long> overrideTimestamps = new();
+    
+    private bool justApplyInfModifier = false;
+    private float auxTimer = 0f;
 
     public void Initialize(AttributeSystem attributeSystem)
     {
@@ -113,6 +116,34 @@ public class GameplayAttributeInstance
                 RuntimeBaseValue = deltaOrValue;
                 break;
         }
+        RuntimeBaseValue = Mathf.Clamp(RuntimeBaseValue, 0f, Data.MaxValue);
+        justApplyInfModifier = true;
+        auxTimer = Data.WaitTillRecover;
         RecalculateCurrent(AttributeCanResponse);
+    }
+    
+    public void Tick(float deltaTime)
+    {
+        if (CurrentValue >= Data.MaxValue)
+            return;
+
+        if (justApplyInfModifier)
+        {
+            auxTimer -= deltaTime;
+
+            if (auxTimer <= 0f)
+            {
+                justApplyInfModifier = false;
+            }
+            else
+            {
+                return;
+            }
+        }
+        
+        RuntimeBaseValue += Data.RecoverValuePerSecond * deltaTime;
+        RuntimeBaseValue = Mathf.Clamp(RuntimeBaseValue, 0f, Data.MaxValue);
+
+        RecalculateCurrent(false, 0f);
     }
 }

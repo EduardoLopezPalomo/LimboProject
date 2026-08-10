@@ -20,6 +20,15 @@ public class EnemyGraphBridge : MonoBehaviour
         }
     }
 
+    public void SetVulnerable()
+    {
+        agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 
+        if (state != BarbarianState.Death)
+        {
+            agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.Vulnerable);
+        }
+    }
+
     public void SetTrap()
     {
         agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 

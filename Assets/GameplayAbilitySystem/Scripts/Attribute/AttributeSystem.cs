@@ -12,10 +12,12 @@ public class AttributeSystem : MonoBehaviour
     [SerializeField] private List<GameplayAttributeInstance> attributes;
 
     private Dictionary<GameplayAttributeData, GameplayAttributeInstance> _lookup;
+    private List<GameplayAttributeInstance> _recoveredAttributes;
 
     private void Awake()
     {
         _lookup = new Dictionary<GameplayAttributeData, GameplayAttributeInstance>();
+        _recoveredAttributes = new List<GameplayAttributeInstance>();
 
         foreach (var attribute in attributes)
         {
@@ -23,6 +25,10 @@ public class AttributeSystem : MonoBehaviour
             if (!_lookup.ContainsKey(attribute.Data))
             {
                 _lookup.Add(attribute.Data, attribute);
+                if (attribute.Data.CanRecover)
+                {
+                    _recoveredAttributes.Add(attribute);
+                }
             }
             else
             {
@@ -95,5 +101,26 @@ public class AttributeSystem : MonoBehaviour
         }
         Debug.LogWarning("AttributeSystem: attribute not found: " + name);
         return 0f;
+    }
+    
+    public GameplayAttributeData GetAttributeData(String name)
+    {
+        foreach (var attribute in attributes)
+        {
+            if (attribute.Data.Name == name)
+            {
+                return attribute.Data;
+            }
+        }
+        Debug.LogWarning("AttributeSystem: attribute not found: " + name);
+        return null;
+    }
+
+    private void Update()
+    {
+        foreach (var attribute in _recoveredAttributes)
+        {
+            attribute.Tick(Time.deltaTime);
+        }
     }
 }
