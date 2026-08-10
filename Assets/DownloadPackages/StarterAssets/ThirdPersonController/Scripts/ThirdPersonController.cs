@@ -328,29 +328,29 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero)
+            if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
             {
-                if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
+                Vector3 lookDir = lockOnSystem.currentTarget.position - transform.position;
+                lookDir.y = 0f;
+                if (lookDir.sqrMagnitude > 0.001f)
                 {
-                    Vector3 lookDir = lockOnSystem.currentTarget.position - transform.position;
-                    lookDir.y = 0f;
-                    if (lookDir.sqrMagnitude > 0.001f)
-                    {
-                        Quaternion strafeRotation = Quaternion.LookRotation(lookDir);
-                        transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * 10f);
-                    }
-                    
+                    Quaternion strafeRotation = Quaternion.LookRotation(lookDir);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * 10f);
+                }
+                
+                if (_input.move != Vector2.zero)
+                {
                     float cameraYaw = _mainCamera.transform.eulerAngles.y;
                     _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
                 }
-                else
-                {
-                    float cameraYaw = IsometricMode ? IsoYaw : _mainCamera.transform.eulerAngles.y;
-                    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
-                    
-                    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
-                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
-                }
+            }
+            else if (_input.move != Vector2.zero)
+            {
+                float cameraYaw = IsometricMode ? IsoYaw : _mainCamera.transform.eulerAngles.y;
+                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + cameraYaw;
+
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
+                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
 
 

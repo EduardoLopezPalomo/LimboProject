@@ -33,13 +33,18 @@ public class DashSpec : GameplayAbilitySpec
 
     }
 
-    public override void ActivateAbility()
+    public override bool CanActivateAbility()
     {
         if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this) || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
         {
-            EndDash();
-            return;
+            return false;
         }
+
+        return true;
+    }
+
+    public override void ActivateAbility()
+    {
         base.ActivateAbility();
         
         animator.SetBool("Dash", true);

@@ -26,6 +26,9 @@ public class CameraShakeEntry
 public class PlayerWeaponDamage : MonoBehaviour
 {
     public UnityEvent EnemyCounter;
+
+    public GameplayEffect CounterEffect;
+    public GameObject owner;
     
     public int sweepSteps = 5;
     public bool drawGizmos = true;
@@ -35,6 +38,9 @@ public class PlayerWeaponDamage : MonoBehaviour
 
     [Header("Camera shakes")]
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
+    
+    private GameplayEffectManager effectManager;
+    private AttributeSystem attributeSystem;
     
     private BoxCollider weaponCollider;
     private int ComboNumber = 0;
@@ -55,6 +61,9 @@ public class PlayerWeaponDamage : MonoBehaviour
         weaponCollider = GetComponent<BoxCollider>();
         enemyLayerMask = 1 << LayerMask.NameToLayer("EnemyLayer");
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
+
+        effectManager = owner.GetComponent<GameplayEffectManager>();
+        attributeSystem = owner.GetComponent<AttributeSystem>();
 
         foreach (var entry in cameraShakes)
         {
@@ -145,11 +154,12 @@ public class PlayerWeaponDamage : MonoBehaviour
                 vfx.SpawnVFX(VFXType.Counter);
                 sfx.SpawnSFX(SFXType.Counter);
             }
+            effectManager.ApplyEffect(CounterEffect, attributeSystem);
             return;
         }
 
         GameplayEffectManager effectmanager = other.gameObject.GetComponentInParent<GameplayEffectManager>();
-        AttributeSystem attributeSystem = other.gameObject.GetComponentInParent<AttributeSystem>();
+        AttributeSystem AS = other.gameObject.GetComponentInParent<AttributeSystem>();
 
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
         {
@@ -166,7 +176,7 @@ public class PlayerWeaponDamage : MonoBehaviour
             return;
         }
 
-        effectmanager.ApplyEffect(effect, attributeSystem);
+        effectmanager.ApplyEffect(effect, AS);
     }
 
     private void MakeComboCameraShake(int combo)

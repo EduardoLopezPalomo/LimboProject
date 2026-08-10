@@ -11,7 +11,7 @@ public class ResistanceResponse : AttributeResponse
             KnockBack knockBack = owner.GetComponent<KnockBack>();
             if (knockBack != null)
             {
-                knockBack.StartKnockBack();
+                knockBack.KnockBackWithoutInv();
             }
         }
 

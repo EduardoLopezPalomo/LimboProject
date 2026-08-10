@@ -24,6 +24,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
     {
         if (bOnCooldown)
         {
+            EndAbility();
             return;
         }
         base.ActivateAbility();

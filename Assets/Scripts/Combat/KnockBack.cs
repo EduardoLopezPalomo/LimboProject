@@ -5,6 +5,8 @@ using UnityEngine;
 public class KnockBack : MonoBehaviour
 {
     public float KnockBackOffsetTime = 2f;
+
+    [HideInInspector] public bool NotMove = false;
     
     private bool CanKnockBack = true;
     private MakeInvincible makeInvincible;
@@ -22,7 +24,7 @@ public class KnockBack : MonoBehaviour
     public void StartKnockBackCounter()
     {
         if (!CanKnockBack) return;
-        
+        NotMove = false;
         animator.SetTrigger("KnockBack");
         if (abilityHolder.HasAbility("LightAttack"))
         {
@@ -36,10 +38,18 @@ public class KnockBack : MonoBehaviour
     public void StartKnockBack()
     {
         if (!CanKnockBack) return;
-        
+        NotMove = false;
         animator.SetTrigger("KnockBack");
         abilityHolder.CancelAllAbility();
         StartCoroutine(Timer(false));
+    }
+
+    public void KnockBackWithoutInv()
+    {
+        if (!CanKnockBack) return;
+        NotMove = true;
+        animator.SetTrigger("KnockBack");
+        abilityHolder.CancelAllAbility();
     }
     
         

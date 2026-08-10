@@ -8,15 +8,17 @@ public class HitShieldMove : MonoBehaviour
     private float moved = 0f;
     private bool movingBack = false;
     private CharacterController controller;
+    private KnockBack knockBack;
     
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        knockBack = GetComponent<KnockBack>();
     }
     
     void Update()
     {
-        if (movingBack)
+        if (movingBack && !knockBack.NotMove)
         {
             float step = moveSpeed * Time.deltaTime;
             controller.Move(-transform.forward * step);

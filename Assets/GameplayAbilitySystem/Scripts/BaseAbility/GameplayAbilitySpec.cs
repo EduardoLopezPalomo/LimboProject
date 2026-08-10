@@ -24,6 +24,10 @@ public class GameplayAbilitySpec
             bHasCooldown = false;
         }
     }
+    public virtual bool CanActivateAbility()
+    {
+        return true;
+    }
 
     public virtual void ActivateAbility()
     {
@@ -37,7 +41,7 @@ public class GameplayAbilitySpec
             bOnCooldown = true;
             cooldownTimer = ability.Cooldown;
         }
-
+        
     }
 
     public virtual void EndAbility()

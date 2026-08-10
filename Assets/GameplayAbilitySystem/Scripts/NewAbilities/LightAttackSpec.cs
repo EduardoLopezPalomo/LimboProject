@@ -52,19 +52,24 @@ public class LightAttackSpec : GameplayAbilitySpec
         dashDefaultDistance = DashDefaultDistance;
         rotationSpeed = RotationSpeed;
     }
-
-    public override void ActivateAbility()
+    
+    public override bool CanActivateAbility()
     {
         if (abilityHolder.HasAnyActiveAbility(this))
         {
-            base.EndAbility();
-            return;
+            return false;
         }
+        return true;
+    }
+
+    public override void ActivateAbility()
+    {
         base.ActivateAbility();
         if (!inCombo)
         {
             if (Time.time < comboEndTime + comboCooldown)
             {
+                base.EndAbility();
                 return;
             }
             StartCombo();

@@ -20,6 +20,7 @@ public class SleepProyectileSpec : GameplayAbilitySpec
     {
         if (bOnCooldown)
         {
+            EndAbility();
             return;
         }
         base.ActivateAbility();

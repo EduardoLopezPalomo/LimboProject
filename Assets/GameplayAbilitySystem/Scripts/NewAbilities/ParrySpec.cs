@@ -23,13 +23,17 @@ public class ParrySpec : GameplayAbilitySpec
         parryWindowDuration = parryWindowDurationIn;
     }
 
-    public override void ActivateAbility()
+    public override bool CanActivateAbility()
     {
         if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this))
         {
-            base.EndAbility();
-            return;
+            return false;
         }
+        return true;
+    }
+
+    public override void ActivateAbility()
+    {
         base.ActivateAbility();
 
         holdingButton = true;

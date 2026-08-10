@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1191232682966920}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 0
@@ -128,8 +128,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WeaponDamage
   EnemyCounter:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: KnockBack, Assembly-CSharp
+        m_MethodName: StartKnockBackCounter
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  CounterEffect: {fileID: 11400000, guid: 4e6a2ec8ed9ec794b8b2b1303f92bbf1, type: 2}
+  owner: {fileID: 0}
   sweepSteps: 5
+  drawGizmos: 1
   gameplayEffects:
   - {fileID: 11400000, guid: 3f325570162078e4ea85ccde5fd91663, type: 2}
   - {fileID: 11400000, guid: c5afda0a544abea429cf0abd840e0346, type: 2}
