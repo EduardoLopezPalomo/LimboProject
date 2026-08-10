@@ -9,6 +9,7 @@ public class ParrySpec : GameplayAbilitySpec
     private DefenseState defenseState;
     private ThirdPersonController personController;
     private LockOn lockOn;
+    private PlayerWeaponController weaponController;
     private Transform ownerTransform;
 
     private float parryWindowDuration;
@@ -21,6 +22,7 @@ public class ParrySpec : GameplayAbilitySpec
         abilityHolder = owner.GetComponent<AbilityHolder>();
         defenseState = owner.GetComponent<DefenseState>();
         personController = owner.GetComponent<ThirdPersonController>();
+        weaponController = owner.GetComponent<PlayerWeaponController>();
         lockOn = owner.GetComponent<LockOn>();
         ownerTransform = owner.transform;
 
@@ -43,6 +45,8 @@ public class ParrySpec : GameplayAbilitySpec
         holdingButton = true;
         personController.SetInputAviable(false);
         animator.SetBool("Blocking", true);
+        weaponController.EquipWeapon();
+        weaponController.WeaponDamage.parentConstraint.enabled = true;
         abilityHolder.StartCoroutine(GuardRoutine());
     }
 
@@ -102,6 +106,11 @@ public class ParrySpec : GameplayAbilitySpec
         animator.SetBool("Blocking", false);
         personController.SetInputAviable(true);
         defenseState.SetState(GuardState.Idle, this);
+        weaponController.WeaponDamage.parentConstraint.enabled = false;
+        if (!lockOn.isLocked)
+        {
+            weaponController.UnequipWeapon();   
+        }
     }
     
     public void NotifyPerfectParry()
@@ -115,6 +124,7 @@ public class ParrySpec : GameplayAbilitySpec
         animator.SetBool("Blocking", false);
         animator.SetTrigger("GuardBreak");
         defenseState.SetState(GuardState.Recovery, this);
+        weaponController.WeaponDamage.parentConstraint.enabled = false;
         EndAbility();
     }
     
@@ -123,6 +133,7 @@ public class ParrySpec : GameplayAbilitySpec
         animator.SetBool("Blocking", false);
         defenseState.SetState(GuardState.Idle, this);
         personController.SetInputAviable(true);
+        weaponController.WeaponDamage.parentConstraint.enabled = false;
         EndAbility();
     }
 }

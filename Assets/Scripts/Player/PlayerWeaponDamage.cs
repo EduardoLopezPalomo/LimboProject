@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using Unity.Behavior;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Events;
 
 [Serializable]
@@ -39,6 +40,8 @@ public class PlayerWeaponDamage : MonoBehaviour
     [Header("Camera shakes")]
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
     
+    [HideInInspector] public ParentConstraint parentConstraint;
+    
     private GameplayEffectManager effectManager;
     private AttributeSystem attributeSystem;
     
@@ -59,6 +62,7 @@ public class PlayerWeaponDamage : MonoBehaviour
     {
         impulseSource = GetComponent<CinemachineImpulseSource>();
         weaponCollider = GetComponent<BoxCollider>();
+        parentConstraint = GetComponent<ParentConstraint>();
         enemyLayerMask = 1 << LayerMask.NameToLayer("EnemyLayer");
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
 
