@@ -47,15 +47,13 @@ public class ParrySpec : GameplayAbilitySpec
         float t = 0f;
         while (t < parryWindowDuration)
         {
-            // Si el estado ya no es Parry, es que un ataque lo consumió (ResolveHit)
             if (defenseState.State != GuardState.Parry)
                 yield break;
 
             t += Time.deltaTime;
             yield return null;
         }
-
-        // Se acabó la ventana de parry sin recibir golpe → pasa a bloqueo normal
+        
         if (!holdingButton)
         {
             EndGuard();
@@ -63,8 +61,7 @@ public class ParrySpec : GameplayAbilitySpec
         }
 
         defenseState.SetState(GuardState.Block, this);
-
-        // Se mantiene en bloqueo mientras el jugador aguante el botón
+        
         while (holdingButton && defenseState.State == GuardState.Block)
         {
             yield return null;
@@ -82,21 +79,20 @@ public class ParrySpec : GameplayAbilitySpec
         personController.SetInputAviable(true);
         defenseState.SetState(GuardState.Idle, this);
     }
-
-    // Llamado por DefenseState cuando ResolveHit detecta un parry perfecto
+    
     public void NotifyPerfectParry()
     {
         animator.SetTrigger("ParrySuccess");
         EndGuard();
     }
-
-    // Llamado por DefenseState cuando se rompe la guardia por falta de stamina
+    
     public void NotifyGuardBreak()
     {
         animator.SetBool("Blocking", false);
         animator.SetTrigger("GuardBreak");
         kncokBack.StartKnockBack();
         defenseState.SetState(GuardState.Recovery, this);
+        EndAbility();
     }
     
     private void EndGuard()

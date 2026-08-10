@@ -10,8 +10,13 @@ public class EnemyWeaponDamage : MonoBehaviour
     private bool HasHitPlayer = false;
     private bool isCounter = false;
     private int ComboNumber = 0;
+    public GameObject owner;
+    public GameplayEffect GetParriedEffect;
     [Header("Combo effects")]
     [SerializeField] private List<GameplayEffect> gameplayEffects;
+    
+    [Header("Combo effects for player block")]
+    [SerializeField] private List<GameplayEffect> gameplayEffectsBlock;
 
     [Header("Counter attack effect")]
     [SerializeField] private GameplayEffect counterEffect;
@@ -20,10 +25,19 @@ public class EnemyWeaponDamage : MonoBehaviour
     public CameraShakeData CameraShakeData;
 
     private CinemachineImpulseSource impulseSource;
+    
+    private GameplayEffectManager OwnEffectManager;
+    private AttributeSystem OwnAttributeSystem;
+    private CharacterVFX vfx;
+    private CharacterSFX sfx;
 
     private void Awake()
     {
         impulseSource = GetComponent<CinemachineImpulseSource>();
+        OwnEffectManager = owner.GetComponent<GameplayEffectManager>();
+        OwnAttributeSystem = owner.GetComponent<AttributeSystem>();
+        vfx = owner.GetComponent<CharacterVFX>();
+        sfx = owner.GetComponent<CharacterSFX>();
     }
 
     void OnTriggerEnter(Collider other)
@@ -37,50 +51,77 @@ public class EnemyWeaponDamage : MonoBehaviour
     private void DamagePlayer(Collider other)
     {
         MakeInvincible invincible = other.gameObject.GetComponent<MakeInvincible>();
-        GameplayEffectManager effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
-        AttributeSystem attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
-        CharacterVFX vfx = other.gameObject.GetComponent<CharacterVFX>();
-        CharacterSFX sfx = other.gameObject.GetComponent<CharacterSFX>();
-        if (effectmanager == null || attributeSystem == null)
-        {
-            Debug.Log("effectmanager, attributesystem or makeInvincible is null");
-            return;
-        }
+        DefenseState defense = other.gameObject.GetComponent<DefenseState>();
         if (invincible != null && invincible.IsInvincible())
         {
             return;
         }
+        HasHitPlayer = true;
+        HitResult result = defense.ResolveHit();
 
+        switch (result)
+        {
+            case HitResult.PerfectParry:
+                GetParried();
+                break;
+            case HitResult.Blocked:
+                NotParried(other.gameObject, true);
+                break;
+            case HitResult.FullDamage:
+                NotParried(other.gameObject, false);
+                break;
+        }
+    }
+
+    private void GetParried()
+    {
+        vfx.SpawnVFX(VFXType.Counter);
+        sfx.SpawnSFX(SFXType.Counter);
+        OwnEffectManager.ApplyEffect(GetParriedEffect, OwnAttributeSystem);
+    }
+
+    private void NotParried(GameObject player, bool isBlocked)
+    {
+        GameplayEffectManager effectManager = player.GetComponent<GameplayEffectManager>();
+        AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
+        if (effectManager == null || attributeSystem == null)
+        {
+            Debug.Log("effectmanager, attributesystem or makeInvincible is null");
+            return;
+        }
         CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
         if (isCounter)
         {
-            effectmanager.ApplyEffect(counterEffect, attributeSystem);
+            effectManager.ApplyEffect(counterEffect, attributeSystem);
             isCounter = false;
             return;
         }
 
-        HasHitPlayer = true;
-
-        if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
+        if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count || ComboNumber >= gameplayEffectsBlock.Count)
         {
-            Debug.LogWarning("the combo is " + ComboNumber + " But the list doent have that number");
+            Debug.LogWarning("the combo is " + ComboNumber + " But one of the list doent have that number");
             return;
         }
 
-        GameplayEffect effect = gameplayEffects[ComboNumber];
+        GameplayEffect effect;
+        if (isBlocked)
+        {
+            Animator animator = player.GetComponent<Animator>();
+            animator.SetTrigger("BlockHit");
+            effect = gameplayEffectsBlock[ComboNumber];
+        }
+        else
+        {
+            effect = gameplayEffects[ComboNumber];
+        }
 
         if (effect == null)
         {
             Debug.LogWarning("the combo number has no effect on the player weapon");
             return;
         }
-        if (vfx != null && sfx != null)
-        {
-            vfx.SpawnVFX(VFXType.Damaged);
-            sfx.SpawnSFX(SFXType.Damaged);
-        }
-        effectmanager.ApplyEffect(effect, attributeSystem);
-
+       
+        effectManager.ApplyEffect(effect, attributeSystem);
     }
 
     public void SetComboNumber(int value)

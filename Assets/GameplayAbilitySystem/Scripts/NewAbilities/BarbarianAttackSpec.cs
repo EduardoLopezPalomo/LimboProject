@@ -134,6 +134,10 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     {
         weaponController.SetComboNumber(comboIndex);
         comboIndex++;
+        if (comboIndex >= 2)
+        {
+            owner.gameObject.transform.Rotate(0f, 10f, 0f);
+        }
         weaponController.EnableCollision();
         characterSFX.SpawnRandomSFX(SFXType.Attack);
     }

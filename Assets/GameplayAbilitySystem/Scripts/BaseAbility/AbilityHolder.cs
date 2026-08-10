@@ -174,10 +174,6 @@ public class AbilityHolder : MonoBehaviour
     
     public bool HasAnyActiveAbility(GameplayAbilitySpec excludeSpec)
     {
-        foreach (var spec in ActiveSpecs)
-        {
-            Debug.Log(spec.ability.Name);
-        }
         return ActiveSpecs.Any(spec => spec != excludeSpec);
     }
 
