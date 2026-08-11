@@ -20,4 +20,10 @@ public class Slot
    {
       return (reservedBy == null);
    }
+   
+   public float GetAngle(Vector3 playerPos)
+   {
+      Vector3 offset = position - playerPos;
+      return Mathf.Atan2(offset.x, offset.z) * Mathf.Rad2Deg;
+   }
 }

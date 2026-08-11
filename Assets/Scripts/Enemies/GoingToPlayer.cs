@@ -9,6 +9,13 @@ public class GoingToPlayer : MonoBehaviour
     public SlotType slotType;
     
     private Slot currentSlot;
+    
+    private RotateAlongPlayer rotateAlongPlayer;
+    
+    private void Awake()
+    {
+        rotateAlongPlayer = GetComponent<RotateAlongPlayer>();
+    }
 
     public bool IsPlayerInRange()
     {
@@ -35,6 +42,7 @@ public class GoingToPlayer : MonoBehaviour
         
         if (currentSlot != null)
         {
+            rotateAlongPlayer.SetReservedSlot(currentSlot);
             return currentSlot.position;
         }
         Debug.LogWarning("No slot found");

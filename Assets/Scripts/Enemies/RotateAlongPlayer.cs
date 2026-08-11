@@ -8,15 +8,23 @@ public class RotateAlongPlayer : MonoBehaviour
     public float rotationSpeedAlongPlayer = 10f;
     public float selfRotationSpeed = 60f;
     public float speed = 1.5f;
-    public float sphereDetectRadius = 4f;
+    
+    [Header("Wobble (variación individual en la órbita)")]
+    public float wobbleAmplitude = 8f;   
+    public float wobbleFrequency = 0.4f;
+ 
+    [Header("Frenado dinámico por proximidad a aliados")]
+    public float neighborCheckRadius = 3f;
+    public float minSafeDistance = 1.5f;
 
     [HideInInspector] public bool isBlocking = false;
 
     private bool StopRotation = true;
-    private int direction = 1;
     private float currentAngle;
     private float currentRadius;
     private float previusSpeed;
+    private float wobbleSeed;
+    private Slot reservedSlot;
     private NavMeshAgent agent;
     private Animator Animator;
     private GoingToPlayer SlotPosition;
@@ -32,6 +40,8 @@ public class RotateAlongPlayer : MonoBehaviour
         enemyLayer = LayerMask.GetMask("EnemyLayer");
         agent.updateRotation = false;
         agent.stoppingDistance = 0f;
+        
+        wobbleSeed = UnityEngine.Random.value * 100f;
     }
 
     void Update()
@@ -39,16 +49,27 @@ public class RotateAlongPlayer : MonoBehaviour
         if (!StopRotation)
         {
             UpdateRadius();
-
-            currentAngle += direction * rotationSpeedAlongPlayer * Time.deltaTime;
-
+ 
+            if (reservedSlot != null)
+            {
+                float targetAngle = reservedSlot.GetAngle(player.position);
+                float wobble = Mathf.Sin((Time.time + wobbleSeed) * wobbleFrequency) * wobbleAmplitude;
+ 
+                float slowdown = GetNeighborSlowdownFactor();
+                currentAngle = Mathf.MoveTowardsAngle(
+                    currentAngle,
+                    targetAngle + wobble,
+                    rotationSpeedAlongPlayer * slowdown * Time.deltaTime
+                );
+            }
+ 
             float rad = currentAngle * Mathf.Deg2Rad;
             Vector3 targetPosition = player.position + new Vector3(
                 Mathf.Sin(rad) * currentRadius,
                 0f,
                 Mathf.Cos(rad) * currentRadius
             );
-
+ 
             agent.SetDestination(targetPosition);
             Turn();
             UpdateAnimatorMovement();
@@ -64,6 +85,25 @@ public class RotateAlongPlayer : MonoBehaviour
         {
             currentRadius = actualDistance;
         }
+    }
+    
+    private float GetNeighborSlowdownFactor()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, neighborCheckRadius, enemyLayer);
+        float minDist = float.MaxValue;
+ 
+        foreach (var hit in hits)
+        {
+            if (hit.gameObject == gameObject) continue;
+ 
+            float d = Vector3.Distance(transform.position, hit.transform.position);
+            if (d < minDist) minDist = d;
+        }
+ 
+        if (minDist < minSafeDistance)
+            return Mathf.Clamp01(minDist / minSafeDistance); 
+ 
+        return 1f;
     }
 
     private void UpdateAnimatorMovement()
@@ -108,10 +148,22 @@ public class RotateAlongPlayer : MonoBehaviour
         Animator.SetFloat("VelocityX", 0f);
         Animator.SetFloat("VelocityZ", 0f);
         agent.speed = previusSpeed;
+        agent.updateRotation = true;
         if (agent.isOnNavMesh)
         {
             agent.ResetPath();
         }
+        
+        if (reservedSlot != null)
+        {
+            SlotsManager.Instance.ReleaseSlot(reservedSlot);
+            reservedSlot = null;
+        }
+    }
+    
+    public void SetReservedSlot(Slot slot)
+    {
+        reservedSlot = slot;
     }
 
     public void StartRotating()
@@ -124,45 +176,26 @@ public class RotateAlongPlayer : MonoBehaviour
         previusSpeed = agent.speed;
         agent.speed = speed;
 
-        direction = DetectOtherEnemies() ? -1 : 1;
-
         Vector3 toPlayer = transform.position - player.position;
         toPlayer.y = 0f;
         currentAngle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
 
-        if (SlotPosition && SlotPosition.GetActualSlot() != Vector3.zero)
+        if (reservedSlot == null && SlotPosition != null && SlotPosition.GetActualSlot() != Vector3.zero)
         {
             Vector3 targetPosition = SlotPosition.GetActualSlot();
             targetPosition.y = 0f;
             currentRadius = Vector3.Distance(targetPosition, new Vector3(player.position.x, 0, player.position.z));
         }
+        else if (reservedSlot != null)
+        {
+            currentRadius = Vector3.Distance(
+                new Vector3(reservedSlot.position.x, 0, reservedSlot.position.z),
+                new Vector3(player.position.x, 0, player.position.z)
+            );
+        }
         else
         {
             currentRadius = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z), new Vector3(player.position.x, 0, player.position.z));
         }
-    }
-
-    private bool DetectOtherEnemies()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, sphereDetectRadius, enemyLayer);
-
-        bool rightOccupied = UnityEngine.Random.value < 0.5f ? false : true;
-        foreach (var hit in hits)
-        {
-            if (hit.gameObject == gameObject)
-                continue;
-
-            Vector3 local = transform.InverseTransformPoint(hit.transform.position);
-
-            if (local.z < 0)
-                continue;
-
-            if (local.x > 0)
-                rightOccupied = true;
-            else
-                rightOccupied = false;
-        }
-
-        return rightOccupied;
     }
 }

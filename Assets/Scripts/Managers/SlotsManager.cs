@@ -16,8 +16,16 @@ public class SlotsManager : MonoBehaviour
     public float closeRadius = 2f;
     public float midRadius = 4f;
     public float farRadius = 6f;
+    [Header("Rotación de los anillos (carrusel)")]
+    public float closeRingRotationSpeed = 5f; 
+    public float midRingRotationSpeed = 7f;
+    public float farRingRotationSpeed = 10f;
 
     private Vector3 LastPosition;
+    
+    private float closeRingAngle = 0f;
+    private float midRingAngle = 0f;
+    private float farRingAngle = 0f;
     
     private List<Slot> closeSlotList = new List<Slot>();
     private List<Slot> midSlotList = new List<Slot>();
@@ -42,9 +50,9 @@ public class SlotsManager : MonoBehaviour
         player = playerTransform;
         LastPosition = player.position;
         
-        UpdateRing(closeSlotList, closeRadius);
-        UpdateRing(midSlotList, midRadius);
-        UpdateRing(farSlotList, farRadius);
+        UpdateRing(closeSlotList, closeRadius, closeRingAngle);
+        UpdateRing(midSlotList, midRadius, midRingAngle);
+        UpdateRing(farSlotList, farRadius, farRingAngle);
     }
     
     void Update()
@@ -52,22 +60,35 @@ public class SlotsManager : MonoBehaviour
         if (player == null)
             return;
         
+        closeRingAngle = WrapAngle(closeRingAngle + closeRingRotationSpeed * Time.deltaTime);
+        midRingAngle = WrapAngle(midRingAngle + midRingRotationSpeed * Time.deltaTime);
+        farRingAngle = WrapAngle(farRingAngle + farRingRotationSpeed * Time.deltaTime);
+        
+        UpdateRing(closeSlotList, closeRadius, closeRingAngle);
+        UpdateRing(midSlotList, midRadius, midRingAngle);
+        UpdateRing(farSlotList, farRadius, farRingAngle);
+        
         if (Vector3.Distance(LastPosition, player.position) > distanceToUpdate)
         {
-            UpdateRing(closeSlotList, closeRadius);
-            UpdateRing(midSlotList, midRadius);
-            UpdateRing(farSlotList, farRadius);  
             LastPosition = player.position;
         }
     }
+    
+    private float WrapAngle(float angle)
+    {
+        if (angle > 360f) angle -= 360f;
+        if (angle < 0f) angle += 360f;
+        return angle;
+    }
  
-    void UpdateRing(List<Slot> list, float radius)
+    void UpdateRing(List<Slot> list, float radius, float ringAngle)
     {
         int count = list.Count;
+        float ringAngleRad = ringAngle * Mathf.Deg2Rad;
 
         for (int i = 0; i < count; i++)
         {
-            float angle = i * Mathf.PI * 2 / count;
+            float angle = i * Mathf.PI * 2 / count + ringAngleRad;
             Vector3 newPos = player.position + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
             list[i].position = newPos;
         }
