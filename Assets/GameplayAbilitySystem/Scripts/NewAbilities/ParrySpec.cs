@@ -104,6 +104,7 @@ public class ParrySpec : GameplayAbilitySpec
         base.CancelAbility();
         holdingButton = false;
         animator.SetBool("Blocking", false);
+        animator.SetBool("BlockHit", false);
         personController.SetInputAviable(true);
         defenseState.SetState(GuardState.Idle, this);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
@@ -123,6 +124,7 @@ public class ParrySpec : GameplayAbilitySpec
     public void NotifyGuardBreak()
     {
         animator.SetBool("Blocking", false);
+        animator.SetBool("BlockHit", false);
         animator.SetTrigger("GuardBreak");
         defenseState.SetState(GuardState.Recovery, this);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
@@ -133,6 +135,7 @@ public class ParrySpec : GameplayAbilitySpec
     private void EndGuard()
     {
         animator.SetBool("Blocking", false);
+        animator.SetBool("BlockHit", false);
         defenseState.SetState(GuardState.Idle, this);
         personController.SetInputAviable(true);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
