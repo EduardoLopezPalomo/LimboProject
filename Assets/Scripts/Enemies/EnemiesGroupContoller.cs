@@ -6,6 +6,7 @@ using UnityEngine;
 public class EnemiesGroupContoller : MonoBehaviour
 {
     public static event Action<List<GameObject>> OnHideEnemyHud;
+    public static event Action<bool> OnBattleStateChanged;
     public int maxTokens = 2;
 
     private int currentToken = 0;
@@ -61,6 +62,7 @@ public class EnemiesGroupContoller : MonoBehaviour
 
     public void AlertGroup(GameObject alerter)
     {
+        OnBattleStateChanged?.Invoke(true);
         MusicManager.Instance.StartBattle();
         foreach (var v in enemies)
         {
@@ -106,6 +108,7 @@ public class EnemiesGroupContoller : MonoBehaviour
     {
         MusicManager.Instance.EndBattle();
         OnHideEnemyHud?.Invoke(enemies);
+        OnBattleStateChanged?.Invoke(false);
     }
 
     //Methods for slots managment

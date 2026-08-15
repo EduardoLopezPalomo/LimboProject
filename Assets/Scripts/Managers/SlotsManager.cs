@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ public class SlotsManager : MonoBehaviour
     public float midRingRotationSpeed = 7f;
     public float farRingRotationSpeed = 10f;
 
+    private bool InBattle = false;
     private Vector3 LastPosition;
     
     private float closeRingAngle = 0f;
@@ -44,7 +46,17 @@ public class SlotsManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void OnEnable()
+    {
+        EnemiesGroupContoller.OnBattleStateChanged += HandleBattleStateChanged;
+    }
     
+    private void OnDisable()
+    {
+        EnemiesGroupContoller.OnBattleStateChanged -= HandleBattleStateChanged;
+    }
+
     public void SetPlayer(Transform playerTransform)
     {
         player = playerTransform;
@@ -59,10 +71,13 @@ public class SlotsManager : MonoBehaviour
     {
         if (player == null)
             return;
-        
-        closeRingAngle = WrapAngle(closeRingAngle + closeRingRotationSpeed * Time.deltaTime);
-        midRingAngle = WrapAngle(midRingAngle + midRingRotationSpeed * Time.deltaTime);
-        farRingAngle = WrapAngle(farRingAngle + farRingRotationSpeed * Time.deltaTime);
+
+        if (InBattle)
+        {
+            closeRingAngle = WrapAngle(closeRingAngle + closeRingRotationSpeed * Time.deltaTime);
+            midRingAngle = WrapAngle(midRingAngle + midRingRotationSpeed * Time.deltaTime);
+            farRingAngle = WrapAngle(farRingAngle + farRingRotationSpeed * Time.deltaTime);    
+        }
         
         UpdateRing(closeSlotList, closeRadius, closeRingAngle);
         UpdateRing(midSlotList, midRadius, midRingAngle);
@@ -161,6 +176,11 @@ public class SlotsManager : MonoBehaviour
         {
             slot.reservedBy = null;    
         }
+    }
+    
+    private void HandleBattleStateChanged(bool isInBattle)
+    {
+        InBattle = isInBattle;
     }
     /*Function only for debug*/
     void OnDrawGizmos()
