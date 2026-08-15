@@ -16,7 +16,8 @@ public class DashSpec : GameplayAbilitySpec
     private StarterAssetsInputs starterInputs;
 
     private Vector3 direction;
-
+    private Coroutine safetyCoroutine;
+    private bool dashEnded;
 
     public DashSpec(GameplayAbility ability, GameObject owner, int dashForce, float dashTimeIn, float resistanceNeededIn) : base(ability, owner)
     {
@@ -35,11 +36,11 @@ public class DashSpec : GameplayAbilitySpec
 
     public override bool CanActivateAbility()
     {
-        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this) || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this) 
+                        || abilityHolder.IsAbilityActive("Dash") || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
         {
             return false;
         }
-
         return true;
     }
 
@@ -47,12 +48,25 @@ public class DashSpec : GameplayAbilitySpec
     {
         base.ActivateAbility();
         
-        animator.SetBool("Dash", true);
+        animator.SetTrigger("Dash");
         direction = GetAimDirection();
         RotateTowardsDashDirection();
         
         makeInvincible.SetInvincible(true);
         personcontroller.SetInputAviable(false);
+
+        dashEnded = false;
+        safetyCoroutine = abilityHolder.StartCoroutine(SafetyTimeout());
+    }
+    
+    private IEnumerator SafetyTimeout()
+    {
+        yield return new WaitForSeconds(dashTime + 0.15f); 
+
+        if (!dashEnded)
+        {
+            EndDash();
+        }
     }
     
     private Vector3 GetAimDirection()
@@ -96,7 +110,7 @@ public class DashSpec : GameplayAbilitySpec
             yield return null;
         }
         
-        animator.SetBool("Dash", false);
+        EndDash();
     }
 
     public void StartMoving()
@@ -106,11 +120,26 @@ public class DashSpec : GameplayAbilitySpec
 
     public override void CancelAbility()
     {
+        base.CancelAbility();
+        if (safetyCoroutine != null)
+        {
+            abilityHolder.StopCoroutine(safetyCoroutine);
+            safetyCoroutine = null;
+        }
         EndDash();
     }
 
     public void EndDash()
     {
+        if (dashEnded) return;
+        dashEnded = true;
+
+        if (safetyCoroutine != null)
+        {
+            abilityHolder.StopCoroutine(safetyCoroutine);
+            safetyCoroutine = null;
+        }
+
         makeInvincible.SetInvincible(false);
         personcontroller.SetInputAviable(true);
         charactercontroller.Move(Vector3.zero);

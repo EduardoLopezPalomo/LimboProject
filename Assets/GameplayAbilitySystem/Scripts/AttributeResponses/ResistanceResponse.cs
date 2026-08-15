@@ -6,7 +6,7 @@ public class ResistanceResponse : AttributeResponse
 {
     public override void OnAttributeChanged(GameplayAttributeInstance attributeInstance, float oldValue, AttributeSystem owner, bool CanResponse, float duration = 0f)
     {
-        if (attributeInstance.CurrentValue <= 0)
+        if (attributeInstance.CurrentValue <= 0 && CanResponse)
         {
             KnockBack knockBack = owner.GetComponent<KnockBack>();
             if (knockBack != null)
