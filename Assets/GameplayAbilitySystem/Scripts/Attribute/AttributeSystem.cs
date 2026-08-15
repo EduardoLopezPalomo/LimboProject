@@ -11,20 +11,20 @@ public class AttributeSystem : MonoBehaviour
 
     [SerializeField] private List<GameplayAttributeInstance> attributes;
 
-    private Dictionary<GameplayAttributeData, GameplayAttributeInstance> _lookup;
+    private Dictionary<string, GameplayAttributeInstance> _lookup;
     private List<GameplayAttributeInstance> _recoveredAttributes;
 
     private void Awake()
     {
-        _lookup = new Dictionary<GameplayAttributeData, GameplayAttributeInstance>();
+        _lookup = new Dictionary<string, GameplayAttributeInstance>();
         _recoveredAttributes = new List<GameplayAttributeInstance>();
 
         foreach (var attribute in attributes)
         {
             attribute.Initialize(this);
-            if (!_lookup.ContainsKey(attribute.Data))
+            if (!_lookup.ContainsKey(attribute.Data.Name))
             {
-                _lookup.Add(attribute.Data, attribute);
+                _lookup.Add(attribute.Data.Name, attribute);
                 if (attribute.Data.CanRecover)
                 {
                     _recoveredAttributes.Add(attribute);
@@ -37,22 +37,22 @@ public class AttributeSystem : MonoBehaviour
         }
     }
     /*Add the modifier to the attribute instance, that way it can change*/
-    public void AddModifier(GameplayAttributeData data, Guid id, Modifier modifier, float value, bool AttributeCanResponse, float duration)
+    public void AddModifier(string name, Guid id, Modifier modifier, float value, bool AttributeCanResponse, float duration)
     {
-        if (!_lookup.TryGetValue(data, out var inst))
+        if (!_lookup.TryGetValue(name, out var inst))
         {
-            Debug.LogWarning("AttributeSystem: attribute not found: " + data?.name);
+            Debug.LogWarning("AttributeSystem: attribute not found: " + name);
             return;
         }
 
         inst.AddModifier(id, modifier, value, AttributeCanResponse, duration);
     }
     /*Remove the modifier in order to go back to the previous value*/
-    public void RemoveModifier(GameplayAttributeData data, Guid id, bool AttributeCanResponse)
+    public void RemoveModifier(string name, Guid id, bool AttributeCanResponse)
     {
-        if (!_lookup.TryGetValue(data, out var inst))
+        if (!_lookup.TryGetValue(name, out var inst))
         {
-            Debug.LogWarning("AttributeSystem: attribute not found: " + data?.name);
+            Debug.LogWarning("AttributeSystem: attribute not found: " + name);
             return;
         }
 
@@ -64,7 +64,7 @@ public class AttributeSystem : MonoBehaviour
         if (effect == null) return;
         if (!_lookup.TryGetValue(effect.TargetAttribute, out var inst))
         {
-            Debug.LogWarning("AttributeSystem: attribute not found: " + effect.TargetAttribute?.name);
+            Debug.LogWarning("AttributeSystem: attribute not found: " + effect.TargetAttribute);
             return;
         }
         if (effect.EffectTime == EffectTime.Infinite)

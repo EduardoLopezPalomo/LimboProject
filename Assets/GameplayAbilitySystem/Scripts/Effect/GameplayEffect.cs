@@ -20,7 +20,7 @@ public enum EffectTime
 [CreateAssetMenu(menuName = "AbilitySystem/Effect")]
 public class GameplayEffect : ScriptableObject
 {
-    public GameplayAttributeData TargetAttribute;
+    public string TargetAttribute;
     public float Value;
     public Modifier Modifier;
 

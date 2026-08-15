@@ -171,7 +171,10 @@ public class RotateAlongPlayer : MonoBehaviour
         StopRotation = false;
         isBlocking = true;
         Animator.SetBool("IsStrafing", true);
-        weaponController.EquipWeapon();
+        if (weaponController)
+        {
+            weaponController.EquipWeapon();   
+        }
 
         previusSpeed = agent.speed;
         agent.speed = speed;

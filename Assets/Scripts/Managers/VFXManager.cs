@@ -19,13 +19,18 @@ public class VFXManager : MonoBehaviour
     {
         Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
         GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
+        
+        if (def.useObjectPool)
+            vfx.transform.SetParent(transform, worldPositionStays: false);
 
         vfx.transform.SetPositionAndRotation(position, finalRot);
         vfx.transform.localScale = def.scaleOverride;
         vfx.SetActive(true);
 
         if (def.useObjectPool)
+        {
             StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
+        }
         else
             Destroy(vfx, def.lifetime);
 
@@ -45,7 +50,8 @@ public class VFXManager : MonoBehaviour
         if (queue.Count > 0)
         {
             var obj = queue.Dequeue();
-            return obj;
+            if (obj != null)
+                return obj;
         }
 
         return Instantiate(def.prefab);
