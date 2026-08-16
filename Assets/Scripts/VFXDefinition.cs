@@ -10,16 +10,21 @@ public enum VFXType
     Slash4,
     Counter,
     Damaged,
+    SpellAura,
+    Teleport,
 }
 
 [CreateAssetMenu(fileName = "VFX", menuName = "VFX/VFX Definition")]
 public class VFXDefinition : ScriptableObject
 {
     public VFXType type = VFXType.Slash1;
+    public string variantId;
     public GameObject prefab;
+    public Vector3 positionOffset;
     public Vector3 rotationOffset;
     public Vector3 scaleOverride = Vector3.one;
     public float lifetime = 2f;
     public bool useObjectPool = true;
+    public bool followTarget = false;
 
 }

@@ -15,7 +15,7 @@ public class VFXManager : MonoBehaviour
         }
     }
     
-    public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation)
+    public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation, GameObject target)
     {
         Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
         GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
@@ -34,10 +34,15 @@ public class VFXManager : MonoBehaviour
         else
             Destroy(vfx, def.lifetime);
 
+        if (def.followTarget)
+        {
+            StartCoroutine(FollowTarget(vfx, target, def));
+        }
+
         return vfx;
     }
     
-    public GameObject Play(VFXDefinition def, Transform spawnPoint) => Play(def, spawnPoint.position, spawnPoint.rotation);
+    public GameObject Play(VFXDefinition def, Transform spawnPoint, GameObject target) => Play(def, spawnPoint.position, spawnPoint.rotation, target);
 
     private GameObject GetFromPool(VFXDefinition def)
     {
@@ -62,5 +67,22 @@ public class VFXManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         obj.SetActive(false);
         pools[def].Enqueue(obj);
+    }
+    
+    private System.Collections.IEnumerator FollowTarget(GameObject vfx, GameObject target, VFXDefinition def)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < def.lifetime)
+        {
+            if (vfx == null || target == null)
+                yield break;
+
+            vfx.transform.position = target.transform.position + def.positionOffset;
+            vfx.transform.rotation = target.transform.rotation * Quaternion.Euler(def.rotationOffset);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
     }
 }

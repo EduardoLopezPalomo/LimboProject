@@ -20,14 +20,12 @@ public class FireAttackSpec : GameplayAbilitySpec
     {
         base.ActivateAbility();
         
-        animator.SetBool("IsAttacking", true);
         animator.SetTrigger("Attack"); 
     }
 
     public override void CancelAbility()
     {
         base.CancelAbility();
-        animator.SetBool("IsAttacking", false);
     }
 
     // Animation Events

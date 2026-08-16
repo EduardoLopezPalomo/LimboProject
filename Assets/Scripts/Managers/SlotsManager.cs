@@ -169,6 +169,54 @@ public class SlotsManager : MonoBehaviour
         
         return bestSlot;
     }
+
+    public Slot GetRandomSlot(GameObject requester, SlotType slotType)
+    {
+        Slot bestSlot = null;
+        switch (slotType)
+        {
+            case SlotType.Close:
+                bestSlot = GetSlotFromList(closeSlotList);
+                break;
+            case SlotType.Mid:
+                bestSlot = GetSlotFromList(midSlotList);
+                break;
+            case SlotType.Far:
+                bestSlot = GetSlotFromList(farSlotList);
+                break;
+        }
+        
+        if (bestSlot != null)
+        {
+            bestSlot.reservedBy = requester;
+        }
+        
+        return bestSlot;
+        
+    }
+
+    private Slot GetSlotFromList(List<Slot> slots)
+    {
+        List<int> indexes = new List<int>(slots.Count);
+        for (int i = 0; i < slots.Count; i++)
+            indexes.Add(i);
+        
+        for (int i = indexes.Count - 1; i > 0; i--)
+        {
+            int swapIndex = UnityEngine.Random.Range(0, i + 1);
+            (indexes[i], indexes[swapIndex]) = (indexes[swapIndex], indexes[i]);
+        }
+        
+        foreach (int index in indexes)
+        {
+            if (slots[index].IsAvailable())
+            {
+                return slots[index];
+            }
+        }
+
+        return null;
+    }
     
     public void ReleaseSlot(Slot slot)
     {
