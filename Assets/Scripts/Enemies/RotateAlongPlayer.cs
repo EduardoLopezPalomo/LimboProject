@@ -38,8 +38,6 @@ public class RotateAlongPlayer : MonoBehaviour
         SlotPosition = GetComponent<GoingToPlayer>();
         weaponController = GetComponent<EnemyWeaponController>();
         enemyLayer = LayerMask.GetMask("EnemyLayer");
-        agent.updateRotation = false;
-        agent.stoppingDistance = 0f;
         
         wobbleSeed = UnityEngine.Random.value * 100f;
     }
@@ -178,6 +176,7 @@ public class RotateAlongPlayer : MonoBehaviour
 
         previusSpeed = agent.speed;
         agent.speed = speed;
+        agent.updateRotation = false;
 
         Vector3 toPlayer = transform.position - player.position;
         toPlayer.y = 0f;

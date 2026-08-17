@@ -1,22 +1,35 @@
 using System;
+using Cinemachine;
 using UnityEngine;
 
 public class ExplosionDamage : MonoBehaviour
 {
     public float DamageTickRate = 2f;
-    public float lifeTime = 3f;
+    
+    public CameraShakeData CameraShakeData;
+    
+    [Header("Damage and blocked")]
     [SerializeField] private GameplayEffect DamageEffect;
+    [SerializeField] private GameplayEffect BlockedEffect;
     [SerializeField] private string ObjectToDamage;
+    
 
     private bool isIn = false;
     private float tickTimer = 0f;
     private MakeInvincible invincible;
     private GameplayEffectManager effectmanager;
     private AttributeSystem attributeSystem;
+    private DefenseState defense;
+    private CinemachineImpulseSource impulseSource;
 
-    private void Start()
+    private void Awake()
     {
-        Destroy(gameObject, lifeTime);
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+    }
+
+    private void OnDisable()
+    {
+        isIn = false;
     }
 
     void OnTriggerEnter(Collider other)
@@ -26,6 +39,7 @@ public class ExplosionDamage : MonoBehaviour
             invincible = other.gameObject.GetComponent<MakeInvincible>();
             effectmanager = other.gameObject.GetComponent<GameplayEffectManager>();
             attributeSystem = other.gameObject.GetComponent<AttributeSystem>();
+            defense = other.gameObject.GetComponent<DefenseState>();
             if (effectmanager == null || attributeSystem == null)
             {
                 Debug.Log("effectmanager, attributesystem or makeInvincible is null");
@@ -53,8 +67,21 @@ public class ExplosionDamage : MonoBehaviour
                 {
                     return;
                 }
-           
-                effectmanager.ApplyEffect(DamageEffect, attributeSystem);
+                HitResult result = defense.ResolveHit();
+
+                switch (result)
+                {
+                    case HitResult.PerfectParry:
+                        break;
+                    case HitResult.Blocked:
+                        CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
+                        effectmanager.ApplyEffect(BlockedEffect, attributeSystem);
+                        break;
+                    case HitResult.FullDamage:
+                        CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
+                        effectmanager.ApplyEffect(DamageEffect, attributeSystem);
+                        break;
+                }
             }
         }
     }

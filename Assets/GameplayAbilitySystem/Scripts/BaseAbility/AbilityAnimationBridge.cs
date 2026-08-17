@@ -227,22 +227,6 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
-    
-    /*
-     * Notifies of FireAttack
-     *
-     */
-    
-    public void SpawnFire()
-    {
-        foreach (var spec in currentSpec.ToList())
-        {
-            if (spec is FireAttackSpec fireAttackSpec)
-            {
-                fireAttackSpec.SpawnFire();
-            }
-        }
-    }
     /*
      * Notifies of HealTarget
      *
