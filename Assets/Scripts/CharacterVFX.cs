@@ -23,10 +23,10 @@ public class CharacterVFX : MonoBehaviour
         }
     }
 
-    public VFXDefinition SpawnRandomVFX(VFXType vfxType)
+    public (VFXDefinition def, GameObject instance) SpawnRandomVFX(VFXType vfxType)
     {
         VFXDefinition[] filteredDefs = System.Array.FindAll(VFXDefinitions, def => def.type == vfxType);
-        if (filteredDefs.Length == 0) return null;
+        if (filteredDefs.Length == 0) return(null, null);
         
         int randomIndex = Random.Range(0, filteredDefs.Length);
         
@@ -37,8 +37,13 @@ public class CharacterVFX : MonoBehaviour
         Vector3 positionOffset = randomDef.positionOffset;
         Vector3 finalPosition = vfxSpawnPoint.position + positionOffset;
         
-        VFXManager.Instance.Play(randomDef,finalPosition, finalRotation, gameObject);
+        GameObject instance = VFXManager.Instance.Play(randomDef,finalPosition, finalRotation, gameObject);
             
-        return randomDef;
+        return (randomDef, instance);
+    }
+
+    public void CancelVFX(GameObject instance)
+    {
+        VFXManager.Instance.Cancel(instance);
     }
 }

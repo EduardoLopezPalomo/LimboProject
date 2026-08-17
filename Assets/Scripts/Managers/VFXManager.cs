@@ -7,6 +7,15 @@ public class VFXManager : MonoBehaviour
 
     private Dictionary<VFXDefinition, Queue<GameObject>> pools = new();
     
+    private class ActiveVFX
+    {
+        public VFXDefinition def;
+        public Coroutine returnCoroutine;
+        public Coroutine followCoroutine;
+    }
+
+    private Dictionary<GameObject, ActiveVFX> activeVFX = new();
+    
     private void Awake()
     {
         if (Instance == null)
@@ -26,23 +35,53 @@ public class VFXManager : MonoBehaviour
         vfx.transform.SetPositionAndRotation(position, finalRot);
         vfx.transform.localScale = def.scaleOverride;
         vfx.SetActive(true);
+        
+        var active = new ActiveVFX { def = def };
+        activeVFX[vfx] = active;
 
         if (def.useObjectPool)
         {
-            StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
+            active.returnCoroutine = StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
         }
         else
             Destroy(vfx, def.lifetime);
 
         if (def.followTarget)
         {
-            StartCoroutine(FollowTarget(vfx, target, def));
+            active.followCoroutine = StartCoroutine(FollowTarget(vfx, target, def));
         }
 
         return vfx;
     }
     
     public GameObject Play(VFXDefinition def, Transform spawnPoint, GameObject target) => Play(def, spawnPoint.position, spawnPoint.rotation, target);
+    
+    public void Cancel(GameObject vfx)
+    {
+        if (vfx == null) return;
+
+        if (activeVFX.TryGetValue(vfx, out var active))
+        {
+            if (active.returnCoroutine != null) StopCoroutine(active.returnCoroutine);
+            if (active.followCoroutine != null) StopCoroutine(active.followCoroutine);
+            activeVFX.Remove(vfx);
+
+            if (active.def.useObjectPool)
+            {
+                vfx.SetActive(false);
+                vfx.transform.SetParent(transform, worldPositionStays: false);
+                pools[active.def].Enqueue(vfx);
+            }
+            else
+            {
+                Destroy(vfx);
+            }
+        }
+        else
+        {
+            Destroy(vfx);
+        }
+    }
 
     private GameObject GetFromPool(VFXDefinition def)
     {
@@ -67,6 +106,7 @@ public class VFXManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         obj.SetActive(false);
         pools[def].Enqueue(obj);
+        activeVFX.Remove(obj);
     }
     
     private System.Collections.IEnumerator FollowTarget(GameObject vfx, GameObject target, VFXDefinition def)
