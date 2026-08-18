@@ -9,7 +9,17 @@ public class LightingDamage : MonoBehaviour
     [SerializeField] private GameplayEffect BlockedEffect;
     [SerializeField] private string ObjectToDamage;
     
+    [Header("Sound")]
+    [SerializeField] private SFXDefinition def;
+    
     private CinemachineImpulseSource impulseSource;
+    
+    private void OnEnable()
+    {
+        if (def == null) return;
+        
+        SoundFXManager.instance.PlaySoundRandomPitch(def.sfx, transform, def.volume, def.minPitch, def.maxPitch);
+    }
     
     private void Awake()
     {
