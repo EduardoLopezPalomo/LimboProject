@@ -76,6 +76,12 @@ public class EnemyGraphBridge : MonoBehaviour
             animator.enabled = true;
             animator.SetBool("IsDeath", true);
         }
+        
+        agent.BlackboardReference.GetVariableValue("VFXInstance", out GameObject vfx);
+        if (vfx != null)
+        {
+            VFXManager.Instance.Cancel(vfx);
+        }
 
         foreach (var skin in GetComponentsInChildren<SkinnedMeshRenderer>())
         {

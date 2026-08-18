@@ -277,6 +277,20 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
+    /*
+     * Notifies of Mage Counter
+     *
+     */
+    public void SpawnMageSpell()
+    {
+        foreach (var spec in currentSpec.ToList())
+        {
+            if (spec is MageCounterAttackSpec counterSpec)
+            {
+                counterSpec.SpawnCounter();
+            }
+        }
+    }
     
     
 
