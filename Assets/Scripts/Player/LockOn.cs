@@ -18,6 +18,16 @@ public class LockOn : MonoBehaviour
     private PlayerWeaponController weaponController;
     private Animator animator;
 
+    private void OnEnable()
+    {
+        EnemyGraphBridge.OnDeath += EnemyDeath;
+    }
+
+    private void OnDisable()
+    {
+        EnemyGraphBridge.OnDeath -= EnemyDeath;
+    }
+
     private void Awake()
     {
         weaponController = GetComponent<PlayerWeaponController>();
@@ -117,6 +127,14 @@ public class LockOn : MonoBehaviour
     {
         Vector3 viewportPos = mainCamera.WorldToViewportPoint(t.position);
         return Vector2.Distance(new Vector2(viewportPos.x, viewportPos.y), new Vector2(0.5f, 0.5f));
+    }
+
+    private void EnemyDeath(GameObject e)
+    {
+        if (e == currentTarget.gameObject)
+        {
+            currentTarget = null;
+        }
     }
 
     private void Update()
