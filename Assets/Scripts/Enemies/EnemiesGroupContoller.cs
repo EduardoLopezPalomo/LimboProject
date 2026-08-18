@@ -44,6 +44,11 @@ public class EnemiesGroupContoller : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        Debug.Log("numero de tokens: " + currentToken);
+    }
+
     public bool RequestToken()
     {
         if (currentToken > 0)
