@@ -28,8 +28,6 @@ public class EnemyWeaponDamage : MonoBehaviour
     
     private GameplayEffectManager OwnEffectManager;
     private AttributeSystem OwnAttributeSystem;
-    private CharacterVFX vfx;
-    private CharacterSFX sfx;
     
     private bool AlreadyHitPlayer = false;
 
@@ -38,8 +36,6 @@ public class EnemyWeaponDamage : MonoBehaviour
         impulseSource = GetComponent<CinemachineImpulseSource>();
         OwnEffectManager = owner.GetComponent<GameplayEffectManager>();
         OwnAttributeSystem = owner.GetComponent<AttributeSystem>();
-        vfx = owner.GetComponent<CharacterVFX>();
-        sfx = owner.GetComponent<CharacterSFX>();
     }
 
     void OnTriggerEnter(Collider other)
@@ -78,8 +74,6 @@ public class EnemyWeaponDamage : MonoBehaviour
 
     private void GetParried()
     {
-        vfx.SpawnVFX(VFXType.Counter);
-        sfx.SpawnSFX(SFXType.Counter);
         OwnEffectManager.ApplyEffect(GetParriedEffect, OwnAttributeSystem);
     }
 
