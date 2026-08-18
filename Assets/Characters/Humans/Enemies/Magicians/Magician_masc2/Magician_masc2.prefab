@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15f5323fbd2cdc841be6ecee68d92fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetection
-  maxDetectionDistance: 9
+  maxDetectionDistance: 15
 --- !u!135 &4968460442902259284
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -286,7 +286,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 7
+  m_Radius: 13
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &783478826650162329
 GameObject:
@@ -4833,6 +4833,9 @@ GameObject:
   - component: {fileID: -4941260398511975143}
   - component: {fileID: 2587402347897766148}
   - component: {fileID: 4028489559238283640}
+  - component: {fileID: 1987791986266355441}
+  - component: {fileID: 2631248771788614475}
+  - component: {fileID: 1902869559671289948}
   m_Layer: 9
   m_Name: Magician_masc2
   m_TagString: Enemy
@@ -4857,6 +4860,7 @@ Transform:
   - {fileID: 8055193956679608898}
   - {fileID: 6198627395378442661}
   - {fileID: 4765944532925825413}
+  - {fileID: 4833463324180060306}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8547282852509392732
@@ -4972,6 +4976,10 @@ MonoBehaviour:
   - rid: 1614916645549506737
   - rid: 8560592100459021135
   - rid: 8560592480553926734
+  - rid: 1844794009222381668
+  - rid: 1844794009222381669
+  - rid: 1844794009222381670
+  - rid: 1844794009222381671
   m_OriginalGraph: {fileID: -2958111290060846793, guid: 33ae0d60adde7194882dbb2e28077960, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -5032,7 +5040,7 @@ MonoBehaviour:
         GUID:
           m_Value0: 12637027562592827473
           m_Value1: 9823718843191853163
-        Name: PlayerDistance
+        Name: GoingToPlayer
         m_Value: {fileID: -4530090269254476736}
     - rid: 1614916578180072004
       type: {class: 'BlackboardVariable`1[[EscapeFromPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
@@ -5067,6 +5075,38 @@ MonoBehaviour:
           m_Value1: 17876034671777373627
         Name: TokenTimer
         m_Value: {fileID: -8117753490586081076}
+    - rid: 1844794009222381668
+      type: {class: 'BlackboardVariable`1[[AttributeSystem, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 12976874696391159096
+          m_Value1: 17225186705679062242
+        Name: AttributeSystem
+        m_Value: {fileID: -198543202162107}
+    - rid: 1844794009222381669
+      type: {class: 'BlackboardVariable`1[[GameplayEffectManager, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 6958740470069525657
+          m_Value1: 6079670964895027737
+        Name: EffectManager
+        m_Value: {fileID: 7767856166204830897}
+    - rid: 1844794009222381670
+      type: {class: 'BlackboardVariable`1[[GameplayEffect, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 15770611027958239576
+          m_Value1: 14827565554793662659
+        Name: FullResistanceEffect
+        m_Value: {fileID: 11400000, guid: 7404ec80d5f43504c873e539a4b20ccc, type: 2}
+    - rid: 1844794009222381671
+      type: {class: 'BlackboardVariable`1[[CharacterVFX, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 13285137573718150307
+          m_Value1: 7109698515116529986
+        Name: CharacterVFX
+        m_Value: {fileID: 1987791986266355441}
     - rid: 8560592100459021135
       type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -5097,6 +5137,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
   - {fileID: 11400000, guid: 77a8799e987e3e945911ad265dd12efe, type: 2}
+  - {fileID: 11400000, guid: de2f3f3a4fbcce349aaac3d36c56caa0, type: 2}
+  - {fileID: 11400000, guid: 5f17f5b0a734a4b46b1d8e665cb28420, type: 2}
+  - {fileID: 11400000, guid: c44824d6c8a711e428c311212b910b74, type: 2}
 --- !u!114 &-198543202162107
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5110,7 +5153,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttributeSystem
   attributes:
-  - Data: {fileID: 11400000, guid: 699c50be6cbeb5d4ebab9264bff5ef41, type: 2}
+  - Data: {fileID: 11400000, guid: 7e539b40f63abee4886c8af5cede73ee, type: 2}
+  - Data: {fileID: 11400000, guid: 64a36f350e735cb4cb8bbf07ffc4a6f7, type: 2}
 --- !u!114 &-2436974035540441189
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5249,6 +5293,11 @@ MonoBehaviour:
   rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
   speed: 1.5
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
 --- !u!114 &-8117753490586081076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5261,8 +5310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4028b501e435cc1479fb25589f2dcda2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
-  cooldownTimeMin: 3
-  cooldownTimeMax: 6
+  cooldownTimeMin: 8
+  cooldownTimeMax: 14
   controller: {fileID: 0}
 --- !u!114 &-4941260398511975143
 MonoBehaviour:
@@ -5290,6 +5339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnockBack
   KnockBackOffsetTime: 2
+  NotMove: 0
 --- !u!114 &4028489559238283640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5303,6 +5353,57 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
   controller: {fileID: 0}
+--- !u!114 &1987791986266355441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005090487837315844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717ba0e38f326314fa621edeaaa007be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
+  vfxSpawnPoint: {fileID: 4833463324180060306}
+  VFXDefinitions:
+  - {fileID: 11400000, guid: 978f204cca243d14fbf3255a71b7b857, type: 2}
+  - {fileID: 11400000, guid: 8fa7998440375ff48a12c4aa4729aeed, type: 2}
+  - {fileID: 11400000, guid: 1d101655c90cd1b4388d8a3a1eaf02b4, type: 2}
+  - {fileID: 11400000, guid: 6afb081f487a3c14fa517b86b6e0c25a, type: 2}
+  - {fileID: 11400000, guid: 98992a57792d88f41a69fe1ea36001c3, type: 2}
+--- !u!114 &2631248771788614475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005090487837315844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6cecb02f62c4341855e27edfb4c95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSFX
+  SFXDefinitions:
+  - {fileID: 11400000, guid: da76addbe716c3c4aa1416db13912d41, type: 2}
+  - {fileID: 11400000, guid: 700b314b7e00a0f4d9c3de66cfcaa3e0, type: 2}
+  - {fileID: 11400000, guid: c191a04a84741c94dba5646710bb23b8, type: 2}
+--- !u!114 &1902869559671289948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8005090487837315844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  iconSize: 3
+  heightOffset: 3
+  minimapLayerName: MinimapIcon
 --- !u!1 &8043035523158865297
 GameObject:
   m_ObjectHideFlags: 0
@@ -5504,6 +5605,37 @@ Transform:
   - {fileID: 3984001528136344909}
   - {fileID: 5301387954806056782}
   - {fileID: 272021874158137816}
+  m_Father: {fileID: 2839736470150029089}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8472593044183789481
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4833463324180060306}
+  m_Layer: 9
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4833463324180060306
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8472593044183789481}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.04, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
   m_Father: {fileID: 2839736470150029089}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8577015822128329522
@@ -5971,7 +6103,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 13
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_LocalPosition.x
