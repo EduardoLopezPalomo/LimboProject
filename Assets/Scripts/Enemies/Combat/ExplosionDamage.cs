@@ -13,6 +13,8 @@ public class ExplosionDamage : MonoBehaviour
     [SerializeField] private GameplayEffect BlockedEffect;
     [SerializeField] private string ObjectToDamage;
     
+    [Header("Sound")]
+    [SerializeField] private SFXDefinition def;
 
     private bool isIn = false;
     private float tickTimer = 0f;
@@ -30,6 +32,11 @@ public class ExplosionDamage : MonoBehaviour
     private void OnDisable()
     {
         isIn = false;
+    }
+
+    private void OnEnable()
+    {
+        SoundFXManager.instance.PlaySoundRandomPitch(def.sfx, transform, def.volume, def.minPitch, def.maxPitch);
     }
 
     void OnTriggerEnter(Collider other)
