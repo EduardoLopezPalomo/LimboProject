@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 public class EnemyGraphBridge : MonoBehaviour
 {
+    public static event System.Action<GameObject> OnDeath;
     private BehaviorGraphAgent agent;
 
     void Awake()
@@ -54,6 +55,8 @@ public class EnemyGraphBridge : MonoBehaviour
         {
             agent.BlackboardReference.SetVariableValue("ActualState", BarbarianState.Death);
         }
+
+        OnDeath?.Invoke(gameObject);
         DisableAllExceptRenderer();
     }
     
