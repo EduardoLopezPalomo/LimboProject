@@ -6,9 +6,9 @@ using UnityEngine.Animations;
 public class BowAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private RootMotionController rootMotion;
     private RotateToPlayer rotateToPlayer;
     private BowController weaponController;
+    private CharacterSFX characterSFX;
     private GameObject arrow;
     private ArrowTrayectory arrowPath;
     private float arrowSpeed;
@@ -17,7 +17,7 @@ public class BowAttackSpec : GameplayAbilitySpec
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        rootMotion = owner.GetComponent<RootMotionController>();
+        characterSFX = owner.GetComponent<CharacterSFX>();
         weaponController = owner.GetComponent<BowController>();
         rotateToPlayer = owner.GetComponent<RotateToPlayer>();
         this.arrow = arrow;
@@ -46,6 +46,13 @@ public class BowAttackSpec : GameplayAbilitySpec
 
     }
 
+    public override void EndAbility()
+    {
+        base.EndAbility();
+        animator.SetBool("InCombo", false);
+        AlreadyShoot();
+    }
+
     // Animation Events
 
     public void AlreadyShoot()
@@ -64,7 +71,7 @@ public class BowAttackSpec : GameplayAbilitySpec
     public void ShootArrow()
     {
         arrowPath?.Hide();
-        
+        characterSFX.SpawnSFX(SFXType.Attack);
         GameObject newArrow = Object.Instantiate(arrow, weaponController.RightHandSlot.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.LookRotation(owner.transform.forward));
         ArrowMovement arrowMovement = newArrow.GetComponent<ArrowMovement>();
         if (arrowMovement != null)
@@ -72,6 +79,8 @@ public class BowAttackSpec : GameplayAbilitySpec
             arrowMovement.Init(owner);
             arrowMovement.Shoot(owner.transform.forward);   
         }
+        
+        EndAbility();
     }
 
 }

@@ -40,13 +40,41 @@ public class GoingToPlayer : MonoBehaviour
         
         currentSlot = SlotsManager.Instance.GetBestFreeSlot(gameObject, slotType);
         
+        if (currentSlot == null)
+        {
+            Debug.LogWarning("No slot found");
+            return GetPlayerPosition();
+        }
+
+        if (rotateAlongPlayer != null)
+        {
+            rotateAlongPlayer.SetReservedSlot(currentSlot);    
+        }
+        
+        return currentSlot.position;
+    }
+
+    public Vector3 GetRandomSlot()
+    {
         if (currentSlot != null)
         {
-            rotateAlongPlayer.SetReservedSlot(currentSlot);
             return currentSlot.position;
         }
-        Debug.LogWarning("No slot found");
-        return GetPlayerPosition();
+        
+        currentSlot = SlotsManager.Instance.GetRandomSlot(gameObject, slotType);
+        
+        if (currentSlot == null)
+        {
+            Debug.LogWarning("No slot found");
+            return GetPlayerPosition();
+        }
+
+        if (rotateAlongPlayer != null)
+        {
+            rotateAlongPlayer.SetReservedSlot(currentSlot);    
+        }
+        
+        return currentSlot.position;
     }
 
     public Vector3 GetActualSlot()

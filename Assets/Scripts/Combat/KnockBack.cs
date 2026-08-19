@@ -72,6 +72,10 @@ public class KnockBack : MonoBehaviour
         CanKnockBack = true;
         if (CompareTag("Player"))
         {
+            if (abilityHolder.IsAbilityActive("Parry"))
+            {
+                abilityHolder.CancelAbility("Parry");
+            }
             makeInvincible.SetInvincible(false);   
         }
     }

@@ -18,12 +18,6 @@ public class PlayerHealthResponse : GeneralHealthResponse
         }
         
         if (!CanResponse) return;
-        
-        AbilityHolder abilityHolder = owner.GetComponent<AbilityHolder>();
-        if (abilityHolder && abilityHolder.IsAbilityActive("Parry"))
-        {
-            abilityHolder.CancelAbility("Parry");
-        }
 
         KnockBack knockBack = owner.GetComponent<KnockBack>();
         if (knockBack)
