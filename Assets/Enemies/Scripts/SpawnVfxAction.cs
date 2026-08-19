@@ -16,7 +16,7 @@ public partial class SpawnVfxAction : Action
     protected override Status OnStart()
     {
         var (chosen, vfxInstance) = CharacterVFX.Value.SpawnRandomVFX(Type.Value);
-        
+        Debug.Log($"[VFX] {Time.time:F2}s {CharacterVFX.Value.gameObject.name} entra a castear");
         VFX.Value = vfxInstance;
         
         switch (chosen?.variantId)
