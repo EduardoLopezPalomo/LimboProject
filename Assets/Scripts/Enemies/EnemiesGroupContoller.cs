@@ -48,11 +48,11 @@ public class EnemiesGroupContoller : MonoBehaviour
     {
         if (currentToken > 0)
         {
-            Debug.Log($"[Token] {Time.time:F2}s PEDIDO -> quedan {currentToken}");
+            //Debug.Log($"[Token] {Time.time:F2}s PEDIDO -> quedan {currentToken}");
             currentToken--;
             return true;
         }
-        Debug.Log($"[Token] {Time.time:F2}s DENEGADO -> quedan {currentToken}");
+        //Debug.Log($"[Token] {Time.time:F2}s DENEGADO -> quedan {currentToken}");
         return false;
     }
 
@@ -60,7 +60,7 @@ public class EnemiesGroupContoller : MonoBehaviour
     {
         currentToken++;
         currentToken = Mathf.Clamp(currentToken, 0, maxTokens);
-        Debug.Log($"[Token] {Time.time:F2}s DEVUELTO -> quedan {currentToken}");
+        //Debug.Log($"[Token] {Time.time:F2}s DEVUELTO -> quedan {currentToken}");
     }
 
     public void AlertGroup(GameObject alerter)
