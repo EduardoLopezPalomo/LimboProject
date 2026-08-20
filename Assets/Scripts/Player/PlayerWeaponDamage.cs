@@ -161,6 +161,12 @@ public class PlayerWeaponDamage : MonoBehaviour
             effectManager.ApplyEffect(CounterEffect, attributeSystem);
             return;
         }
+        
+        MakeInvincible invincible = other.gameObject.GetComponentInParent<MakeInvincible>();
+        if (invincible && invincible.IsInvincible())
+        {
+            return;
+        }
 
         GameplayEffectManager effectmanager = other.gameObject.GetComponentInParent<GameplayEffectManager>();
         AttributeSystem AS = other.gameObject.GetComponentInParent<AttributeSystem>();

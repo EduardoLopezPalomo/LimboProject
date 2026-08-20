@@ -263,8 +263,13 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 dashSpec.EndDash();
             }
+            if (spec is ArcherDashSpec archerDashSpec)
+            {
+                archerDashSpec.EndDash();
+            }
         }
     }
+    
     /*
      * Notifies of Mage Counter
      *

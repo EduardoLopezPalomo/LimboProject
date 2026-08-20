@@ -18,6 +18,7 @@ public class BowAttackSpec : GameplayAbilitySpec
     private GameObject SpecialArrow;
     private ArrowTrayectory arrowPath;
     private GameplayEffect SpecialEffect;
+    private VFXDefinition ChargeArrowVfx;
     
     private float arrowSpeed;
     private float specialArrowSpeed;
@@ -27,7 +28,7 @@ public class BowAttackSpec : GameplayAbilitySpec
     private bool SpecialAttack = false;
     private float ResistanceNeeded;
 
-    public BowAttackSpec(GameplayAbility ability, GameObject owner,  GameObject arrow, GameObject specialArrow, float probSpecial, GameplayEffect effect)
+    public BowAttackSpec(GameplayAbility ability, GameObject owner,  GameObject arrow, GameObject specialArrow, float probSpecial, GameplayEffect effect, VFXDefinition charge)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -36,6 +37,7 @@ public class BowAttackSpec : GameplayAbilitySpec
         rotateToPlayer = owner.GetComponent<RotateToPlayer>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
         effectManager = owner.GetComponent<GameplayEffectManager>();
+        ChargeArrowVfx = charge;
         this.arrow = arrow;
         SpecialArrow = specialArrow;
         arrowPath = owner.GetComponentInChildren<ArrowTrayectory>();
@@ -59,9 +61,11 @@ public class BowAttackSpec : GameplayAbilitySpec
         ComboIndex = 1;
         rotateToPlayer.IsShooting = false;
         weaponController.EnableConstaint();
+        weaponController.EquipWeapon();
         
         if (CanDoSpecialAttack())
         {
+            VFXManager.Instance.Play(ChargeArrowVfx, weaponController.RightHandSlot.transform.position, Quaternion.identity, weaponController.RightHandSlot);
             effectManager.ApplyEffect(SpecialEffect, attributeSystem);
             SpecialAttack = true;
             animator.SetTrigger("SpecialAttack"); 
@@ -108,6 +112,7 @@ public class BowAttackSpec : GameplayAbilitySpec
     public void AlreadyShoot()
     {
         weaponController.DisableConstaint();
+        weaponController.UnequipWeapon();
     }
 
     public void ShowArrowPath()
