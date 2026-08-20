@@ -21,7 +21,7 @@ public class ArrowTrayectory : MonoBehaviour
         lineRenderer.enabled = false;
     }
 
-    public void Show(Transform transform, float speed)
+    public void Show(Transform transform, float speed, bool special)
     {
         this.originTransform = transform;
         this.directionSource = transform;
@@ -30,7 +30,14 @@ public class ArrowTrayectory : MonoBehaviour
         
         lineRenderer.enabled = true;
         lineRenderer.positionCount = resolution;
-        colorAnimator.SetTrigger("ShowTrayectory");
+        if (special)
+        {
+            colorAnimator.SetTrigger("SpecialShowTrayectory");  
+        }
+        else
+        {
+            colorAnimator.SetTrigger("ShowTrayectory");   
+        }
     }
 
     private void Update()

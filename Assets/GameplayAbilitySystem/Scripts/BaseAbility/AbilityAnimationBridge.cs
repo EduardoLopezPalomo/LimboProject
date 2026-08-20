@@ -183,18 +183,6 @@ public class AbilityAnimationBridge : MonoBehaviour
             }
         }
     }
-    
-    public void EndBowAbility()
-    {
-        foreach (var spec in currentSpec.ToList())
-        {
-            if (spec is BowAttackSpec barbarianAttackSpec)
-            {
-                barbarianAttackSpec.EndAbility();
-            }
-            
-        }
-    }
 
     /*
     * Notifies of AreaRayAttack

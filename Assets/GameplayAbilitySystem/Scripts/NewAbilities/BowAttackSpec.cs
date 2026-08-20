@@ -1,40 +1,78 @@
-﻿using StarterAssets;
+﻿using System;
+using StarterAssets;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Animations;
+using Object = UnityEngine.Object;
+using Random = UnityEngine.Random;
 
 public class BowAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private RotateToPlayer rotateToPlayer;
     private BowController weaponController;
+    private AttributeSystem attributeSystem;
+    private GameplayEffectManager effectManager;
     private CharacterSFX characterSFX;
     private GameObject arrow;
+    private GameObject SpecialArrow;
     private ArrowTrayectory arrowPath;
+    private GameplayEffect SpecialEffect;
+    
     private float arrowSpeed;
+    private float specialArrowSpeed;
+    private float probSpecialAttack;
 
-    public BowAttackSpec(GameplayAbility ability, GameObject owner,  GameObject arrow)
+    private int ComboIndex = 1;
+    private bool SpecialAttack = false;
+    private float ResistanceNeeded;
+
+    public BowAttackSpec(GameplayAbility ability, GameObject owner,  GameObject arrow, GameObject specialArrow, float probSpecial, GameplayEffect effect)
         : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         characterSFX = owner.GetComponent<CharacterSFX>();
         weaponController = owner.GetComponent<BowController>();
         rotateToPlayer = owner.GetComponent<RotateToPlayer>();
+        attributeSystem = owner.GetComponent<AttributeSystem>();
+        effectManager = owner.GetComponent<GameplayEffectManager>();
         this.arrow = arrow;
+        SpecialArrow = specialArrow;
         arrowPath = owner.GetComponentInChildren<ArrowTrayectory>();
+        
+        SpecialEffect = effect;
+        probSpecialAttack = probSpecial;
+        ResistanceNeeded = Math.Abs(SpecialEffect.Value);
         
         ArrowMovement arrowMovementPrefab = arrow.GetComponent<ArrowMovement>();
         if (arrowMovementPrefab != null)
             arrowSpeed = arrowMovementPrefab.InitialSpeed;
+        
+        ArrowMovement specialArrowMovementPrefab = SpecialArrow.GetComponent<ArrowMovement>();
+        if (specialArrowMovementPrefab != null)
+            specialArrowSpeed = specialArrowMovementPrefab.InitialSpeed;
     }
 
     public override void ActivateAbility()
     {
         base.ActivateAbility();
+        ComboIndex = 1;
         rotateToPlayer.IsShooting = false;
         weaponController.EnableConstaint();
-        animator.SetBool("InCombo", true);
-        animator.SetTrigger("Attack"); 
+        
+        if (CanDoSpecialAttack())
+        {
+            effectManager.ApplyEffect(SpecialEffect, attributeSystem);
+            SpecialAttack = true;
+            animator.SetTrigger("SpecialAttack"); 
+        }
+        else
+        {
+            SpecialAttack = false;
+            animator.SetBool("InCombo", true);
+            animator.SetInteger("ComboIndex", ComboIndex);
+            animator.SetTrigger("Attack");    
+        }
     }
     
     public override void CancelAbility()
@@ -53,26 +91,38 @@ public class BowAttackSpec : GameplayAbilitySpec
         AlreadyShoot();
     }
 
+    private bool CanDoSpecialAttack()
+    {
+        float resistance = attributeSystem.GetAttributeValue("BlockResistance");
+
+        if (resistance > ResistanceNeeded)
+        {
+            return Random.value < probSpecialAttack;
+        }
+        
+        return false;
+    }
+
     // Animation Events
 
     public void AlreadyShoot()
     {
         weaponController.DisableConstaint();
-        rotateToPlayer.IsShooting = true;
     }
 
     public void ShowArrowPath()
     {
         if (arrowPath == null) return;
         
-        arrowPath.Show(owner.transform, arrowSpeed);
+        arrowPath.Show(owner.transform, SpecialAttack ? specialArrowSpeed : arrowSpeed, SpecialAttack);
     }
     
     public void ShootArrow()
     {
         arrowPath?.Hide();
         characterSFX.SpawnSFX(SFXType.Attack);
-        GameObject newArrow = Object.Instantiate(arrow, weaponController.RightHandSlot.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.LookRotation(owner.transform.forward));
+        
+        GameObject newArrow = Object.Instantiate(SpecialAttack ? SpecialArrow : arrow, weaponController.RightHandSlot.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.LookRotation(owner.transform.forward));
         ArrowMovement arrowMovement = newArrow.GetComponent<ArrowMovement>();
         if (arrowMovement != null)
         {
@@ -80,6 +130,13 @@ public class BowAttackSpec : GameplayAbilitySpec
             arrowMovement.Shoot(owner.transform.forward);   
         }
         
+        if (ComboIndex < 3 && !SpecialAttack)
+        {
+            animator.SetInteger("ComboIndex", ++ComboIndex);
+            return;
+        }
+        
+        rotateToPlayer.IsShooting = true;
         EndAbility();
     }
 
