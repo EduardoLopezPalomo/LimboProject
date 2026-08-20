@@ -6,7 +6,6 @@ using UnityEngine.Animations;
 public class HealTargetSpec : GameplayAbilitySpec
 {
     private Animator animator;
-    private RootMotionController rootMotion;
     private ParticleController particleController;
     private GameplayEffect healEffect;
     
@@ -21,7 +20,6 @@ public class HealTargetSpec : GameplayAbilitySpec
     public HealTargetSpec(GameplayAbility ability, GameObject owner, int maxEnemiesDetection, float radius, GameplayEffect healEffect, GameObject healAreaPrefab, float minHealtStart) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
-        rootMotion = owner.GetComponent<RootMotionController>();
         particleController = owner.GetComponent<ParticleController>();
         results = new Collider[maxEnemiesDetection];
         radiusDetection = radius;
@@ -50,15 +48,15 @@ public class HealTargetSpec : GameplayAbilitySpec
 
             if (results[i].gameObject.CompareTag("Enemy"))
             {
-                if(attributeSystem.GetAttributeValue("Health") < minHealth && attributeSystem.GetAttributeValue("Health") <= minHealthToStart)
+                if(CheckHealth(attributeSystem, minHealth))
                 {
-                    minHealth = attributeSystem.GetAttributeValue("Health");
+                    minHealth = attributeSystem.GetAttributeValue("EnemyHealth");
                     enemySelected = i;
                 }
             }
         }
         AttributeSystem myAttributeSystem = owner.GetComponent<AttributeSystem>();
-        if (myAttributeSystem.GetAttributeValue("Health") < minHealth && myAttributeSystem.GetAttributeValue("Health") <= minHealthToStart)
+        if (CheckHealth(myAttributeSystem, minHealth))
         {
             finalEffectManager = owner.GetComponent<GameplayEffectManager>();
             finalAttributeSystem = myAttributeSystem;
@@ -80,7 +78,20 @@ public class HealTargetSpec : GameplayAbilitySpec
         animator.SetBool("IsHealing", true);
         animator.SetTrigger("Attack"); 
     }
-    
+
+    public override void EndAbility()
+    {
+        base.EndAbility();
+        animator.SetBool("IsHealing", false);
+    }
+
+    private bool CheckHealth(AttributeSystem attributeSystem, float minHealth)
+    {
+        return attributeSystem.GetAttributeValue("EnemyHealth") < minHealth && //Is the enemy with the less health
+               attributeSystem.GetAttributeValue("EnemyHealth") <= minHealthToStart && //Is less than the minimun than we heal
+               attributeSystem.GetAttributeMaxValue("EnemyHealth") > attributeSystem.GetAttributeValue("EnemyHealth"); //Is not the maximun health
+    }
+
     private void ShowHealAreaVisual(Vector3 position, float duration)
     {
         GameObject healArea = Object.Instantiate(healAreaPrefab, position, Quaternion.identity);

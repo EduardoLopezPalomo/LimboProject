@@ -4595,6 +4595,10 @@ GameObject:
   - component: {fileID: -8257937539148979621}
   - component: {fileID: -4000460946866660656}
   - component: {fileID: 2018475082449871937}
+  - component: {fileID: 3838220964213695765}
+  - component: {fileID: 7026005106044380737}
+  - component: {fileID: 3659097776358253514}
+  - component: {fileID: 2033873668654633403}
   m_Layer: 9
   m_Name: Healer_fem2
   m_TagString: Enemy
@@ -4616,6 +4620,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8489565778190481574}
+  - {fileID: 4815981110635052901}
   - {fileID: 1567289772851226208}
   - {fileID: 9038080477953990522}
   - {fileID: 6919756879413445190}
@@ -4729,9 +4734,13 @@ MonoBehaviour:
   - rid: 1614916576206913850
   - rid: 1614916576206913851
   - rid: 1614916578180072004
-  - rid: 1614916601084117360
-  - rid: 8560592100459020301
+  - rid: 1844794063284338930
+  - rid: 1844794063284338929
   - rid: 1614917166982758400
+  - rid: 1844794063284338931
+  - rid: 1844794063284338932
+  - rid: 1844794063284338933
+  - rid: 1844794063284338934
   m_OriginalGraph: {fileID: -2958111290060846793, guid: eef2f88e9fb47514986fa59ce172bb76, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -4802,14 +4811,6 @@ MonoBehaviour:
           m_Value1: 3069624393637172234
         Name: EscapeFromPlayer
         m_Value: {fileID: -3300509386698205605}
-    - rid: 1614916601084117360
-      type: {class: 'BlackboardVariable`1[[RotateToTarget, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
-      data:
-        GUID:
-          m_Value0: 12909123727790776133
-          m_Value1: 6494935926313107199
-        Name: RotateToTarget
-        m_Value: {fileID: -7187684417469067297}
     - rid: 1614917166982758400
       type: {class: 'BlackboardVariable`1[[UnityEngine.Transform, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -4817,15 +4818,55 @@ MonoBehaviour:
           m_Value0: 17634765970141744992
           m_Value1: 5376146610687502844
         Name: InitialPosition
-        m_Value: {fileID: 0}
-    - rid: 8560592100459020301
-      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+        m_Value: {fileID: 2763383873708685702}
+    - rid: 1844794063284338929
+      type: {class: 'BlackboardVariable`1[[GameplayEffectManager, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 3536530447351579323
-          m_Value1: 11091600020236536856
-        Name: SlotUpdate
-        m_Value: {fileID: -8257937539148979621}
+          m_Value0: 12584882081302474945
+          m_Value1: 2649530120565194283
+        Name: EffectManager
+        m_Value: {fileID: 8863566584766534224}
+    - rid: 1844794063284338930
+      type: {class: 'BlackboardVariable`1[[AttributeSystem, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5393025539553824252
+          m_Value1: 9122818427033526345
+        Name: AttributeSystem
+        m_Value: {fileID: -4905975338600976404}
+    - rid: 1844794063284338931
+      type: {class: 'BlackboardVariable`1[[GameplayEffect, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 863522514751963620
+          m_Value1: 10264178647270243652
+        Name: FullResistance
+        m_Value: {fileID: 11400000, guid: a5ec0d1ce3a4c3349a7ae49923aa64fe, type: 2}
+    - rid: 1844794063284338932
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 7427937650615993382
+          m_Value1: 5335938379004818785
+        Name: Player
+        m_Value: {fileID: 0}
+    - rid: 1844794063284338933
+      type: {class: 'BlackboardVariable`1[[EnemiesGroupContoller, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5331786886119825746
+          m_Value1: 15007439603276653506
+        Name: EnemiesController
+        m_Value: {fileID: 0}
+    - rid: 1844794063284338934
+      type: {class: 'BlackboardVariable`1[[RotateAlongPlayer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 4376837252506481149
+          m_Value1: 9305387914991939788
+        Name: RotateAlongPlayer
+        m_Value: {fileID: 3838220964213695765}
 --- !u!114 &11835431302732717
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4853,7 +4894,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttributeSystem
   attributes:
-  - Data: {fileID: 11400000, guid: 699c50be6cbeb5d4ebab9264bff5ef41, type: 2}
+  - Data: {fileID: 11400000, guid: a38437c6fc4629f479bad29fd5cf1a02, type: 2}
+  - Data: {fileID: 11400000, guid: 899f3c4fe66abcc4f81d1220dbdf66f1, type: 2}
 --- !u!114 &-1188355814197897377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4960,7 +5002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GoingToPlayer
   player: {fileID: 0}
   offsetPosiiton: 1
-  slotType: 0
+  slotType: 2
 --- !u!114 &-3300509386698205605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4975,7 +5017,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScapeFromPlayer
   escapeDistance: 5
   randomAngleRange: 30
-  player: {fileID: 0}
+  player: {fileID: 2763383873708685702}
 --- !u!114 &-3047506422397050255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5030,6 +5072,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnockBack
   KnockBackOffsetTime: 2
+  NotMove: 0
 --- !u!114 &2018475082449871937
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5042,6 +5085,79 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
+  controller: {fileID: 0}
+--- !u!114 &3838220964213695765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6391740308426341738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542ab653d1241c2488cb4bf6b232630b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
+  player: {fileID: 0}
+  rotationSpeedAlongPlayer: 10
+  selfRotationSpeed: 60
+  speed: 1.5
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
+--- !u!114 &7026005106044380737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6391740308426341738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717ba0e38f326314fa621edeaaa007be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
+  vfxSpawnPoint: {fileID: 4815981110635052901}
+  VFXDefinitions:
+  - {fileID: 11400000, guid: 6afb081f487a3c14fa517b86b6e0c25a, type: 2}
+--- !u!114 &3659097776358253514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6391740308426341738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6cecb02f62c4341855e27edfb4c95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSFX
+  SFXDefinitions:
+  - {fileID: 11400000, guid: 2a94fe2070cb6924aa45c67ca098beac, type: 2}
+  - {fileID: 11400000, guid: 10a070bfaabe4f847a69793186e131ab, type: 2}
+  - {fileID: 11400000, guid: fc2c884863510124e9ebe1f3fc704548, type: 2}
+  - {fileID: 11400000, guid: 66900e92e826528488916dbd20213207, type: 2}
+  - {fileID: 11400000, guid: 2e99bfe208f4f4f4fa1e6f1c446dc97e, type: 2}
+  - {fileID: 11400000, guid: 8c2094c647dd52846aed5f51b59b2cf9, type: 2}
+  - {fileID: 11400000, guid: b1cc26eec409da34dac8498fcc2ff41e, type: 2}
+--- !u!114 &2033873668654633403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6391740308426341738}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  iconSize: 3
+  heightOffset: 3
+  minimapLayerName: MinimapIcon
 --- !u!1 &6631012798781299531
 GameObject:
   m_ObjectHideFlags: 0
@@ -5503,6 +5619,37 @@ Transform:
   - {fileID: 2824961482668150337}
   m_Father: {fileID: 8926852059969922785}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7905752617774780753
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4815981110635052901}
+  m_Layer: 9
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4815981110635052901
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7905752617774780753}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.04, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2763383873708685702}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8280206675976251139
 GameObject:
   m_ObjectHideFlags: 0
@@ -5844,7 +5991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 13
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_LocalPosition.x
