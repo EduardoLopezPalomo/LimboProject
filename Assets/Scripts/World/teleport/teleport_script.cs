@@ -17,12 +17,15 @@ public class teleport_script : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             popUp.SetActive(true);
+            PopUpUI popUpUI = popUp.GetComponent<PopUpUI>();
 
             playerInput = other.GetComponent<PlayerInput>();
 
-            if (playerInput != null)
+            if (playerInput != null && popUpUI != null)
             {
                 playerInput.SwitchCurrentActionMap("UI");
+                popUpUI.SetVariables(PartyOn, playerInput, sceneName);
+                
             }
 
             EventSystem.current.SetSelectedGameObject(botonAceptar);
@@ -30,29 +33,5 @@ public class teleport_script : MonoBehaviour
 
 
         }
-    }
-
-    public void Confirmar()
-    {
-        if (PartyOn)
-        {
-            SceneManager.LoadScene("Party");
-        }
-        else
-        {
-            SceneManager.LoadScene(sceneName);
-        }
-    }
-
-    public void Cancelar()
-    {
-        popUp.SetActive(false);
-
-        if (playerInput != null)
-        {
-            playerInput.SwitchCurrentActionMap("Player");
-        }
-
-        PauseGameManager.ResumeGame();
     }
 }
