@@ -1023,12 +1023,15 @@ GameObject:
   - component: {fileID: 3273812857631822002}
   - component: {fileID: 4965247634113563101}
   - component: {fileID: -238106288880508285}
-  - component: {fileID: 3264724006373277965}
+  - component: {fileID: 3292253412350873316}
   - component: {fileID: -5869575815813251640}
   - component: {fileID: 8220766991405747047}
   - component: {fileID: -5499136742354781431}
   - component: {fileID: -5740021339558814518}
   - component: {fileID: 621123835884154329}
+  - component: {fileID: 3787915829401494050}
+  - component: {fileID: 317741669742931162}
+  - component: {fileID: 4933720536501759279}
   m_Layer: 9
   m_Name: Shield_fem1
   m_TagString: Enemy
@@ -1050,6 +1053,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2893749511143217433}
+  - {fileID: 5567017581437357484}
   - {fileID: 633839177264850883}
   - {fileID: 4546789950788520440}
   - {fileID: 1592565860257885859}
@@ -1165,8 +1169,11 @@ MonoBehaviour:
   - rid: 1614916623133835926
   - rid: 1614916623767437799
   - rid: 1614916623834284928
-  - rid: 1614916645701812494
-  - rid: 8560592100580918112
+  - rid: 1844794081618690331
+  - rid: 1844794081618690332
+  - rid: 1844794078996987996
+  - rid: 1844794081618690333
+  - rid: 1844794081618690334
   m_OriginalGraph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1204,7 +1211,7 @@ MonoBehaviour:
           m_Value0: 3598534286386443963
           m_Value1: 12952071848035278286
         Name: InitialPosition
-        m_Value: {fileID: 0}
+        m_Value: {fileID: 7932194839198220819}
     - rid: 1614916533857026855
       type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1253,22 +1260,46 @@ MonoBehaviour:
           m_Value1: 2113616804317589529
         Name: ShieldController
         m_Value: {fileID: -5869575815813251640}
-    - rid: 1614916645701812494
-      type: {class: 'BlackboardVariable`1[[TokenTimer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+    - rid: 1844794078996987996
+      type: {class: 'BlackboardVariable`1[[EnemiesGroupContoller, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 17417102069372451143
-          m_Value1: 11240515117120649055
-        Name: TokenTimer
-        m_Value: {fileID: -5499136742354781431}
-    - rid: 8560592100580918112
-      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+          m_Value0: 5430913981656827083
+          m_Value1: 17320190859890210742
+        Name: EnemeniesController
+        m_Value: {fileID: 0}
+    - rid: 1844794081618690331
+      type: {class: 'BlackboardVariable`1[[AttributeSystem, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 2363532909829855749
-          m_Value1: 11939950890635167585
-        Name: SlotUpdate
-        m_Value: {fileID: -5740021339558814518}
+          m_Value0: 18143511205850209561
+          m_Value1: 17649984623985260170
+        Name: AttributeSystem
+        m_Value: {fileID: -8533625019827878247}
+    - rid: 1844794081618690332
+      type: {class: 'BlackboardVariable`1[[GameplayEffectManager, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5348909629860328300
+          m_Value1: 9802643278780304592
+        Name: EffectManager
+        m_Value: {fileID: 612227908049207070}
+    - rid: 1844794081618690333
+      type: {class: 'BlackboardVariable`1[[EnemyShieldController, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 6205354813403661111
+          m_Value1: 1282133381431873921
+        Name: EnemyShieldController
+        m_Value: {fileID: 3292253412350873316}
+    - rid: 1844794081618690334
+      type: {class: 'BlackboardVariable`1[[GameplayEffect, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 17476415332775369540
+          m_Value1: 9614345156675782326
+        Name: FullResistance
+        m_Value: {fileID: 11400000, guid: a386d9d053be0cf46925c0f8b5983368, type: 2}
 --- !u!114 &5700772053698306932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1282,7 +1313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
-  - {fileID: 11400000, guid: 02b4e9b7c9ec66a4f80a03ad9056452f, type: 2}
+  - {fileID: 11400000, guid: 99ec58a0afbf49e4d931a873e7caef7d, type: 2}
 --- !u!114 &-8533625019827878247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1296,7 +1327,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttributeSystem
   attributes:
-  - Data: {fileID: 11400000, guid: 699c50be6cbeb5d4ebab9264bff5ef41, type: 2}
+  - Data: {fileID: 11400000, guid: 87d92075c21ce1d45a23d4e0ef93d931, type: 2}
+  - Data: {fileID: 11400000, guid: 017a665c0afa2bb48a8a4bdae866a85a, type: 2}
 --- !u!114 &-3866135316084880627
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1375,7 +1407,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
   MinAngle: 5
-  Speed: 50
+  Speed: 75
   player: {fileID: 0}
   hasPlayerRotate: 0
   IsShooting: 0
@@ -1420,7 +1452,7 @@ MonoBehaviour:
   RightHandSlot: {fileID: 7585013106583195971}
   weapon: {fileID: 2431227854741939796}
   WeaponDamage: {fileID: 0}
---- !u!114 &3264724006373277965
+--- !u!114 &3292253412350873316
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1429,13 +1461,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3020010846837214611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb7dcf80771f4d439e60d760c2c76fb, type: 3}
+  m_Script: {fileID: 11500000, guid: f49223c801bf08b4283ac21eab1b732a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyShieldController
   HipSlot: {fileID: 242046169636266370}
   RightHandSlot: {fileID: 8370690174730494631}
   weapon: {fileID: 8473637838140556480}
-  WeaponDamage: {fileID: 0}
 --- !u!114 &-5869575815813251640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1510,6 +1541,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
   controller: {fileID: 0}
+--- !u!114 &3787915829401494050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3020010846837214611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717ba0e38f326314fa621edeaaa007be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
+  vfxSpawnPoint: {fileID: 5567017581437357484}
+  VFXDefinitions:
+  - {fileID: 11400000, guid: d8b9a7398811e664593a975fbee8b8a9, type: 2}
+  - {fileID: 11400000, guid: 6afb081f487a3c14fa517b86b6e0c25a, type: 2}
+  - {fileID: 11400000, guid: 60e8c646ef3c914419954b3a9adb3ec8, type: 2}
+--- !u!114 &317741669742931162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3020010846837214611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6cecb02f62c4341855e27edfb4c95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSFX
+  SFXDefinitions:
+  - {fileID: 11400000, guid: da76addbe716c3c4aa1416db13912d41, type: 2}
+  - {fileID: 11400000, guid: 32897a3f2e09c304587eba4ff28d3a8c, type: 2}
+  - {fileID: 11400000, guid: ed30a029e3ecb1d459261172893a0a0d, type: 2}
+  - {fileID: 11400000, guid: a2d9b0f3f843fcf4dacd50f4e7a9667d, type: 2}
+  - {fileID: 11400000, guid: 2a94fe2070cb6924aa45c67ca098beac, type: 2}
+  - {fileID: 11400000, guid: 10a070bfaabe4f847a69793186e131ab, type: 2}
+  - {fileID: 11400000, guid: fc2c884863510124e9ebe1f3fc704548, type: 2}
+  - {fileID: 11400000, guid: 66900e92e826528488916dbd20213207, type: 2}
+  - {fileID: 11400000, guid: 2e99bfe208f4f4f4fa1e6f1c446dc97e, type: 2}
+  - {fileID: 11400000, guid: 8c2094c647dd52846aed5f51b59b2cf9, type: 2}
+  - {fileID: 11400000, guid: b1cc26eec409da34dac8498fcc2ff41e, type: 2}
+--- !u!114 &4933720536501759279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3020010846837214611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  iconSize: 3
+  heightOffset: 3
+  minimapLayerName: MinimapIcon
 --- !u!1 &3561784927767837932
 GameObject:
   m_ObjectHideFlags: 0
@@ -2725,6 +2813,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 566775253815263983}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6725058028086438121
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5567017581437357484}
+  m_Layer: 9
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5567017581437357484
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6725058028086438121}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.04, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7932194839198220819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6887136740852707867
 GameObject:
@@ -5786,7 +5905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15f5323fbd2cdc841be6ecee68d92fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetection
-  maxDetectionDistance: 9
+  maxDetectionDistance: 13
 --- !u!135 &2168503953541842980
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5806,7 +5925,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7690970357302995919
 GameObject:
@@ -6638,6 +6757,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyHealth
       objectReference: {fileID: 0}
+    - target: {fileID: 3287934325824570609, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4176439329765841778, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: followTarget
       value: 
@@ -6676,7 +6799,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 13
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_LocalPosition.x

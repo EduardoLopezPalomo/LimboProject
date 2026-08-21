@@ -805,7 +805,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15f5323fbd2cdc841be6ecee68d92fbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDetection
-  maxDetectionDistance: 9
+  maxDetectionDistance: 13
 --- !u!135 &6938239879002853984
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -825,7 +825,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 10
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2553868468917757336
 GameObject:
@@ -914,12 +914,15 @@ GameObject:
   - component: {fileID: -6268315780097241589}
   - component: {fileID: 654120528400376780}
   - component: {fileID: -2611088163934661123}
-  - component: {fileID: -6513088157469329657}
+  - component: {fileID: 1936020855837710869}
   - component: {fileID: 1217119155436664533}
   - component: {fileID: -4195912499063930402}
   - component: {fileID: -4226679488604016125}
   - component: {fileID: -8600658272353295577}
   - component: {fileID: 3679260539267436508}
+  - component: {fileID: 8516890520583022959}
+  - component: {fileID: 4435588879880659395}
+  - component: {fileID: 303820534651901842}
   m_Layer: 9
   m_Name: Shield_masc1
   m_TagString: Enemy
@@ -944,6 +947,7 @@ Transform:
   - {fileID: 8571080916993147666}
   - {fileID: 2906548560704410632}
   - {fileID: 3230960821388942134}
+  - {fileID: 2126920815962507987}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &304716241676186589
@@ -1056,8 +1060,11 @@ MonoBehaviour:
   - rid: 1614916623133835926
   - rid: 1614916623767437799
   - rid: 1614916623834284928
-  - rid: 1614916645701812494
-  - rid: 8560592100580918112
+  - rid: 1844794082118337307
+  - rid: 1844794082118337304
+  - rid: 1844794082118337308
+  - rid: 1844794082118337309
+  - rid: 1844794082118337310
   m_OriginalGraph: {fileID: 6858001970087869445, guid: af58a5b8fa4ea1848ba13836698c5cee, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -1095,7 +1102,7 @@ MonoBehaviour:
           m_Value0: 3598534286386443963
           m_Value1: 12952071848035278286
         Name: InitialPosition
-        m_Value: {fileID: 0}
+        m_Value: {fileID: 2188833426129800926}
     - rid: 1614916533857026855
       type: {class: 'BlackboardVariable`1[[AbilityHolder, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -1144,22 +1151,46 @@ MonoBehaviour:
           m_Value1: 2113616804317589529
         Name: ShieldController
         m_Value: {fileID: 1217119155436664533}
-    - rid: 1614916645701812494
-      type: {class: 'BlackboardVariable`1[[TokenTimer, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+    - rid: 1844794082118337304
+      type: {class: 'BlackboardVariable`1[[GameplayEffect, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 17417102069372451143
-          m_Value1: 11240515117120649055
-        Name: TokenTimer
-        m_Value: {fileID: -4226679488604016125}
-    - rid: 8560592100580918112
-      type: {class: 'BlackboardVariable`1[[SlotUpdate, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+          m_Value0: 17476415332775369540
+          m_Value1: 9614345156675782326
+        Name: FullResistance
+        m_Value: {fileID: 11400000, guid: a386d9d053be0cf46925c0f8b5983368, type: 2}
+    - rid: 1844794082118337307
+      type: {class: 'BlackboardVariable`1[[AttributeSystem, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
         GUID:
-          m_Value0: 2363532909829855749
-          m_Value1: 11939950890635167585
-        Name: SlotUpdate
-        m_Value: {fileID: -8600658272353295577}
+          m_Value0: 18143511205850209561
+          m_Value1: 17649984623985260170
+        Name: AttributeSystem
+        m_Value: {fileID: -7525397673705918479}
+    - rid: 1844794082118337308
+      type: {class: 'BlackboardVariable`1[[GameplayEffectManager, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5348909629860328300
+          m_Value1: 9802643278780304592
+        Name: EffectManager
+        m_Value: {fileID: 1245333988059209164}
+    - rid: 1844794082118337309
+      type: {class: 'BlackboardVariable`1[[EnemiesGroupContoller, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 5430913981656827083
+          m_Value1: 17320190859890210742
+        Name: EnemeniesController
+        m_Value: {fileID: 0}
+    - rid: 1844794082118337310
+      type: {class: 'BlackboardVariable`1[[EnemyShieldController, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 6205354813403661111
+          m_Value1: 1282133381431873921
+        Name: EnemyShieldController
+        m_Value: {fileID: 1936020855837710869}
 --- !u!114 &-1746405974777385580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1173,7 +1204,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
-  - {fileID: 11400000, guid: 02b4e9b7c9ec66a4f80a03ad9056452f, type: 2}
+  - {fileID: 11400000, guid: 99ec58a0afbf49e4d931a873e7caef7d, type: 2}
 --- !u!114 &-7525397673705918479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1187,7 +1218,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttributeSystem
   attributes:
-  - Data: {fileID: 11400000, guid: 699c50be6cbeb5d4ebab9264bff5ef41, type: 2}
+  - Data: {fileID: 11400000, guid: 87d92075c21ce1d45a23d4e0ef93d931, type: 2}
+  - Data: {fileID: 11400000, guid: 017a665c0afa2bb48a8a4bdae866a85a, type: 2}
 --- !u!114 &-1788992407006821851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1266,7 +1298,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateToPlayer
   MinAngle: 5
-  Speed: 50
+  Speed: 75
   player: {fileID: 0}
   hasPlayerRotate: 0
   IsShooting: 0
@@ -1310,7 +1342,8 @@ MonoBehaviour:
   HipSlot: {fileID: 7419771022297974013}
   RightHandSlot: {fileID: 6633848099629992782}
   weapon: {fileID: 6643415904795959132}
---- !u!114 &-6513088157469329657
+  WeaponDamage: {fileID: 0}
+--- !u!114 &1936020855837710869
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1319,9 +1352,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2583514649245828304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cb7dcf80771f4d439e60d760c2c76fb, type: 3}
+  m_Script: {fileID: 11500000, guid: f49223c801bf08b4283ac21eab1b732a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WeaponController
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyShieldController
   HipSlot: {fileID: 7568048805874309364}
   RightHandSlot: {fileID: 3047292123537466818}
   weapon: {fileID: 2685670206849619709}
@@ -1353,6 +1386,11 @@ MonoBehaviour:
   rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
   speed: 1
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
 --- !u!114 &-4226679488604016125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1367,6 +1405,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
   cooldownTimeMin: 3
   cooldownTimeMax: 6
+  controller: {fileID: 0}
 --- !u!114 &-8600658272353295577
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1392,6 +1431,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4177ebf9f3be25d469e4203850e5081b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeathCheck
+  controller: {fileID: 0}
+--- !u!114 &8516890520583022959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2583514649245828304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717ba0e38f326314fa621edeaaa007be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
+  vfxSpawnPoint: {fileID: 2126920815962507987}
+  VFXDefinitions:
+  - {fileID: 11400000, guid: d8b9a7398811e664593a975fbee8b8a9, type: 2}
+  - {fileID: 11400000, guid: 6afb081f487a3c14fa517b86b6e0c25a, type: 2}
+  - {fileID: 11400000, guid: 60e8c646ef3c914419954b3a9adb3ec8, type: 2}
+--- !u!114 &4435588879880659395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2583514649245828304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d6cecb02f62c4341855e27edfb4c95a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterSFX
+  SFXDefinitions:
+  - {fileID: 11400000, guid: da76addbe716c3c4aa1416db13912d41, type: 2}
+  - {fileID: 11400000, guid: 32897a3f2e09c304587eba4ff28d3a8c, type: 2}
+  - {fileID: 11400000, guid: ed30a029e3ecb1d459261172893a0a0d, type: 2}
+  - {fileID: 11400000, guid: a2d9b0f3f843fcf4dacd50f4e7a9667d, type: 2}
+  - {fileID: 11400000, guid: 700b314b7e00a0f4d9c3de66cfcaa3e0, type: 2}
+  - {fileID: 11400000, guid: c191a04a84741c94dba5646710bb23b8, type: 2}
+--- !u!114 &303820534651901842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2583514649245828304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  iconSize: 3
+  heightOffset: 3
+  minimapLayerName: MinimapIcon
 --- !u!1 &2727664750913100002
 GameObject:
   m_ObjectHideFlags: 0
@@ -6018,6 +6110,37 @@ Transform:
   - {fileID: 3119960485025875099}
   m_Father: {fileID: 6361437886763827522}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7863568224537103997
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2126920815962507987}
+  m_Layer: 9
+  m_Name: VFX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2126920815962507987
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7863568224537103997}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.04, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2188833426129800926}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8065386325158913076
 GameObject:
   m_ObjectHideFlags: 0
@@ -6410,6 +6533,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyHealth
       objectReference: {fileID: 0}
+    - target: {fileID: 3287934325824570609, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4176439329765841778, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: followTarget
       value: 
@@ -6448,7 +6575,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 13
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 7906108857004417678, guid: b673cde506d19534395285c9bfb1d71b, type: 3}
       propertyPath: m_LocalPosition.x
