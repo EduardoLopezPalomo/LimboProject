@@ -6,6 +6,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private EnemyWeaponController weaponController;
+    private EnemyShieldController shieldController;
     private BehaviorGraphAgent behaviorGraphAgent;
     private AttributeSystem attributeSystem;
     private GameplayEffectManager effectManager;
@@ -27,6 +28,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         weaponController = owner.GetComponent<EnemyWeaponController>();
+        shieldController = owner.GetComponent<EnemyShieldController>();
         behaviorGraphAgent = owner.GetComponent<BehaviorGraphAgent>();
         characterSFX = owner.GetComponent<CharacterSFX>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
@@ -42,7 +44,7 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
     public override void ActivateAbility()
     {
         base.ActivateAbility();
-
+            
         StartCombo();
     }
 
@@ -52,6 +54,11 @@ public class BarbarianAttackSpec : GameplayAbilitySpec
         if (!animator.GetBool("Grounded"))
         {
             return;
+        }
+
+        if (shieldController != null)
+        {
+            shieldController.UnequipWeapon();
         }
         weaponController.WeaponDamage.SetHasHitPlayer(false);
         animator.SetBool("InCombo", true);

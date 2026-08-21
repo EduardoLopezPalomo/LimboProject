@@ -7,7 +7,7 @@ public class WeaponController : MonoBehaviour
     public GameObject RightHandSlot;
     public GameObject weapon;
     
-    private bool equipped = false;
+    protected bool equipped = false;
     private BoxCollider weaponCollider;
 
     protected virtual void Awake()

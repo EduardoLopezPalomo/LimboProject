@@ -1419,6 +1419,7 @@ MonoBehaviour:
   HipSlot: {fileID: 160819662500332184}
   RightHandSlot: {fileID: 7585013106583195971}
   weapon: {fileID: 2431227854741939796}
+  WeaponDamage: {fileID: 0}
 --- !u!114 &3264724006373277965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,6 +1435,7 @@ MonoBehaviour:
   HipSlot: {fileID: 242046169636266370}
   RightHandSlot: {fileID: 8370690174730494631}
   weapon: {fileID: 8473637838140556480}
+  WeaponDamage: {fileID: 0}
 --- !u!114 &-5869575815813251640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1462,6 +1464,11 @@ MonoBehaviour:
   rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
   speed: 1
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
 --- !u!114 &-5499136742354781431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6596,6 +6603,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4199162523376871148, guid: 212ff90a34dee23449e8d98b86424e51, type: 3}
+      propertyPath: owner
+      value: 
+      objectReference: {fileID: 3020010846837214611}
+    - target: {fileID: 4199162523376871148, guid: 212ff90a34dee23449e8d98b86424e51, type: 3}
+      propertyPath: GetParriedEffect
+      value: 
+      objectReference: {fileID: 11400000, guid: fd00ff87c07f2344796532fd4b6c0e9b, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
