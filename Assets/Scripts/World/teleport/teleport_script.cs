@@ -10,6 +10,9 @@ public class teleport_script : MonoBehaviour
     [SerializeField] private GameObject popUp;
     [SerializeField] private GameObject botonAceptar;
 
+    [SerializeField][TextArea] private string mensajePopUP;
+
+
     private PlayerInput playerInput;
 
     private void OnTriggerEnter(Collider other)
@@ -25,6 +28,7 @@ public class teleport_script : MonoBehaviour
             {
                 playerInput.SwitchCurrentActionMap("UI");
                 popUpUI.SetVariables(PartyOn, playerInput, sceneName);
+                popUpUI.MostrarMensaje(mensajePopUP);
                 
             }
 
