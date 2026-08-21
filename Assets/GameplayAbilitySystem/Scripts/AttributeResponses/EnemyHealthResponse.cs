@@ -37,9 +37,12 @@ public class EnemyHealthResponse : GeneralHealthResponse
     protected override void DeathBehavior(AttributeSystem owner)
     {
         DeathCheck deathCheck = owner.gameObject.GetComponent<DeathCheck>();
-        if (deathCheck.GetIsDeath()) return;
+        if (deathCheck)
+        {
+            if (deathCheck.GetIsDeath()) return;
 
-        deathCheck.SetIsDeath(true);
+            deathCheck.SetIsDeath(true);   
+        }
         GameObject target = owner.gameObject;
         EnemyGraphBridge enemy = owner.GetComponent<EnemyGraphBridge>();
         CharacterSFX sfx = owner.GetComponent<CharacterSFX>();

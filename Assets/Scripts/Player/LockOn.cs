@@ -131,6 +131,8 @@ public class LockOn : MonoBehaviour
 
     private void EnemyDeath(GameObject e)
     {
+        if (currentTarget == null) return;
+        
         if (e == currentTarget.gameObject)
         {
             currentTarget = null;
