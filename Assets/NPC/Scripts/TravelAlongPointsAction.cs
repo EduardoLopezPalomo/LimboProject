@@ -39,6 +39,12 @@ public partial class TravelAlongPointsAction : Action
             LogFailure("No waypoints to patrol assigned.");
             return Status.Failure;
         }
+        
+        if (Route.Value.Count < 2)
+        {
+            LogFailure("Route needs at least 2 points to travel along.");
+            return Status.Failure;
+        }
 
         Initialize();
         if(Backwards)
