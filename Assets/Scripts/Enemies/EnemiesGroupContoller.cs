@@ -34,7 +34,7 @@ public class EnemiesGroupContoller : MonoBehaviour
                 }
             }
         }
-        else
+        else if (enemies.Count == 1)
         {
             BehaviorGraphAgent agent = enemies[0].GetComponent<BehaviorGraphAgent>();
             if (agent != null)
