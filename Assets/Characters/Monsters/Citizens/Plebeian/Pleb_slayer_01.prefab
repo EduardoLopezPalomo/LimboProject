@@ -58,11 +58,11 @@ Transform:
   m_GameObject: {fileID: 1027324828714934}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -129.37169, y: -0.20417404, z: 42.95401}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3669380569318038150}
+  m_Father: {fileID: 9048469652882719635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &137029054142483306
 SkinnedMeshRenderer:
@@ -678,7 +678,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4179769504540226}
   m_Layer: 0
-  m_Name: Root
+  m_Name: root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1871,6 +1871,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e20b97beb29fc9b409b95b9d8b3f25c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtCamera
+--- !u!1 &3195992645106860854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9048469652882719635}
+  m_Layer: 6
+  m_Name: Geometry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9048469652882719635
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3195992645106860854}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 129.37169, y: 0.20417404, z: -42.95401}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4803418837121112}
+  m_Father: {fileID: 3669380569318038150}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5343153366854203378
 GameObject:
   m_ObjectHideFlags: 0
@@ -2088,6 +2120,8 @@ MonoBehaviour:
   detectionAngle: 0.6
   interactUI: {fileID: 3168576606942557486}
   npc: {fileID: 6693542397374503324}
+  dialogueNPC: {fileID: 0}
+  dialogueUI: {fileID: 0}
 --- !u!65 &7400662600097958241
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2147,7 +2181,7 @@ Transform:
   m_Children:
   - {fileID: 1635628547569106573}
   - {fileID: 3604172595854813405}
-  - {fileID: 4803418837121112}
+  - {fileID: 9048469652882719635}
   - {fileID: 4179769504540226}
   m_Father: {fileID: 4013894390911886}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
