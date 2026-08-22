@@ -46,7 +46,13 @@ public class NpcPlayerDetection : MonoBehaviour
 
     private void IniciarDialogo()
     {
-        dialogueUI.MostrarDialogo(dialogueNPC.ObtenerLineasDialogo(), dialogueNPC.NpcName, playerInput);
+        dialogueUI.MostrarDialogo(
+            dialogueNPC.ObtenerLineasDialogo(),
+            dialogueNPC.NpcName,
+            dialogueNPC.VozNPC,
+            dialogueNPC.RetratoNPC,
+            playerInput);
+
         playerInput.SwitchCurrentActionMap("UI");
         interactUI.SetActive(false);
     }

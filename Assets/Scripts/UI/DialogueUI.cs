@@ -1,16 +1,30 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
     [SerializeField] private GameObject panelDialogo;
     [SerializeField] private TMP_Text textoDialogo;
     [SerializeField] private TMP_Text nombreNPC;
+    [SerializeField] private Image retratoNPC;
 
+    [Header("Efecto de escritura")]
+    [SerializeField] private float velocidadEscritura = 0.03f; 
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip sfxHablaMasculina;
+    [SerializeField] private AudioClip sfxHablaFemenina;
+    [SerializeField] private AudioClip sfxHablaMonstruo;
+
+    private TipoVoz vozActual;
     private Queue<string> colaLineas = new Queue<string>();
     private PlayerInput playerInputActual;
+    private Coroutine escrituraCoroutine;
+    private bool escribiendo = false;
+    private string lineaActual = "";
 
     public bool EnDialogo => panelDialogo.activeSelf;
 
@@ -21,16 +35,28 @@ public class DialogueUI : MonoBehaviour
         InputAction interactAction = playerInputActual.currentActionMap.FindAction("Interact");
         if (interactAction != null && interactAction.WasPressedThisFrame())
         {
-            MostrarSiguienteLinea();
+            if (escribiendo)
+            {
+                CompletarLineaInstantaneamente();
+            }
+            else
+            {
+                MostrarSiguienteLinea();
+            }
         }
     }
 
-    public void MostrarDialogo(List<string> lineas, string nombre, PlayerInput input = null)
+    public void MostrarDialogo(List<string> lineas, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
     {
 
-        Debug.Log("MostrarDialogo llamado con " + lineas.Count + " líneas"); colaLineas = new Queue<string>(lineas);
+        colaLineas = new Queue<string>(lineas);
         playerInputActual = input;
         nombreNPC.text = nombre;
+        vozActual = voz;
+
+        if (retratoNPC != null)
+            retratoNPC.sprite = retrato;
+
         panelDialogo.SetActive(true);
         MostrarSiguienteLinea();
     }
@@ -43,12 +69,62 @@ public class DialogueUI : MonoBehaviour
             return;
         }
 
-        textoDialogo.text = colaLineas.Dequeue();
+        lineaActual = colaLineas.Dequeue();
+
+        if (escrituraCoroutine != null)
+            StopCoroutine(escrituraCoroutine);
+
+        escrituraCoroutine = StartCoroutine(EscribirTexto(lineaActual));
+    }
+
+    private IEnumerator EscribirTexto(string linea)
+    {
+        escribiendo = true;
+        textoDialogo.text = "";
+
+        AudioClip clipVoz = ObtenerClipSegunVoz();
+        if (audioSource != null && clipVoz != null)
+            audioSource.Stop();
+            audioSource.PlayOneShot(clipVoz);
+
+        foreach (char letra in linea)
+        {
+            textoDialogo.text += letra;
+            yield return new WaitForSeconds(velocidadEscritura);
+        }
+
+        escribiendo = false;
+    }
+
+    private AudioClip ObtenerClipSegunVoz()
+    {
+        switch (vozActual)
+        {
+            case TipoVoz.Masculina: return sfxHablaMasculina;
+            case TipoVoz.Femenina: return sfxHablaFemenina;
+            case TipoVoz.Monstruo: return sfxHablaMonstruo;
+            default: return sfxHablaMasculina;
+        }
+    }
+
+    private void CompletarLineaInstantaneamente()
+    {
+        if (escrituraCoroutine != null)
+            StopCoroutine(escrituraCoroutine);
+
+        if (audioSource != null)
+            audioSource.Stop();
+
+        textoDialogo.text = lineaActual;
+        escribiendo = false;
     }
 
     private void CerrarDialogo()
     {
         panelDialogo.SetActive(false);
+
+        if (audioSource != null)
+            audioSource.Stop();
 
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");

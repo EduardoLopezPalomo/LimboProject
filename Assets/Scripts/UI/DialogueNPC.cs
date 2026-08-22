@@ -7,6 +7,8 @@ public class DialogueNPC : MonoBehaviour
     [SerializeField] private bool esNPCDeFiesta = false;
     private bool haSaludadoHoy = false;
     public string NpcName => dialogueData.NpcName;
+    public TipoVoz VozNPC => dialogueData.tipoVoz;
+    public Sprite RetratoNPC => dialogueData.retrato;
 
     private void OnEnable()
     {
