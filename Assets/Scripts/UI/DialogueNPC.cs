@@ -1,0 +1,62 @@
+using UnityEngine;
+using System.Collections.Generic;
+
+public class DialogueNPC : MonoBehaviour
+{
+    [SerializeField] private NPCDialogueData dialogueData;
+    [SerializeField] private bool esNPCDeFiesta = false;
+    private bool haSaludadoHoy = false;
+    public string NpcName => dialogueData.NpcName;
+
+    private void OnEnable()
+    {
+        if (!esNPCDeFiesta)
+            DayNight.OnDayPhaseChanged += OnDayPhaseChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (!esNPCDeFiesta)
+            DayNight.OnDayPhaseChanged -= OnDayPhaseChanged;
+    }
+
+    private void OnDayPhaseChanged(DayPhase nuevaFase)
+    {
+        if (nuevaFase != DayPhase.Day && nuevaFase != DayPhase.FirstLight)
+        {
+            haSaludadoHoy = false;
+        }
+    }
+
+    public List<string> ObtenerLineasDialogo()
+    {
+        List<string> lineas = new List<string>();
+
+        if (esNPCDeFiesta)
+        {
+            lineas.Add(dialogueData.partyText);
+            return lineas;
+        }
+
+        DayPhase faseActual = DayNight.Instance.ActualPhase;
+        bool esDia = faseActual == DayPhase.Day
+                  || faseActual == DayPhase.FirstLight
+                  || faseActual == DayPhase.Dawn;
+
+        if (esDia)
+        {
+            if (!haSaludadoHoy && !string.IsNullOrEmpty(dialogueData.dayGreeting))
+            {
+                lineas.Add(dialogueData.dayGreeting);
+                haSaludadoHoy = true;
+            }
+            lineas.Add(dialogueData.dayFarewell);
+        }
+        else
+        {
+            lineas.Add(dialogueData.nightText);
+        }
+
+        return lineas;
+    }
+}
