@@ -24,6 +24,8 @@ public class DialogueUI : MonoBehaviour
     private Coroutine escrituraCoroutine;
     private bool escribiendo = false;
     private string lineaActual = "";
+    private AudioClip LastClip;
+    private AudioSource LastAudioSource;
 
     public bool EnDialogo => panelDialogo.activeSelf;
 
@@ -86,7 +88,8 @@ public class DialogueUI : MonoBehaviour
         SFXDefinition clipVoz = ObtenerClipSegunVoz();
         if (clipVoz != null)
         {
-            SoundFXManager.instance.PlaySoundRandomPitch(clipVoz.sfx, transform, clipVoz.volume , clipVoz.minPitch, clipVoz.maxPitch);    
+            LastAudioSource = SoundFXManager.instance.PlaySoundRandomPitch(clipVoz.sfx, transform, clipVoz.volume , clipVoz.minPitch, clipVoz.maxPitch);
+            LastClip = clipVoz.sfx;
         }
 
         foreach (char letra in linea)
@@ -114,6 +117,10 @@ public class DialogueUI : MonoBehaviour
         if (escrituraCoroutine != null)
             StopCoroutine(escrituraCoroutine);
         /*poner que cuando se termina el audio acaba*/
+        if(LastClip != null && LastAudioSource != null)
+        {
+            SoundFXManager.instance.StopSound(LastClip, LastAudioSource);
+        }
 
         textoDialogo.text = lineaActual;
         escribiendo = false;
@@ -124,7 +131,13 @@ public class DialogueUI : MonoBehaviour
         panelDialogo.SetActive(false);
 
         /*poner que cuando se termina el audio acaba*/
-
+        if(LastClip != null && LastAudioSource != null)
+        {
+            SoundFXManager.instance.StopSound(LastClip, LastAudioSource);
+        }
+        
+        LastClip = null;
+        LastAudioSource = null;
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");
     }
