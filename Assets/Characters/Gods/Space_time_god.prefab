@@ -26,6 +26,8 @@ GameObject:
   - component: {fileID: 5817445440751213156}
   - component: {fileID: 3016345486183808774}
   - component: {fileID: 783201880301937904}
+  - component: {fileID: 3640527814309089064}
+  - component: {fileID: 1378077886088387597}
   m_Layer: 9
   m_Name: Space_time_god
   m_TagString: Enemy
@@ -136,6 +138,8 @@ MonoBehaviour:
   m_BlackboardVariableOverridesList:
   - rid: 1844794084509089893
   - rid: 1844794084509090115
+  - rid: 1844794099858932047
+  - rid: 1844794101408727390
   m_OriginalGraph: {fileID: 3707871144417483719, guid: e417fd68d4f90c64485e47c6af08ccc1, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -158,6 +162,22 @@ MonoBehaviour:
           m_Value1: 5519457804739109470
         Name: AbilityHolder
         m_Value: {fileID: 6755683970659034664}
+    - rid: 1844794099858932047
+      type: {class: 'BlackboardVariable`1[[UnityEngine.Animator, UnityEngine.AnimationModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 14413229219949728550
+          m_Value1: 17359662330048854443
+        Name: Animator
+        m_Value: {fileID: 95226846252001880}
+    - rid: 1844794101408727390
+      type: {class: 'BlackboardVariable`1[[AttackDirector, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 8355887190856307972
+          m_Value1: 383187561812217237
+        Name: AttackDirector
+        m_Value: {fileID: 1378077886088387597}
 --- !u!114 &6755683970659034664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,7 +191,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityHolder
   abilities:
-  - {fileID: 11400000, guid: ae5bdcf6c504a0149a600720970d0ad6, type: 2}
+  - {fileID: 11400000, guid: c1b103b13687aba44b2d4ff0c68e9945, type: 2}
+  - {fileID: 11400000, guid: 1191c8ff9950994469f4cab6db842ccf, type: 2}
+  - {fileID: 11400000, guid: f983d38bdf187904096fcbd048bb76c6, type: 2}
+  - {fileID: 11400000, guid: 89381b77df55ea4438012724ac1c17aa, type: 2}
+  - {fileID: 11400000, guid: 9492623e078b1dc4ba722a65a4e0b132, type: 2}
+  - {fileID: 11400000, guid: 00b9657c27b4e164bbeaa88e3ba9b7f6, type: 2}
+  - {fileID: 11400000, guid: c44824d6c8a711e428c311212b910b74, type: 2}
 --- !u!114 &9087757014758867198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -316,7 +342,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterVFX
   vfxSpawnPoint: {fileID: 7323231447399372627}
-  VFXDefinitions: []
+  VFXDefinitions:
+  - {fileID: 11400000, guid: 1d101655c90cd1b4388d8a3a1eaf02b4, type: 2}
 --- !u!114 &3016345486183808774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,6 +373,34 @@ MonoBehaviour:
   iconSize: 3
   heightOffset: 3
   minimapLayerName: MinimapIcon
+--- !u!114 &3640527814309089064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997296248483302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba62696c1479f3848b337b07898c2ebd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseController
+  LifeForPhase2: 0.66
+  LifeForPhase3: 0.33
+--- !u!114 &1378077886088387597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1997296248483302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc6ba23716060a64ea7328f3e3b770f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackDirector
+  library: {fileID: 11400000, guid: e643fea562c36be4ea7ff2e01bd79b7f, type: 2}
+  phaseController: {fileID: 3640527814309089064}
 --- !u!1 &1671878927694245929
 GameObject:
   m_ObjectHideFlags: 0

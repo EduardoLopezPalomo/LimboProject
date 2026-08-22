@@ -1,8 +1,11 @@
 using UnityEngine;
+using System;
 
 [CreateAssetMenu(menuName = "AbilitySystem/Responses/EnemyHealth")]
 public class EnemyHealthResponse : GeneralHealthResponse
 {
+    public static event Action OnEnemyHurt;
+    
     protected override void HurtBehavior(AttributeSystem owner, bool CanResponse)
     {
         if (CanResponse)
@@ -32,6 +35,7 @@ public class EnemyHealthResponse : GeneralHealthResponse
         {
             UI.ShowHealth();
         }
+        OnEnemyHurt?.Invoke();
     }
 
     protected override void DeathBehavior(AttributeSystem owner)

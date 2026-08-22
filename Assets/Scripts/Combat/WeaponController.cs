@@ -9,20 +9,38 @@ public class WeaponController : MonoBehaviour
     
     protected bool equipped = false;
     private BoxCollider weaponCollider;
+    private SphereCollider sphereCollider;
 
     protected virtual void Awake()
     {
         weaponCollider = weapon.GetComponent<BoxCollider>();
+        sphereCollider = weapon.GetComponent<SphereCollider>();
     }
 
     public virtual void EnableCollision()
     {
-        weaponCollider.enabled = true;
+        if (weaponCollider)
+        {
+            weaponCollider.enabled = true;
+        }
+
+        if (sphereCollider)
+        {
+            sphereCollider.enabled = true;
+        }
     }
 
     public virtual void DisableCollision()
     {
-        weaponCollider.enabled = false;
+        if (weaponCollider)
+        {
+            weaponCollider.enabled = false;     
+        }
+        
+        if (sphereCollider)
+        {
+            sphereCollider.enabled = false;
+        }
     }
 
     public virtual void EquipWeapon()

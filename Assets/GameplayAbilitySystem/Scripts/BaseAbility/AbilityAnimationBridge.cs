@@ -49,6 +49,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             {
                 barbarianCounterAttackSpec.EnableSwordCollider();
             }
+            if (spec is GodSpaceAttackSpec godSpaceAttackSpec)
+            {
+                godSpaceAttackSpec.EnableSwordCollider();
+            }
         }
     }
 
@@ -67,6 +71,10 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is CounterAttackSpec barbarianCounterAttackSpec)
             {
                 barbarianCounterAttackSpec.DisableSwordCollider();
+            }
+            if (spec is GodSpaceAttackSpec godSpaceAttackSpec)
+            {
+                godSpaceAttackSpec.DisableSwordCollider();
             }
         }
     }
@@ -281,6 +289,22 @@ public class AbilityAnimationBridge : MonoBehaviour
             if (spec is MageCounterAttackSpec counterSpec)
             {
                 counterSpec.SpawnCounter();
+            }
+        }
+    }
+    
+    /*
+     * Notifies of GodSpaceAttack
+     *
+     */
+
+    public void EndGodSpaceAttack()
+    {
+        foreach (var spec in currentSpec.ToList())
+        {
+            if (spec is GodSpaceAttackSpec Spec)
+            {
+                Spec.EndAbility();
             }
         }
     }
