@@ -113,9 +113,7 @@ public class DialogueUI : MonoBehaviour
     {
         if (escrituraCoroutine != null)
             StopCoroutine(escrituraCoroutine);
-
-        if (audioSource != null)
-            audioSource.Stop();
+        /*poner que cuando se termina el audio acaba*/
 
         textoDialogo.text = lineaActual;
         escribiendo = false;
@@ -125,8 +123,7 @@ public class DialogueUI : MonoBehaviour
     {
         panelDialogo.SetActive(false);
 
-        if (audioSource != null)
-            audioSource.Stop();
+        /*poner que cuando se termina el audio acaba*/
 
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");
