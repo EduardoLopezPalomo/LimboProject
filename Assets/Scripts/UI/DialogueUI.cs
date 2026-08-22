@@ -14,10 +14,9 @@ public class DialogueUI : MonoBehaviour
 
     [Header("Efecto de escritura")]
     [SerializeField] private float velocidadEscritura = 0.03f; 
-    [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip sfxHablaMasculina;
-    [SerializeField] private AudioClip sfxHablaFemenina;
-    [SerializeField] private AudioClip sfxHablaMonstruo;
+    [SerializeField] private SFXDefinition sfxHablaMasculina;
+    [SerializeField] private SFXDefinition sfxHablaFemenina;
+    [SerializeField] private SFXDefinition sfxHablaMonstruo;
 
     private TipoVoz vozActual;
     private Queue<string> colaLineas = new Queue<string>();
@@ -81,11 +80,14 @@ public class DialogueUI : MonoBehaviour
     {
         escribiendo = true;
         textoDialogo.text = "";
+        
+        
 
-        AudioClip clipVoz = ObtenerClipSegunVoz();
-        if (audioSource != null && clipVoz != null)
-            audioSource.Stop();
-            audioSource.PlayOneShot(clipVoz);
+        SFXDefinition clipVoz = ObtenerClipSegunVoz();
+        if (clipVoz != null)
+        {
+            SoundFXManager.instance.PlaySoundRandomPitch(clipVoz.sfx, transform, clipVoz.volume , clipVoz.minPitch, clipVoz.maxPitch);    
+        }
 
         foreach (char letra in linea)
         {
@@ -96,7 +98,7 @@ public class DialogueUI : MonoBehaviour
         escribiendo = false;
     }
 
-    private AudioClip ObtenerClipSegunVoz()
+    private SFXDefinition ObtenerClipSegunVoz()
     {
         switch (vozActual)
         {
