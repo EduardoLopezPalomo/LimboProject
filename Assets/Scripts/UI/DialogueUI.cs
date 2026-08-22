@@ -116,7 +116,7 @@ public class DialogueUI : MonoBehaviour
     {
         if (escrituraCoroutine != null)
             StopCoroutine(escrituraCoroutine);
-        /*poner que cuando se termina el audio acaba*/
+        
         if(LastClip != null && LastAudioSource != null)
         {
             SoundFXManager.instance.StopSound(LastClip, LastAudioSource);
@@ -129,8 +129,7 @@ public class DialogueUI : MonoBehaviour
     private void CerrarDialogo()
     {
         panelDialogo.SetActive(false);
-
-        /*poner que cuando se termina el audio acaba*/
+        
         if(LastClip != null && LastAudioSource != null)
         {
             SoundFXManager.instance.StopSound(LastClip, LastAudioSource);
