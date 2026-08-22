@@ -1,9 +1,13 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SoundFXManager : MonoBehaviour
 {
     public static SoundFXManager instance;
     [SerializeField] private AudioSource soundFXObject;
+    
+    private Dictionary<AudioClip, List<AudioSource>> ActualSounds = new Dictionary<AudioClip, List<AudioSource>>();
 
     private void Awake()
     {
@@ -13,75 +17,133 @@ public class SoundFXManager : MonoBehaviour
         }
     }
 
-    public void PlaySound(AudioClip clip, Transform spawnTransform, float volume)
+    public AudioSource PlaySound(AudioClip clip, Transform spawnTransform, float volume)
     {
         if (clip == null)
         {
             Debug.LogWarning("SoundFXManager::PlaySound: clip is null");
-            return;
+            return null;
         }
+        
+        GameObject go = new GameObject("Sound_" + clip.name);
+        go.transform.parent = this.transform;
 
-        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform);
-
+        AudioSource audioSource = go.AddComponent<AudioSource>();
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
+        
+        if (!ActualSounds.ContainsKey(clip))
+            ActualSounds[clip] = new List<AudioSource>();
 
-        Destroy(audioSource.gameObject, clip.length);
+        ActualSounds[clip].Add(audioSource);
+
+        StartCoroutine(RemoveAfterPlay(clip, audioSource));
+        
+        return audioSource;
     }
 
-    public void PlaySoundRandomPitch(AudioClip clip, Transform spawnTransform, float volume, float MinPitch, float MaxPitch)
+    public AudioSource PlaySoundRandomPitch(AudioClip clip, Transform spawnTransform, float volume, float MinPitch, float MaxPitch)
     {
         if (clip == null)
         {
             Debug.LogWarning("SoundFXManager::PlaySound: clip is null");
-            return;
+            return null;
         }
-        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform);
+        GameObject go = new GameObject("Sound_" + clip.name);
+        go.transform.parent = this.transform;
 
+        AudioSource audioSource = go.AddComponent<AudioSource>();
         audioSource.clip = clip;
         audioSource.volume = volume;
-        audioSource.pitch = Random.Range(MinPitch, MaxPitch);
         audioSource.Play();
+        
+        if (!ActualSounds.ContainsKey(clip))
+            ActualSounds[clip] = new List<AudioSource>();
 
-        Destroy(audioSource.gameObject, clip.length);
+        ActualSounds[clip].Add(audioSource);
+
+        StartCoroutine(RemoveAfterPlay(clip, audioSource));
+        
+        return audioSource;
     }
 
-    public void PlayRandomSound(AudioClip[] clips, Transform spawnTransform, float volume)
+    public AudioSource PlayRandomSound(AudioClip[] clips, Transform spawnTransform, float volume)
     {
         if (clips.Length == 0)
         {
             Debug.LogWarning("SoundFXManager::PlaySound: clips has 0 length");
-            return;
+            return null;
         }
+        
         int random = Random.Range(0, clips.Length);
+        AudioClip clip = clips[random];
 
-        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform);
+        GameObject go = new GameObject("Sound_" + clip.name);
+        go.transform.parent = this.transform;
 
-        audioSource.clip = clips[random];
+        AudioSource audioSource = go.AddComponent<AudioSource>();
+        audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
+        
+        if (!ActualSounds.ContainsKey(clip))
+            ActualSounds[clip] = new List<AudioSource>();
 
-        Destroy(audioSource.gameObject, audioSource.clip.length);
+        ActualSounds[clip].Add(audioSource);
+
+        StartCoroutine(RemoveAfterPlay(clip, audioSource));
+        
+        return audioSource;
     }
 
-    public void PlayRandomSoundRandomPitch(AudioClip[] clips, Transform spawnTransform, float volume, float MinPitch, float MaxPitch)
+    public AudioSource PlayRandomSoundRandomPitch(AudioClip[] clips, Transform spawnTransform, float volume, float MinPitch, float MaxPitch)
     {
         if (clips.Length == 0)
         {
             Debug.LogWarning("SoundFXManager::PlaySound: clips has 0 length");
-            return;
+            return null;
         }
+        
         int random = Random.Range(0, clips.Length);
+        AudioClip clip = clips[random];
 
-        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform);
+        GameObject go = new GameObject("Sound_" + clip.name);
+        go.transform.parent = this.transform;
 
-        audioSource.clip = clips[random];
+        AudioSource audioSource = go.AddComponent<AudioSource>();
+        audioSource.clip = clip;
         audioSource.volume = volume;
-        audioSource.pitch = Random.Range(MinPitch, MaxPitch);
         audioSource.Play();
+        
+        if (!ActualSounds.ContainsKey(clip))
+            ActualSounds[clip] = new List<AudioSource>();
 
-        Destroy(audioSource.gameObject, audioSource.clip.length);
+        ActualSounds[clip].Add(audioSource);
+
+        StartCoroutine(RemoveAfterPlay(clip, audioSource));
+        
+        return audioSource;
+    }
+    
+    public void StopSound(AudioClip clip, AudioSource audioSource)
+    {
+        if (ActualSounds.ContainsKey(clip) && ActualSounds[clip].Contains(audioSource))
+        {
+            ActualSounds[clip].Remove(audioSource);
+            Destroy(audioSource.gameObject);
+        }
+    }
+    
+    private IEnumerator RemoveAfterPlay(AudioClip clip, AudioSource audioSource)
+    {
+        yield return new WaitForSeconds(audioSource.clip.length);
+        
+        if (ActualSounds.ContainsKey(clip))
+            ActualSounds[clip].Remove(audioSource);
+
+        if (audioSource != null)
+            Destroy(audioSource.gameObject);
     }
 
 }
