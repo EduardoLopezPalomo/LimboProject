@@ -40,4 +40,10 @@ public class RotateToPlayer : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, lookRotation, Time.deltaTime * Speed);
         return true;
     }
+
+    public void RotateInstant()
+    {
+        Quaternion lookRotation = GetFlatLookRotation();
+        transform.rotation = lookRotation;
+    }
 }

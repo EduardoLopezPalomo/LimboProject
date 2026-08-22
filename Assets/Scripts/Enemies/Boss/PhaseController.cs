@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[Serializable]
 public enum BossPhase
 {
     Phase1, 
@@ -14,18 +15,18 @@ public class PhaseController : MonoBehaviour
     [SerializeField] private float LifeForPhase3 = 0.33f;
     
     private AttributeSystem attributeSystem;
+    private EnemyGraphBridge enemyGraphBridge;
     private string healthAttributeName = "EnemyHealth";
     private float maxHealth;
 
     public BossPhase CurrentPhase { get; private set; } = BossPhase.Phase1;
-
-    public event Action<BossPhase> OnPhaseChanged;
 
     private void Awake()
     {
         attributeSystem = GetComponent<AttributeSystem>();
         
         maxHealth = attributeSystem.GetAttributeMaxValue(healthAttributeName);
+        enemyGraphBridge = GetComponent<EnemyGraphBridge>();
     }
 
     private void OnEnable()
@@ -60,7 +61,7 @@ public class PhaseController : MonoBehaviour
         if (newPhase != CurrentPhase)
         {
             CurrentPhase = newPhase;
-            OnPhaseChanged?.Invoke(CurrentPhase);
+            enemyGraphBridge.SetChangePhase();
         }
     }
 }

@@ -5,9 +5,11 @@ using UnityEngine;
 public class TeleportSpec : GameplayAbilitySpec
 {
     private CharacterVFX characterVFX;
-    public TeleportSpec(GameplayAbility ability, GameObject owner) : base(ability, owner)
+    private SlotType slotType;
+    public TeleportSpec(GameplayAbility ability, GameObject owner, SlotType slot) : base(ability, owner)
     {
         characterVFX = owner.GetComponent<CharacterVFX>();
+        slotType = slot;
     }
 
     public override void ActivateAbility()
@@ -21,7 +23,7 @@ public class TeleportSpec : GameplayAbilitySpec
     private IEnumerator TeleportAfterDelay(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        Slot slot = SlotsManager.Instance.GetRandomSlot(owner, SlotType.Far);
+        Slot slot = SlotsManager.Instance.GetRandomSlot(owner, slotType);
         if (slot == null)
         {
             EndAbility();

@@ -29,6 +29,11 @@ public class EnemyGraphBridge : MonoBehaviour
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.Vulnerable);
         }
     }
+    
+    public void SetChangePhase()
+    {
+        agent.BlackboardReference.SetVariableValue("ChangePhase", true);
+    }
 
     public void SetTrap()
     {
