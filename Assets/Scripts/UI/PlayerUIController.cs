@@ -22,7 +22,7 @@ public class PlayerUIController : MonoBehaviour
         playerUI.SetActive(false);
         PauseMenu.SetActive(true);
         playerInput.SwitchCurrentActionMap("UI");
-        PauseGameManager.PauseGame();
+        TimeEffectsManager.PauseGame();
 
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);
     }
@@ -36,7 +36,7 @@ public class PlayerUIController : MonoBehaviour
             playerUI.SetActive(true);
             AblityMenu.SetActive(false);
             playerInput.SwitchCurrentActionMap("Player");
-            PauseGameManager.ResumeGame();
+            TimeEffectsManager.ResumeGame();
 
             SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
         }
@@ -45,7 +45,7 @@ public class PlayerUIController : MonoBehaviour
             playerUI.SetActive(false);
             AblityMenu.SetActive(true);
             playerInput.SwitchCurrentActionMap("UI");
-            PauseGameManager.PauseGame();
+            TimeEffectsManager.PauseGame();
 
             SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);   
         }

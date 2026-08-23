@@ -33,7 +33,7 @@ public class teleport_script : MonoBehaviour
             }
 
             EventSystem.current.SetSelectedGameObject(botonAceptar);
-            PauseGameManager.PauseGame();
+            TimeEffectsManager.PauseGame();
 
 
         }

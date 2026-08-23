@@ -31,7 +31,7 @@ public class PauseMenu : MonoBehaviour
         gameObject.SetActive(false);
         HUD.SetActive(true);
         changeActionMap.ChangeToPlayer();
-        PauseGameManager.ResumeGame();
+        TimeEffectsManager.ResumeGame();
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
 
     }
@@ -49,7 +49,7 @@ public class PauseMenu : MonoBehaviour
 
     public void MainMenu()
     {
-        PauseGameManager.ResumeGame();
+        TimeEffectsManager.ResumeGame();
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
         levelLoader.LoadLevel(levelToLoad);
         canvas.sortingOrder = -1;

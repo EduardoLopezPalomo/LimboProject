@@ -34,7 +34,7 @@ public class PopUpUI : MonoBehaviour
             SceneManager.LoadScene(sceneName);
         }
         playerInput.SwitchCurrentActionMap("Player");
-        PauseGameManager.ResumeGame();
+        TimeEffectsManager.ResumeGame();
     }
 
     public void Cancelar()
@@ -46,6 +46,6 @@ public class PopUpUI : MonoBehaviour
             playerInput.SwitchCurrentActionMap("Player");
         }
 
-        PauseGameManager.ResumeGame();
+        TimeEffectsManager.ResumeGame();
     }
 }
