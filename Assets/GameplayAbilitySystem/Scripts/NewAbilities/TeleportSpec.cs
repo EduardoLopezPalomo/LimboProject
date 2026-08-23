@@ -31,6 +31,7 @@ public class TeleportSpec : GameplayAbilitySpec
         }
         
         owner.transform.position = slot.position;
+        SlotsManager.Instance.ReleaseSlot(slot);
 
         EndAbility();
     }

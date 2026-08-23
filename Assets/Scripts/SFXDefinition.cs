@@ -7,7 +7,8 @@ public enum SFXType
     Attack,
     Counter,
     Damaged,
-    Death
+    Death,
+    ChangePhase,
 }
 
 [CreateAssetMenu(fileName = "SFX", menuName = "SFX/SFX Definition")]
