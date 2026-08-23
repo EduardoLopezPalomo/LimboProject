@@ -4,8 +4,9 @@ using UnityEngine;
 public class GodSpaceAttack : GameplayAbility
 {
     public string AnimatorTrigger;
+    public bool isCombo;
     public override GameplayAbilitySpec CreateSpec(GameObject owner)
     {
-        return new GodSpaceAttackSpec(this, owner, AnimatorTrigger);
+        return new GodSpaceAttackSpec(this, owner, AnimatorTrigger, isCombo);
     }
 }

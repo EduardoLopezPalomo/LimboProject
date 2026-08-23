@@ -6,19 +6,19 @@ public class GodSpaceAttackSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private EnemyWeaponController weaponController;
-    private BehaviorGraphAgent behaviorGraphAgent;
     private CharacterSFX characterSFX;
 
     private int comboIndex;
     private string animatorTrigger;
-    public GodSpaceAttackSpec(GameplayAbility ability, GameObject owner, string trigger) : base(ability, owner)
+    private bool isCombo;
+    public GodSpaceAttackSpec(GameplayAbility ability, GameObject owner, string trigger, bool combo) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         weaponController = owner.GetComponent<EnemyWeaponController>();
-        behaviorGraphAgent = owner.GetComponent<BehaviorGraphAgent>();
         characterSFX = owner.GetComponent<CharacterSFX>();
         
         animatorTrigger = trigger;
+        isCombo = combo;
     }
 
     public override void ActivateAbility()
@@ -30,7 +30,15 @@ public class GodSpaceAttackSpec : GameplayAbilitySpec
 
     void StartCombo()
     {
-        comboIndex = 0;
+        if (isCombo)
+        {
+            comboIndex = 0;    
+        }
+        else
+        {
+            comboIndex = 2;
+        }
+        
         if (!animator.GetBool("Grounded"))
         {
             return;
