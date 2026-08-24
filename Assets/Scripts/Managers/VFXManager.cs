@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class VFXManager : MonoBehaviour
@@ -26,25 +27,29 @@ public class VFXManager : MonoBehaviour
     
     public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation, GameObject target)
     {
+        Vector3 finalPosition = position + def.positionOffset;
+        
         Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
         GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
         
         if (def.useObjectPool)
             vfx.transform.SetParent(transform, worldPositionStays: false);
 
-        vfx.transform.SetPositionAndRotation(position, finalRot);
+        vfx.transform.SetPositionAndRotation(finalPosition, finalRot);
         vfx.transform.localScale = def.scaleOverride;
         vfx.SetActive(true);
         
         var active = new ActiveVFX { def = def };
         activeVFX[vfx] = active;
-
-        if (def.useObjectPool)
+        if (!def.untilCancel)
         {
-            active.returnCoroutine = StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
+            if (def.useObjectPool)
+            {
+                active.returnCoroutine = StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
+            }
+            else
+                Destroy(vfx, def.lifetime);   
         }
-        else
-            Destroy(vfx, def.lifetime);
 
         if (def.followTarget)
         {
@@ -112,8 +117,8 @@ public class VFXManager : MonoBehaviour
     private System.Collections.IEnumerator FollowTarget(GameObject vfx, GameObject target, VFXDefinition def)
     {
         float elapsed = 0f;
-
-        while (elapsed < def.lifetime)
+        
+        while (def.untilCancel || elapsed < def.lifetime)
         {
             if (vfx == null || target == null)
                 yield break;

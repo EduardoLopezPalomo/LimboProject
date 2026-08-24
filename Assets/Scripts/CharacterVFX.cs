@@ -12,13 +12,8 @@ public class CharacterVFX : MonoBehaviour
         {
             if (def.type == vfxType)
             {
-                Vector3 offset = def.rotationOffset;
-                Quaternion finalRotation = vfxSpawnPoint.rotation * Quaternion.Euler(offset);
                 
-                Vector3 positionOffset = def.positionOffset;
-                Vector3 finalPosition = vfxSpawnPoint.position + positionOffset;
-                
-                VFXManager.Instance.Play(def,finalPosition, finalRotation, gameObject);
+                VFXManager.Instance.Play(def,vfxSpawnPoint.position, vfxSpawnPoint.rotation, gameObject);
             }
         }
     }
@@ -31,13 +26,8 @@ public class CharacterVFX : MonoBehaviour
         int randomIndex = Random.Range(0, filteredDefs.Length);
         
         VFXDefinition randomDef = filteredDefs[randomIndex];
-        Vector3 offset = randomDef.rotationOffset;
-        Quaternion finalRotation = vfxSpawnPoint.rotation * Quaternion.Euler(offset);
         
-        Vector3 positionOffset = randomDef.positionOffset;
-        Vector3 finalPosition = vfxSpawnPoint.position + positionOffset;
-        
-        GameObject instance = VFXManager.Instance.Play(randomDef,finalPosition, finalRotation, gameObject);
+        GameObject instance = VFXManager.Instance.Play(randomDef,vfxSpawnPoint.position , vfxSpawnPoint.rotation, gameObject);
             
         return (randomDef, instance);
     }

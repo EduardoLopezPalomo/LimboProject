@@ -10,6 +10,9 @@ public class LockOn : MonoBehaviour
     public string enemyTag = "Enemy";
     public Transform playerRoot;
     public Camera mainCamera;
+
+    [Header("Visual Effect")] 
+    public VFXDefinition VFX;
     
     [HideInInspector] public Transform currentTarget;
     [HideInInspector] public bool isLocked;
@@ -17,6 +20,7 @@ public class LockOn : MonoBehaviour
     private List<Transform> _enemiesInRange = new List<Transform>();
     private PlayerWeaponController weaponController;
     private Animator animator;
+    private GameObject vfxGameObject;
 
     private void OnEnable()
     {
@@ -57,6 +61,11 @@ public class LockOn : MonoBehaviour
         }
         
         currentTarget = _enemiesInRange.OrderBy(e => ScreenDistanceFromCenter(e)).First();
+        if (vfxGameObject != null)
+        {
+            VFXManager.Instance.Cancel(vfxGameObject);   
+        }
+        vfxGameObject = VFXManager.Instance.Play(VFX, currentTarget.position, Quaternion.identity, currentTarget.gameObject);
         animator.SetBool("IsStrafing", true);
         weaponController.EquipWeapon();
         isLocked = true;
@@ -91,13 +100,20 @@ public class LockOn : MonoBehaviour
             }
         }
 
-        if (best != null) currentTarget = best;
+        if (best != null)
+        {
+            currentTarget = best;
+            VFXManager.Instance.Cancel(vfxGameObject);
+            vfxGameObject = VFXManager.Instance.Play(VFX, currentTarget.position, Quaternion.identity, currentTarget.gameObject);
+        }
     }
 
     public void ClearLock()
     {
         isLocked = false;
         currentTarget = null;
+        VFXManager.Instance.Cancel(vfxGameObject);
+        vfxGameObject = null;
         animator.SetBool("IsStrafing", false);
         weaponController.UnequipWeapon();
     }

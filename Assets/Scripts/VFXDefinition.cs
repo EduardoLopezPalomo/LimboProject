@@ -24,6 +24,7 @@ public class VFXDefinition : ScriptableObject
     public Vector3 rotationOffset;
     public Vector3 scaleOverride = Vector3.one;
     public float lifetime = 2f;
+    public bool untilCancel = false;
     public bool useObjectPool = true;
     public bool followTarget = false;
 
