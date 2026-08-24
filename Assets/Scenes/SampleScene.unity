@@ -215,90 +215,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a97005a87bd7c0458fe98051d4ac543, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogueUI
---- !u!1 &89191633
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 89191635}
-  - component: {fileID: 89191634}
-  - component: {fileID: 89191636}
-  - component: {fileID: 89191637}
-  m_Layer: 0
-  m_Name: TriggerBoss
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!65 &89191634
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89191633}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!4 &89191635
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89191633}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.02, y: 4.75, z: -0.7}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &89191636
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89191633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b044c3265a503fb478d4c81cf5b57b13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BossConversation
-  Boss: {fileID: 839150150}
-  dialogueUI: {fileID: 62806100}
-  dialogueNPC: {fileID: 89191637}
---- !u!114 &89191637
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 89191633}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e2a3a10781012d4886050d4e100fd42, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueNPC
-  dialogueData: {fileID: 11400000, guid: 6ce6ca88af3273a4084812c07c45f7be, type: 2}
-  esNPCDeFiesta: 0
 --- !u!1001 &299913261
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1302,6 +1218,71 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eab14cbf7b9e701428a7a9b1038da2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemiesGroupContoller
+--- !u!1001 &2660960313243208215
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 127446227722824064, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_Name
+      value: TriggerBoss
+      objectReference: {fileID: 0}
+    - target: {fileID: 2690510659382318623, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: Boss
+      value: 
+      objectReference: {fileID: 839150150}
+    - target: {fileID: 2690510659382318623, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: dialogueUI
+      value: 
+      objectReference: {fileID: 62806100}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 4.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8273069029918339727, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f0d4c8462a2c2304ca4ab5f10de3ab7a, type: 3}
 --- !u!1001 &5532026852361874043
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1385,4 +1366,4 @@ SceneRoots:
   - {fileID: 650535782}
   - {fileID: 62806099}
   - {fileID: 1953998223}
-  - {fileID: 89191635}
+  - {fileID: 2660960313243208215}
