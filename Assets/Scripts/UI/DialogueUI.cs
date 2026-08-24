@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
+    public static event System.Action OnEndDialogue;
+    
     [SerializeField] private GameObject panelDialogo;
     [SerializeField] private TMP_Text textoDialogo;
     [SerializeField] private TMP_Text nombreNPC;
@@ -139,5 +141,6 @@ public class DialogueUI : MonoBehaviour
         LastAudioSource = null;
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");
+        OnEndDialogue?.Invoke();
     }
 }

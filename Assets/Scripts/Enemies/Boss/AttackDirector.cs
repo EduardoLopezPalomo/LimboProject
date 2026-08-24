@@ -25,12 +25,12 @@ public class AttackDirector : MonoBehaviour
                 w *= repeatPenaltyMultiplier;
             }
             effectiveWeights[i] = w;
-            Debug.Log(effectiveWeights[i]);
+            
             total += w;
         }
 
         float roll = Random.value * total;
-        Debug.Log(roll);
+        
         for (int i = 0; i < options.Length; i++)
         {
             if (roll < effectiveWeights[i])

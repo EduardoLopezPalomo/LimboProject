@@ -18,6 +18,7 @@ public class MusicManager : MonoBehaviour
     public float loopStartSeconds = 0f;
     public float loopEndSeconds = 180f;
     public bool loopTillEnd = true;
+    public bool startSilence = false;
     
     [Header("Battle Loop Settings")]
     public float battleStartSeconds = 0f;
@@ -32,6 +33,7 @@ public class MusicManager : MonoBehaviour
     private AudioClip normalMusic;
     private int normalTimeSample;
     private MusicState musicState = MusicState.Default;
+    private bool isSilentState = false;
 
     void Awake()
     {
@@ -56,7 +58,16 @@ public class MusicManager : MonoBehaviour
         {
             battleEndSeconds = battleMusic.length;
         }
-        audioSource.Play();
+
+        if (!startSilence)
+        {
+            audioSource.Play();   
+        }
+        else
+        {
+            isSilentState = true;
+        }
+        
         musicState = MusicState.Normal;
     }
     
@@ -64,6 +75,7 @@ public class MusicManager : MonoBehaviour
     {
         if (musicState == MusicState.Normal)
         {
+            if (isSilentState) return;
             if (audioSource.time >= loopEndSeconds || (!audioSource.isPlaying && loopTillEnd))
             {
                 audioSource.Play();
@@ -115,6 +127,7 @@ public class MusicManager : MonoBehaviour
             audioSource.clip = normalMusic;
             audioSource.timeSamples = normalTimeSample;
             musicState = MusicState.Normal;
+            isSilentState = false;
         }
         audioSource.Play();
         

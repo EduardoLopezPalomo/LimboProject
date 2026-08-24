@@ -27,7 +27,7 @@ public class VFXManager : MonoBehaviour
     
     public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation, GameObject target)
     {
-        Vector3 finalPosition = position + def.positionOffset;
+        Vector3 finalPosition = position + rotation * def.positionOffset;
         
         Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
         GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
@@ -123,7 +123,7 @@ public class VFXManager : MonoBehaviour
             if (vfx == null || target == null)
                 yield break;
 
-            vfx.transform.position = target.transform.position + def.positionOffset;
+            vfx.transform.position = target.transform.position + target.transform.rotation * def.positionOffset;
             vfx.transform.rotation = target.transform.rotation * Quaternion.Euler(def.rotationOffset);
 
             elapsed += Time.deltaTime;

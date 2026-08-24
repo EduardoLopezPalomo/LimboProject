@@ -25,7 +25,7 @@ public class NpcPlayerDetection : MonoBehaviour
 
             mirandoAlNPC = dot > detectionAngle;
 
-            Debug.Log("Dot: " + dot + " | Umbral: " + detectionAngle);
+            //Debug.Log("Dot: " + dot + " | Umbral: " + detectionAngle);
 
             interactUI.SetActive(mirandoAlNPC);
 
@@ -33,8 +33,8 @@ public class NpcPlayerDetection : MonoBehaviour
             {
                 InputAction interactAction = playerInput.currentActionMap.FindAction("Interact");
 
-                Debug.Log("Mirando al NPC. Action encontrada: " + (interactAction != null ? interactAction.name : "NULL")
-                + " | Mapa activo: " + playerInput.currentActionMap.name);
+                //Debug.Log("Mirando al NPC. Action encontrada: " + (interactAction != null ? interactAction.name : "NULL")
+                //+ " | Mapa activo: " + playerInput.currentActionMap.name);
 
                 if (interactAction != null && interactAction.WasPressedThisFrame())
                 {
@@ -64,7 +64,7 @@ public class NpcPlayerDetection : MonoBehaviour
             playerDetected = true;
             player = other.gameObject;
             playerInput = other.GetComponent<PlayerInput>();
-            Debug.Log("Player detectado. PlayerInput: " + (playerInput != null ? "OK" : "NULL"));
+            //Debug.Log("Player detectado. PlayerInput: " + (playerInput != null ? "OK" : "NULL"));
         }
     }
 

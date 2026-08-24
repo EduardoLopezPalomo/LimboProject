@@ -204,6 +204,101 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+--- !u!114 &62806100 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 156457310622767884, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 62806099}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a97005a87bd7c0458fe98051d4ac543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueUI
+--- !u!1 &89191633
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 89191635}
+  - component: {fileID: 89191634}
+  - component: {fileID: 89191636}
+  - component: {fileID: 89191637}
+  m_Layer: 0
+  m_Name: TriggerBoss
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &89191634
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89191633}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &89191635
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89191633}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.02, y: 4.75, z: -0.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &89191636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89191633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b044c3265a503fb478d4c81cf5b57b13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossConversation
+  Boss: {fileID: 839150150}
+  dialogueUI: {fileID: 62806100}
+  dialogueNPC: {fileID: 89191637}
+--- !u!114 &89191637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 89191633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2a3a10781012d4886050d4e100fd42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueNPC
+  dialogueData: {fileID: 11400000, guid: 6ce6ca88af3273a4084812c07c45f7be, type: 2}
+  esNPCDeFiesta: 0
 --- !u!1001 &299913261
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -222,7 +317,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4615360315754548, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.6642599
+      value: -30.45
       objectReference: {fileID: 0}
     - target: {fileID: 4615360315754548, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
       propertyPath: m_LocalPosition.y
@@ -230,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4615360315754548, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.83879995
+      value: 19.43
       objectReference: {fileID: 0}
     - target: {fileID: 4615360315754548, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
       propertyPath: m_LocalRotation.w
@@ -631,6 +726,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6493648749181115805, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
   m_PrefabInstance: {fileID: 1916711577}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &839150150 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1997296248483302, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
+  m_PrefabInstance: {fileID: 299913261}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &897738466
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -643,6 +743,22 @@ PrefabInstance:
       propertyPath: battleMusic
       value: 
       objectReference: {fileID: 8300000, guid: 8b701ea3f4049d84ea99da8b0732d548, type: 3}
+    - target: {fileID: 817750635121289360, guid: d2182836afc3b2b4ab483c3474d1a569, type: 3}
+      propertyPath: startSilence
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 817750635121289360, guid: d2182836afc3b2b4ab483c3474d1a569, type: 3}
+      propertyPath: battleTillEnd
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 817750635121289360, guid: d2182836afc3b2b4ab483c3474d1a569, type: 3}
+      propertyPath: battleEndSeconds
+      value: 75.652
+      objectReference: {fileID: 0}
+    - target: {fileID: 817750635121289360, guid: d2182836afc3b2b4ab483c3474d1a569, type: 3}
+      propertyPath: battleStartSeconds
+      value: 8.869
+      objectReference: {fileID: 0}
     - target: {fileID: 1113919413679712817, guid: d2182836afc3b2b4ab483c3474d1a569, type: 3}
       propertyPath: m_Resource
       value: 
@@ -853,7 +969,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1378077886088387597, guid: b7cd0b267da21634bac5d723616583fc, type: 3}
   m_PrefabInstance: {fileID: 299913261}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 839150150}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fc6ba23716060a64ea7328f3e3b770f2, type: 3}
@@ -1269,3 +1385,4 @@ SceneRoots:
   - {fileID: 650535782}
   - {fileID: 62806099}
   - {fileID: 1953998223}
+  - {fileID: 89191635}
