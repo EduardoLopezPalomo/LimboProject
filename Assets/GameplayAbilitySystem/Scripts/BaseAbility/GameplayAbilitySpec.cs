@@ -34,6 +34,7 @@ public class GameplayAbilitySpec
     {
         if (bOnCooldown)
         {
+            EndAbility();
             return;
         }
         ability.ActivateAbilityEffects(owner);

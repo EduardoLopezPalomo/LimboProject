@@ -18,11 +18,14 @@ public class AbilityHolder : MonoBehaviour
     public List<GameplayAbilitySpec> ActiveSpecs;
 
     public event Action<int> OnUnequipAbility;
+    public event Action<int> OnEquipAbility;
+    public event Action<int, GameplayAbilitySpec> OnActivateEquipAbility;
 
     private void Awake()
     {
         ActiveSpecs = new List<GameplayAbilitySpec>();
         specs = new Dictionary<int, GameplayAbilitySpec>();
+        int aux = 1;
         foreach (var ability in abilities)
         {
             if (ability != null && !specs.ContainsKey(ability.Id))
@@ -31,6 +34,11 @@ public class AbilityHolder : MonoBehaviour
                 spec.OnAbilityEnded += RemoveFromSpec;
                 specs.Add(ability.Id, spec);
                 ActivePasiveAbilities(spec);
+                if (ability.equipable && aux <= 2)
+                {
+                    EquipAbility(ability, aux);
+                    aux++;
+                }
             }
         }
     }
@@ -58,8 +66,8 @@ public class AbilityHolder : MonoBehaviour
     }
     /*Activates normal ability*/
 
-    public void ActivateAbility(string abilityName, GameObject owner) => ActivateAbility(Animator.StringToHash(abilityName), owner);
-    public void ActivateAbility(int abilityId, GameObject owner)
+    public GameplayAbilitySpec ActivateAbility(string abilityName, GameObject owner) => ActivateAbility(Animator.StringToHash(abilityName), owner);
+    public GameplayAbilitySpec ActivateAbility(int abilityId, GameObject owner)
     {
         if (specs.TryGetValue(abilityId, out var ability))
         {
@@ -71,12 +79,15 @@ public class AbilityHolder : MonoBehaviour
                     ActiveSpecs.Add(ability);
 
                 ability.ActivateAbility();
+                return ability;
             }
         }
         else
         {
             Debug.LogWarning($"AbilityHolder: Ability {abilityId} not found");
         }
+
+        return null;
     }
     /*Activates equipped ability*/
     public void ActivateEquippedAbility(int slot, GameObject owner)
@@ -93,8 +104,8 @@ public class AbilityHolder : MonoBehaviour
             return;
         }
 
-        ActivateAbility(equipped.Name, owner);
-
+        GameplayAbilitySpec abilitySpec = ActivateAbility(equipped.Name, owner);
+        OnActivateEquipAbility?.Invoke(slot, abilitySpec);
     }
 
     /*Returns the equipped ability in that slot*/
@@ -129,6 +140,7 @@ public class AbilityHolder : MonoBehaviour
                 {
                     UnequipAbility(2);
                 }
+                OnEquipAbility?.Invoke(slot);
                 return true;
             case 2:
                 abilitySlot2 = ability;
@@ -136,6 +148,7 @@ public class AbilityHolder : MonoBehaviour
                 {
                     UnequipAbility(1);
                 }
+                OnEquipAbility?.Invoke(slot);
                 return true;
             default:
                 Debug.LogWarning($"AbilityHolder: Invalid ability slot {slot}");

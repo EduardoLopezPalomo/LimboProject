@@ -23,6 +23,7 @@ public class InventoryMenu : MonoBehaviour
     void OnEnable()
     {
         playerAbilityHolder.OnUnequipAbility += UnequipAbility;
+        playerAbilityHolder.OnEquipAbility += RefreshEquippedSlot;
         
         List<GameplayAbility> abilities = playerAbilityHolder.GetAbilityList();
         int activeIndex = 0;
@@ -64,11 +65,14 @@ public class InventoryMenu : MonoBehaviour
             }
         }
         
+        RefreshEquippedSlot(1);
+        RefreshEquippedSlot(2);
     }
 
     void OnDisable()
     {
         playerAbilityHolder.OnUnequipAbility -= UnequipAbility;
+        playerAbilityHolder.OnEquipAbility -= RefreshEquippedSlot;
     }
 
     public void WantToEquipAbility(AbilitySlotInventory Slot)
@@ -154,5 +158,25 @@ public class InventoryMenu : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null); 
         ButtonSoundManager.IgnoreNextSelection = true;
         EventSystem.current.SetSelectedGameObject(button.gameObject);
+    }
+    
+    private void RefreshEquippedSlot(int slot)
+    {
+        GameplayAbility ability = playerAbilityHolder.GetEquippedAbility(slot);
+        GameObject slotObj = slot == 1 ? SlotAbiity1 : slot == 2 ? SlotAbiity2 : null;
+
+        if (slotObj == null)
+        {
+            Debug.LogWarning("Slot no es 1 o 2");
+            return;
+        }
+
+        AbilitySlotInventory inv = slotObj.GetComponent<AbilitySlotInventory>();
+        if (inv == null) return;
+
+        if (ability != null)
+            inv.ChangeSprite(ability.icon);
+        else
+            inv.DefaultSprite();
     }
 }
