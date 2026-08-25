@@ -7,6 +7,8 @@ public class BossConversation : MonoBehaviour
 {
     [SerializeField] private GameObject Boss;
     [SerializeField] private DialogueUI dialogueUI;
+    [SerializeField] private NPCDialogueData dataIntro;
+    [SerializeField] private NPCDialogueData dataBeaten;
     [SerializeField] private DialogueNPC dialogueNPC;
     
     private BoxCollider boxCollider;
@@ -36,8 +38,8 @@ public class BossConversation : MonoBehaviour
         {
             playerInput = other.GetComponent<PlayerInput>();
             dialogueUI.MostrarDialogo(
-                dialogueNPC.ObtenerLineasDialogo(),
-                dialogueNPC.NpcName,
+                dataIntro.dayGreeting,
+                dataIntro.NpcName,
                 dialogueNPC.VozNPC,
                 dialogueNPC.RetratoNPC,
                 playerInput);
@@ -66,8 +68,8 @@ public class BossConversation : MonoBehaviour
         if (deathEnemy == Boss && playerInput)
         {
             dialogueUI.MostrarDialogo(
-                dialogueNPC.ObtenerLineasDialogo(),
-                dialogueNPC.NpcName,
+                dataBeaten.dayGreeting,
+                dataBeaten.NpcName,
                 dialogueNPC.VozNPC,
                 dialogueNPC.RetratoNPC,
                 playerInput);
