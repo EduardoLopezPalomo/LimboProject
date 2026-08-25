@@ -5,11 +5,13 @@ public class DamageProyectile : GameplayAbility
 {
 
     public float angle = 25f;
+    public float distanceOffset = 1f;
+    public VFXDefinition proyectile;
 
-    public float lateralOffset = 1f;
-    public GameObject proyectile;
+    public float backDashDistance = 3f;
+    public float dashTime = 0.5f;
     public override GameplayAbilitySpec CreateSpec(GameObject owner)
     {
-        return new DamageProyectileSpec(this, owner, proyectile, angle, lateralOffset);
+        return new DamageProyectileSpec(this, owner, proyectile, angle, distanceOffset, backDashDistance, dashTime);
     }
 }

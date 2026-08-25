@@ -116,29 +116,6 @@ public class PlayerWeaponDamage : MonoBehaviour
         }
     }
 
-    /*
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Shield"))
-        {
-            AbilityHolder abilityHolder = GetComponentInParent<AbilityHolder>();
-            Animator animator = GetComponentInParent<Animator>();
-            if (abilityHolder != null && animator != null)
-            {
-                animator.SetBool("InCombo", false);
-                animator.SetTrigger("HitShield");
-                abilityHolder.CancelAbility("LightAttack");
-            }
-            CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.hitShield], impulseSource);
-            return;
-        }
-        if (other.gameObject.layer == LayerMask.NameToLayer("EnemyLayer"))
-        {
-            DamageEnemy(other);
-        }
-    }
-    */
-
     private void DamageEnemy(Collider other)
     {
         BehaviorGraphAgent agent = other.gameObject.GetComponentInParent<BehaviorGraphAgent>();

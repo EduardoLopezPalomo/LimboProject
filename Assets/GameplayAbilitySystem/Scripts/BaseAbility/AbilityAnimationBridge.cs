@@ -249,6 +249,21 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
     /*
+     * Notifies of DamageProyectile
+     *
+     */
+
+    public void StartDashThrow()
+    {
+        foreach (var spec in currentSpec.ToList())
+        {
+            if (spec is DamageProyectileSpec Spec)
+            {
+                Spec.StartDash();
+            }
+        }
+    }
+    /*
      * Notifies of Dash
      *
      */
