@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum TipoVoz
@@ -16,8 +17,7 @@ public class NPCDialogueData : ScriptableObject
     public Sprite retrato;
 
     [Header("Dia")]
-    [TextArea] public string dayGreeting;   
-    [TextArea] public string dayFarewell;   
+    [TextArea] public List<string> dayGreeting;   
 
     [Header("Noche")]
     [TextArea] public string nightText;

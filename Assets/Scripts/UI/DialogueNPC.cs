@@ -47,12 +47,15 @@ public class DialogueNPC : MonoBehaviour
 
         if (esDia)
         {
-            if (!haSaludadoHoy && !string.IsNullOrEmpty(dialogueData.dayGreeting))
+            if (!haSaludadoHoy && dialogueData.dayGreeting.Count != 0)
             {
-                lineas.Add(dialogueData.dayGreeting);
+                lineas = dialogueData.dayGreeting;
                 haSaludadoHoy = true;
             }
-            lineas.Add(dialogueData.dayFarewell);
+            else 
+            {
+                lineas.Add(dialogueData.dayGreeting[^1]);   
+            }
         }
         else
         {
