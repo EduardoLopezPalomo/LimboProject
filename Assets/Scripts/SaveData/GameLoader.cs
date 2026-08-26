@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameLoader : MonoBehaviour
@@ -39,6 +40,33 @@ public class GameLoader : MonoBehaviour
         
         if (cc != null) cc.enabled = true;
         
+        ApplyHealthEffect(player, playerData);
+        
+        AbilityHolder abilityHolder = player.GetComponent<AbilityHolder>();
+        
+        if(abilityHolder == null) return; 
+        
+        if (playerData.slot1Id != -1)
+        {
+            EquipAbility(abilityHolder, playerData.slot1Id, 1);   
+        }
+        else
+        {
+            abilityHolder.UnequipAbility(1);
+        }
+        
+        if (playerData.slot2Id != -1)
+        {
+            EquipAbility(abilityHolder, playerData.slot2Id, 2);  
+        }
+        else
+        {
+            abilityHolder.UnequipAbility(2);
+        }
+    }
+
+    private void ApplyHealthEffect(GameObject player, PlayerData playerData)
+    {
         AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
         GameplayEffectManager effectManager = player.GetComponent<GameplayEffectManager>();
         
@@ -55,5 +83,17 @@ public class GameLoader : MonoBehaviour
             effectManager.ApplyEffect(effect, attributeSystem, false);
         }
         Destroy(effect);
+    }
+
+    private void EquipAbility(AbilityHolder abilityHolder, int Id, int slot)
+    {
+        List<GameplayAbility> abilities = abilityHolder.GetAbilityList();
+        
+        GameplayAbility ability = abilities.Find(x => x.Id == Id);
+        
+        if (ability != null)
+        {
+            abilityHolder.EquipAbility(ability, slot);
+        }
     }
 }
