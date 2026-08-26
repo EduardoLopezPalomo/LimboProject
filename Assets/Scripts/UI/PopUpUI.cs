@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 public class PopUpUI : MonoBehaviour
 {
     public TMP_Text infoDelPopUp;
-    public LevelLoader levelLoader;
 
     private bool PartyOn = false;
     private PlayerInput playerInput;
@@ -29,11 +28,11 @@ public class PopUpUI : MonoBehaviour
         if (PartyOn)
         {
             int index = SceneUtility.GetBuildIndexByScenePath("Party");
-            levelLoader.LoadLevel(index);
+            LevelLoader.Instance.LoadLevel(index);
         }
         else
         {
-            levelLoader.LoadLevel(sceneIndex);
+            LevelLoader.Instance.LoadLevel(sceneIndex);
         }
         playerInput.SwitchCurrentActionMap("Player");
         TimeEffectsManager.ResumeGame();

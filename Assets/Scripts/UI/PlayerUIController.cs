@@ -17,6 +17,15 @@ public class PlayerUIController : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
     }
 
+    private void Start()
+    {
+        if (PauseMenu)
+        {
+            PauseMenu menu = PauseMenu.GetComponent<PauseMenu>();
+            menu.player = gameObject;   
+        }
+    }
+
     public void PressStartButton()
     {
         playerUI.SetActive(false);

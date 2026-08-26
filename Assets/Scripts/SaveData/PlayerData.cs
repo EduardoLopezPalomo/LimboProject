@@ -3,16 +3,19 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerData 
 {
-    public float masterVolume;
-    public float musicVolume;
-    public float sfxVolume;
-    public float ambienceVolume;
+    public float[] position;
+    public float health;
+    
+    public PlayerData() { }
 
-    public PlayerData(SoundMixerManager soundMixerManager)
+    public PlayerData(GameObject player)
     {
-        masterVolume = soundMixerManager.GetMasterVolume();
-        musicVolume = soundMixerManager.GetMusicVolume();
-        sfxVolume = soundMixerManager.GetSFXVVolume();
-        ambienceVolume = soundMixerManager.GetAmbienceVolume();
+        position = new float[3];
+        position[0] = player.transform.position.x;
+        position[1] = player.transform.position.y;
+        position[2] = player.transform.position.z;
+        
+        AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
+        health = attributeSystem.GetAttributeValue("PlayerHealth");
     }
 }

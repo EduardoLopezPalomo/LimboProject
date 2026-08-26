@@ -7,10 +7,11 @@ public class PauseMenu : MonoBehaviour
 {
     public GameObject OptionMenu;
     public GameObject HUD;
-    public LevelLoader levelLoader;
     public Button continueButton;
     public int levelToLoad = 0;
     public float DurationMusicFade = 2f;
+    
+    [HideInInspector] public GameObject player { set; private get; }
 
     private Canvas canvas;
     private ChangeActionMap changeActionMap;
@@ -44,14 +45,14 @@ public class PauseMenu : MonoBehaviour
 
     public void Save()
     {
-        Debug.Log("Guardando");
+        SaveSystem.SaveGame(player);
     }
 
     public void MainMenu()
     {
         TimeEffectsManager.ResumeGame();
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
-        levelLoader.LoadLevel(levelToLoad);
+        LevelLoader.Instance.LoadLevel(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = false;
     }

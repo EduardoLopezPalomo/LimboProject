@@ -1,38 +1,87 @@
 using UnityEngine;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveSystem 
 {
+    private static string AudioPath => Path.Combine(Application.persistentDataPath, "audioData.json");
+    private static string GamePath => Path.Combine(Application.persistentDataPath, "gameData.json");
+
+    #region Audio
+        
     public static void SaveAudioData(SoundMixerManager soundMixerManager)
     {
-        BinaryFormatter formatter = new BinaryFormatter();
-        string path = Application.persistentDataPath + "/audioData.save";
-        FileStream stream = new FileStream(path, FileMode.Create);
-
         AudioData data = new AudioData(soundMixerManager);
+        string json = JsonUtility.ToJson(data, true);
 
-        formatter.Serialize(stream, data);
-        stream.Close();
+        try
+        {
+            File.WriteAllText(AudioPath, json);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error saving audio data: {e.Message}");
+        }
     }
 
     public static AudioData LoadAudioData()
     {
-        string path = Application.persistentDataPath + "/audioData.save";
-        if (File.Exists(path))
+        if (!File.Exists(AudioPath))
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream stream = new FileStream(path, FileMode.Open);
-            
-            AudioData data = formatter.Deserialize(stream) as AudioData;
-            stream.Close();
-            
-            return data;
+            Debug.LogWarning("Save file not found in " + AudioPath);
+            return null;
         }
-        else
+
+        try
         {
-            Debug.LogError("Save file not found in " + path);
+            string json = File.ReadAllText(AudioPath);
+            return JsonUtility.FromJson<AudioData>(json);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error loading audio data: {e.Message}");
             return null;
         }
     }
+    
+
+    #endregion
+
+    #region Game
+
+    public static void SaveGame(GameObject player)
+    {
+        GameData data = new GameData(player);
+        string json = JsonUtility.ToJson(data, true);
+
+        try
+        {
+            File.WriteAllText(GamePath, json);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error saving game: {e.Message}");
+        }
+    }
+
+    public static GameData LoadGame()
+    {
+        if (!File.Exists(GamePath))
+        {
+            Debug.LogWarning("Save file not found in " + GamePath);
+            return null;
+        }
+
+        try
+        {
+            string json = File.ReadAllText(GamePath);
+            return JsonUtility.FromJson<GameData>(json);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error Loading game: {e.Message}");
+            return null;
+        }
+    }
+
+    #endregion
 }

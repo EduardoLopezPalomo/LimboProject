@@ -7,6 +7,8 @@ public class AudioData
     public float musicVolume;
     public float sfxVolume;
     public float ambienceVolume;
+    
+    public AudioData() { }
 
     public AudioData(SoundMixerManager soundMixerManager)
     {
