@@ -11,7 +11,7 @@ public class GameLoader : MonoBehaviour
             return;
         }
         
-        LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneIndex, OnLoaded);
+        LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneIndex, OnLoaded, false);
 
         void OnLoaded()
         {
@@ -52,7 +52,7 @@ public class GameLoader : MonoBehaviour
 
         if (attributeSystem != null && effectManager != null)
         {
-            effectManager.ApplyEffect(effect, attributeSystem);
+            effectManager.ApplyEffect(effect, attributeSystem, false);
         }
         Destroy(effect);
     }

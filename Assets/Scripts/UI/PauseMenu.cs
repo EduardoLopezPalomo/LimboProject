@@ -52,7 +52,7 @@ public class PauseMenu : MonoBehaviour
     {
         TimeEffectsManager.ResumeGame();
         SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
-        LevelLoader.Instance.LoadLevel(levelToLoad);
+        LevelLoader.Instance.LoadLevelAsync(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = false;
     }

@@ -9,7 +9,7 @@ public class GameplayEffectManager : MonoBehaviour
 {
     private List<GameplayEffectInstance> activeEffects = new();
     /*Apply the instance effect*/
-    public void ApplyEffect(GameplayEffect effect, AttributeSystem target)
+    public void ApplyEffect(GameplayEffect effect, AttributeSystem target, bool notify = true)
     {
         if (effect == null || target == null) return;
 
@@ -21,7 +21,7 @@ public class GameplayEffectManager : MonoBehaviour
         }
         else if (effect.EffectTime == EffectTime.Infinite)
         {
-            target.ApplyEffectOnce(effect);
+            target.ApplyEffectOnce(effect, notify);
         }
     }
     /*If one of the effects its finnish is remove*/

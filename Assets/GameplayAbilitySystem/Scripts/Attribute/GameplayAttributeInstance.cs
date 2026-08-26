@@ -60,7 +60,7 @@ public class GameplayAttributeInstance
     }
 
     /*Recalculate the current value of the attribute if some effects is active*/
-    private void RecalculateCurrent(bool AttributeCanResponse = false, float duration = 0f)
+    private void RecalculateCurrent(bool AttributeCanResponse = false, float duration = 0f, bool notify = true)
     {
         float OldValue = CurrentValue;
 
@@ -79,7 +79,7 @@ public class GameplayAttributeInstance
             if (last != Guid.Empty && overrideModifiers.TryGetValue(last, out var ov))
             {
                 CurrentValue = Mathf.Clamp(ov, 0f, Data.MaxValue);
-                if(Data.Response != null)
+                if(notify && Data.Response != null)
                 {
                     Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse, duration);
                 }
@@ -95,14 +95,14 @@ public class GameplayAttributeInstance
         foreach (var v in multModifiers.Values) productMult *= v;
 
         CurrentValue = Mathf.Clamp((RuntimeBaseValue + sumAdds) * productMult, 0f, Data.MaxValue); 
-        if (Data.Response != null)
+        if (notify && Data.Response != null)
         {
             Data.Response.OnAttributeChanged(this, OldValue, owner, AttributeCanResponse, duration);
         }
         // Debug.Log("Current value of"+ Data.Name + " " + CurrentValue);
     }
     /*It modifies the value of the instance not of the data if its infinite*/
-    public void ModifyRuntimeBase(float deltaOrValue, Modifier mode, bool AttributeCanResponse)
+    public void ModifyRuntimeBase(float deltaOrValue, Modifier mode, bool AttributeCanResponse, bool notify = true )
     {
         switch (mode)
         {
@@ -119,7 +119,7 @@ public class GameplayAttributeInstance
         RuntimeBaseValue = Mathf.Clamp(RuntimeBaseValue, 0f, Data.MaxValue);
         justApplyInfModifier = true;
         auxTimer = Data.WaitTillRecover;
-        RecalculateCurrent(AttributeCanResponse);
+        RecalculateCurrent(AttributeCanResponse, 0, notify);
     }
     
     public void Tick(float deltaTime)

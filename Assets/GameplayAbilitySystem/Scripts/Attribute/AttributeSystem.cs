@@ -59,7 +59,7 @@ public class AttributeSystem : MonoBehaviour
         inst.RemoveModifier(id, AttributeCanResponse);
     }
     /*Apply the effect only if its infinite*/
-    public void ApplyEffectOnce(GameplayEffect effect)
+    public void ApplyEffectOnce(GameplayEffect effect, bool notify = true)
     {
         if (effect == null) return;
         if (!_lookup.TryGetValue(effect.TargetAttribute, out var inst))
@@ -69,7 +69,7 @@ public class AttributeSystem : MonoBehaviour
         }
         if (effect.EffectTime == EffectTime.Infinite)
         {
-            inst.ModifyRuntimeBase(effect.Value, effect.Modifier, effect.CanAttributeResponse);
+            inst.ModifyRuntimeBase(effect.Value, effect.Modifier, effect.CanAttributeResponse, notify);
         }
         else
         {
@@ -114,6 +114,27 @@ public class AttributeSystem : MonoBehaviour
         }
         Debug.LogWarning("AttributeSystem: attribute not found: " + name);
         return null;
+    }
+    
+    public Dictionary<string, float> CaptureValues()
+    {
+        var snapshot = new Dictionary<string, float>();
+        foreach (var attribute in attributes)
+        {
+            snapshot[attribute.Data.Name] = attribute.CurrentValue;
+        }
+        return snapshot;
+    }
+
+    public void ApplyValues(Dictionary<string, float> values, bool notify)
+    {
+        foreach (var attribute in attributes)
+        {
+            if (values.TryGetValue(attribute.Data.Name, out float value))
+            {
+                attribute.ModifyRuntimeBase(value, Modifier.Override, false, notify);
+            }
+        }
     }
 
     private void Update()

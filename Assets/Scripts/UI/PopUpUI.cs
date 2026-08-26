@@ -28,11 +28,11 @@ public class PopUpUI : MonoBehaviour
         if (PartyOn)
         {
             int index = SceneUtility.GetBuildIndexByScenePath("Party");
-            LevelLoader.Instance.LoadLevel(index);
+            LevelLoader.Instance.LoadLevelAsync(index);
         }
         else
         {
-            LevelLoader.Instance.LoadLevel(sceneIndex);
+            LevelLoader.Instance.LoadLevelAsync(sceneIndex);
         }
         playerInput.SwitchCurrentActionMap("Player");
         TimeEffectsManager.ResumeGame();

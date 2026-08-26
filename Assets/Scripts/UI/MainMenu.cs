@@ -19,7 +19,7 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
-        LevelLoader.Instance.LoadLevel(levelToLoad);
+        LevelLoader.Instance.LoadLevelAsync(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = true;
     }

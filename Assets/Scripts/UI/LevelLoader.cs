@@ -23,15 +23,10 @@ public class LevelLoader : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    
-    public void LoadLevel(int index)
-    {
-       StartCoroutine(LoadLevelCoroutine(index));
-    }
 
-    public void LoadLevelAsync(int index, System.Action onLoaded)
+    public void LoadLevelAsync(int index, System.Action onLoaded = null, bool useAttributeCache = true)
     {
-        StartCoroutine(LoadLevelAsyncCoroutine(index, onLoaded));
+        StartCoroutine(LoadLevelAsyncCoroutine(index, onLoaded, useAttributeCache));
     }
     
     private PlayerInput GetPlayerInput()
@@ -40,38 +35,37 @@ public class LevelLoader : MonoBehaviour
         return player != null ? player.GetComponent<PlayerInput>() : null;
     }
 
-    IEnumerator LoadLevelCoroutine(int levelIndex)
+    private void SavePlayerAttributes()
     {
-        animator.SetTrigger("StartLoading");
-        GetPlayerInput()?.DeactivateInput();
-        float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
-        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
-        
-        yield return new WaitForSecondsRealtime(transitionTime);
-        
-        animator.SetTrigger("EndLoading");
-        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
-        SceneManager.LoadScene(levelIndex);
-        GetPlayerInput()?.ActivateInput();
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        player?.GetComponent<PlayerAttributesPersistance>()?.SaveCurrentState();
     }
 
-    IEnumerator LoadLevelAsyncCoroutine(int levelIndex,  System.Action onLoaded)
+    private void SetPlayerAttributes()
+    {
+        GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
+        newPlayer?.GetComponent<PlayerAttributesPersistance>()?.RestoreState();
+    }
+
+    IEnumerator LoadLevelAsyncCoroutine(int levelIndex,  System.Action onLoaded, bool useAttributeCache)
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
+        if (useAttributeCache) SavePlayerAttributes();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
         
         yield return new WaitForSecondsRealtime(transitionTime);
         
-        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelIndex);
 
         while (!asyncLoad.isDone)
         {
             yield return null;
         }
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         animator.SetTrigger("EndLoading");
+        if (useAttributeCache) SetPlayerAttributes();
         onLoaded?.Invoke();
         GetPlayerInput()?.ActivateInput();
     }
