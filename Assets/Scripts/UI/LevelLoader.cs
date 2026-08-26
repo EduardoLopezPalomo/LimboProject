@@ -38,13 +38,13 @@ public class LevelLoader : MonoBehaviour
     private void SavePlayerAttributes()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        player?.GetComponent<PlayerAttributesPersistance>()?.SaveCurrentState();
+        player?.GetComponent<PlayerGASPersistance>()?.SaveState();
     }
 
     private void SetPlayerAttributes()
     {
         GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
-        newPlayer?.GetComponent<PlayerAttributesPersistance>()?.RestoreState();
+        newPlayer?.GetComponent<PlayerGASPersistance>()?.RestoreState();
     }
 
     IEnumerator LoadLevelAsyncCoroutine(int levelIndex,  System.Action onLoaded, bool useAttributeCache)
