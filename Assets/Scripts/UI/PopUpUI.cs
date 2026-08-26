@@ -6,10 +6,11 @@ using UnityEngine.InputSystem;
 public class PopUpUI : MonoBehaviour
 {
     public TMP_Text infoDelPopUp;
+    public LevelLoader levelLoader;
 
     private bool PartyOn = false;
     private PlayerInput playerInput;
-    private string sceneName;
+    private int sceneIndex;
 
     public void MostrarMensaje(string mensaje)
     {
@@ -20,18 +21,19 @@ public class PopUpUI : MonoBehaviour
     {
         PartyOn = partyOn;
         playerInput = input;
-        sceneName = scene;
+        sceneIndex = SceneUtility.GetBuildIndexByScenePath(scene);
     }
     
     public void Confirmar()
     {
         if (PartyOn)
         {
-            SceneManager.LoadScene("Party");
+            int index = SceneUtility.GetBuildIndexByScenePath("Party");
+            levelLoader.LoadLevel(index);
         }
         else
         {
-            SceneManager.LoadScene(sceneName);
+            levelLoader.LoadLevel(sceneIndex);
         }
         playerInput.SwitchCurrentActionMap("Player");
         TimeEffectsManager.ResumeGame();
