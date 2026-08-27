@@ -6,7 +6,7 @@ public class Goals : ScriptableObject
 {
    public static event Action OnGoalCompleted;
   
-   public string tittle;
+   public string title;
    public int currentAmount;
    public int requiredAmount;
    public bool completed;

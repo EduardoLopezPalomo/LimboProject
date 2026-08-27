@@ -11,7 +11,7 @@ public class QuestItemUI : MonoBehaviour
 
     public void Setup(Quest quest)
     {
-        tittleText.text = quest.tittle;
+        tittleText.text = quest.title;
         this.quest = quest;
     }
 

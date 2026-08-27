@@ -14,7 +14,7 @@ public class Quest : ScriptableObject
 {
    public static event Action<Quest> OnQuestComplete;
    public string questId;
-   public string tittle;
+   public string title;
    public string description;
    public QuestType questType = QuestType.Principal;
    public List<Goals> goals;
@@ -22,7 +22,7 @@ public class Quest : ScriptableObject
    
    private void OnValidate()
    {
-      questId = tittle + Guid.NewGuid().ToString();
+      questId = title + Guid.NewGuid().ToString();
    }
 
    public void InitGoals()

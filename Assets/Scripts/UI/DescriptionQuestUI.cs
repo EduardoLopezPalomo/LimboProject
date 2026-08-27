@@ -25,7 +25,7 @@ public class DescriptionQuestUI : MonoBehaviour
         
         foreach (Goals goal in quest.goals)
         {
-            text.AppendLine($"{goal.tittle} [{goal.currentAmount}/{goal.requiredAmount}]");
+            text.AppendLine($"{goal.title} [{goal.currentAmount}/{goal.requiredAmount}]");
         }
 
         descriptionText.text = text.ToString();
