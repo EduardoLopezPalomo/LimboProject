@@ -39,6 +39,7 @@ public class BossConversation : MonoBehaviour
             playerInput = other.GetComponent<PlayerInput>();
             dialogueUI.MostrarDialogo(
                 dataIntro.dayGreeting,
+                dialogueNPC.NpcId,
                 dataIntro.NpcName,
                 dialogueNPC.VozNPC,
                 dialogueNPC.RetratoNPC,
@@ -49,7 +50,7 @@ public class BossConversation : MonoBehaviour
         }
     }
 
-    private void EndDialogue()
+    private void EndDialogue(string NpcId)
     {
         if (!BattleStarted)
         {
@@ -69,6 +70,7 @@ public class BossConversation : MonoBehaviour
         {
             dialogueUI.MostrarDialogo(
                 dataBeaten.dayGreeting,
+                dialogueNPC.NpcId,
                 dataBeaten.NpcName,
                 dialogueNPC.VozNPC,
                 dialogueNPC.RetratoNPC,

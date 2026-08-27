@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
-    public static event System.Action OnEndDialogue;
+    public static event System.Action<string> OnEndDialogue;
     
     [SerializeField] private GameObject panelDialogo;
     [SerializeField] private TMP_Text textoDialogo;
@@ -20,6 +20,7 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private SFXDefinition sfxHablaFemenina;
     [SerializeField] private SFXDefinition sfxHablaMonstruo;
 
+    private string actualNpcId;
     private TipoVoz vozActual;
     private Queue<string> colaLineas = new Queue<string>();
     private PlayerInput playerInputActual;
@@ -49,14 +50,14 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
-    public void MostrarDialogo(List<string> lineas, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
+    public void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
     {
 
         colaLineas = new Queue<string>(lineas);
         playerInputActual = input;
         nombreNPC.text = nombre;
         vozActual = voz;
-
+        actualNpcId = npcId;
         if (retratoNPC != null)
             retratoNPC.sprite = retrato;
 
@@ -141,6 +142,6 @@ public class DialogueUI : MonoBehaviour
         LastAudioSource = null;
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");
-        OnEndDialogue?.Invoke();
+        OnEndDialogue?.Invoke(actualNpcId);
     }
 }

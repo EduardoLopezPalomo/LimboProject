@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,16 +26,15 @@ public class NPCDialogueData : ScriptableObject
     [Header("Fiesta")]
     [TextArea] public string partyText;
 
-    [Header("Diálogos de misión (opcional)")]
-    public List<DialogoMision> dialogosMision = new List<DialogoMision>(); // <-- NUEVO
-    [TextArea] public string textoTrasCompletarMision;
-}
+    [Header("Quest")] 
+    public string NpcId;
+    public Quest ActualQuest;
+    public Quest GiveSecondaryQuest;
+    [TextArea] public List<string> QuestDialogue;
 
-[System.Serializable]
-public class DialogoMision
-{
-    public EstadoMision estadoParaMostrar = EstadoMision.Inicio;
-    public string flagRequerido;
-    [TextArea] public string texto;
-    public EstadoMision estadoAlCompletar = EstadoMision.Inicio;
+    [ContextMenu("Create NpcId")]
+    public void CreateNpcId()
+    {
+        NpcId = NpcName + Guid.NewGuid().ToString();
+    }
 }

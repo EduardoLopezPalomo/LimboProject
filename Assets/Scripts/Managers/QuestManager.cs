@@ -1,46 +1,70 @@
 using System;
-using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
-public enum EstadoMision
-{
-    Inicio,                // Antes de empezar
-    BuscaSalidaBosque,     // 1. Y ahora, ¿a dónde voy?
-    InfoSobreDioses,       // 2. La información es poder
-    PreguntaTotem,         // 3. Turismo
-    RecuperaPantalones,    // 4. Emergencia intestinal
-    SigueMusica,           // 5. ¿Qué es ese barullo?
-    RobaComida,            // 6. ¡A ponerse las botas!
-    EnfrentaNaius,         // 7. La venganza se sirve en plato caliente
-    Completada
-}
+
+
 
 public class QuestManager : MonoBehaviour
 {
-    public static QuestManager Instance { get; private set; }
-
-    public EstadoMision EstadoActual { get; private set; } = EstadoMision.Inicio;
-
-    public static event Action<EstadoMision> OnEstadoMisionCambiado;
-
-    private HashSet<string> flags = new HashSet<string>(); 
+    public static QuestManager instance { get; private set; }
+    
+    [SerializeField] private List<Quest> PrincipalQuests;
+    
+    private Dictionary<string, Quest> SecondaryQuests;
+    private int actualPrincipalQuestIndex = 0;
+    
+    private void OnEnable()
+    {
+        Quest.OnQuestComplete += OnQuestCompleted;
+    }
+    
+    private void OnDisable()
+    {
+        Quest.OnQuestComplete -=OnQuestCompleted;
+    }
 
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    public void AvanzarA(EstadoMision nuevoEstado)
+    private void Start()
     {
-        if (nuevoEstado <= EstadoActual) return;
-        Debug.Log("Misión avanzada a: " + nuevoEstado);
-        EstadoActual = nuevoEstado;
-        OnEstadoMisionCambiado?.Invoke(nuevoEstado);
+        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
     }
 
-    public bool EstaEnEstado(EstadoMision estado) => EstadoActual == estado;
-    public void MarcarFlag(string flag) => flags.Add(flag);
-    public bool TieneFlag(string flag) => flags.Contains(flag);
+    private void OnQuestCompleted(string questId)
+    {
+        if (questId == PrincipalQuests[actualPrincipalQuestIndex].questId)
+        {
+            actualPrincipalQuestIndex++;
+            if (actualPrincipalQuestIndex >= PrincipalQuests.Count)
+            {
+                Debug.LogWarning("There is no more quest");
+                return;
+            }
+
+            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
+        }
+    }
+
+    private void ActivateQuest(Quest quest)
+    {
+        quest.InitGoals();
+    }
+
+    public String GetActualQuest()
+    {
+        return PrincipalQuests[actualPrincipalQuestIndex].questId;
+    }
 }

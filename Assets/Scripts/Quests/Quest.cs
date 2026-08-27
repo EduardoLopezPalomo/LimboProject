@@ -1,0 +1,52 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+public enum QuestType
+{
+   Principal,
+   Secondary
+}
+
+[CreateAssetMenu(fileName = "Quest", menuName = "Quests/Quest")]
+public class Quest : ScriptableObject
+{
+   public static event Action<string> OnQuestComplete;
+   public string questId;
+   public string tittle;
+   public string description;
+   public QuestType questType = QuestType.Principal;
+   public List<Goals> goals;
+   public bool completed;
+   
+   private void OnValidate()
+   {
+      questId = tittle + Guid.NewGuid().ToString();
+   }
+
+   public void InitGoals()
+   {
+      goals.ForEach(goal => goal.Init());
+      completed = false;
+      Goals.OnGoalCompleted += CheckGoals;
+      Debug.Log(tittle);
+      Debug.Log(description);
+   }
+
+   public void CheckGoals()
+   {
+      if (goals.All(goal => goal.completed))
+      {
+         Complete();
+      }
+   }
+
+   public bool Complete()
+   {
+      completed = true;
+      OnQuestComplete?.Invoke(questId);
+      Goals.OnGoalCompleted -= CheckGoals;
+      return completed;
+   }
+}

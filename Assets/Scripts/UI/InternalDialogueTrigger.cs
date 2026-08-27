@@ -18,9 +18,6 @@ public class InternalDialogueTrigger : MonoBehaviour
     [Header("Comportamiento")]
     [SerializeField] private bool soloUnaVez = true;
 
-    [Header("Mision")]
-    [SerializeField] private EstadoMision estadoAlMostrarse = EstadoMision.Inicio;
-
 
     private bool yaMostrado = false;
 
@@ -33,12 +30,9 @@ public class InternalDialogueTrigger : MonoBehaviour
         PlayerInput playerInput = other.GetComponent<PlayerInput>();
         if (playerInput == null) return;
 
-        dialogueUI.MostrarDialogo(lineas, nombreProtagonista, vozProtagonista, retratoProtagonista, playerInput);
+        dialogueUI.MostrarDialogo(lineas, "" ,nombreProtagonista , vozProtagonista, retratoProtagonista, playerInput);
         playerInput.SwitchCurrentActionMap("UI");
 
         yaMostrado = true;
-
-        if (estadoAlMostrarse != EstadoMision.Inicio) 
-            QuestManager.Instance.AvanzarA(estadoAlMostrarse);
     }
 }

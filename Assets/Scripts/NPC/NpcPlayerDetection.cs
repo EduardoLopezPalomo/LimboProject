@@ -48,6 +48,7 @@ public class NpcPlayerDetection : MonoBehaviour
     {
         dialogueUI.MostrarDialogo(
             dialogueNPC.ObtenerLineasDialogo(),
+            dialogueNPC.NpcId,
             dialogueNPC.NpcName,
             dialogueNPC.VozNPC,
             dialogueNPC.RetratoNPC,
