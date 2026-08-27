@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 [Serializable]
-public struct NavigationButtons
+public class NavigationButtons
 {
     public Button ActualButton;
     public Selectable RightButtonNav;

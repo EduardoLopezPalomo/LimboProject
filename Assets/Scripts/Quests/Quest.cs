@@ -12,7 +12,7 @@ public enum QuestType
 [CreateAssetMenu(fileName = "Quest", menuName = "Quests/Quest")]
 public class Quest : ScriptableObject
 {
-   public static event Action<string> OnQuestComplete;
+   public static event Action<Quest> OnQuestComplete;
    public string questId;
    public string tittle;
    public string description;
@@ -45,7 +45,7 @@ public class Quest : ScriptableObject
    public bool Complete()
    {
       completed = true;
-      OnQuestComplete?.Invoke(questId);
+      OnQuestComplete?.Invoke(this);
       Goals.OnGoalCompleted -= CheckGoals;
       return completed;
    }

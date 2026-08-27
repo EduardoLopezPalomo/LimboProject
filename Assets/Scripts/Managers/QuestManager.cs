@@ -40,10 +40,24 @@ public class QuestManager : MonoBehaviour
 
     private void Start()
     {
+        SecondaryQuests = new Dictionary<string, Quest>();
         ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
     }
 
-    private void OnQuestCompleted(string questId)
+    private void OnQuestCompleted(Quest quest)
+    {
+        switch (quest.questType)
+        {
+            case QuestType.Principal:
+                principalQuestCompleted(quest.questId);
+                break;
+            case QuestType.Secondary:
+                secondaryQuestCompleted(quest.questId);
+                break;
+        }
+    }
+
+    private void principalQuestCompleted(string questId)
     {
         if (questId == PrincipalQuests[actualPrincipalQuestIndex].questId)
         {
@@ -58,13 +72,42 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    private void secondaryQuestCompleted(string questId)
+    {
+        SecondaryQuests.Remove(questId);
+    }
+
     private void ActivateQuest(Quest quest)
     {
         quest.InitGoals();
     }
 
+    public void AddSecondaryQuest(Quest quest)
+    {
+        if (SecondaryQuests.ContainsKey(quest.questId)) return;
+        
+        SecondaryQuests.Add(quest.questId, quest);
+    }
+
     public String GetActualQuest()
     {
         return PrincipalQuests[actualPrincipalQuestIndex].questId;
+    }
+
+    public bool HasSecondaryQuest(string questId)
+    {
+        return SecondaryQuests.ContainsKey(questId);
+    }
+    
+    public List<Quest> GetActiveQuests()
+    {
+        List<Quest> activas = new List<Quest>();
+
+        if (actualPrincipalQuestIndex < PrincipalQuests.Count)
+            activas.Add(PrincipalQuests[actualPrincipalQuestIndex]);
+
+        activas.AddRange(SecondaryQuests.Values);
+
+        return activas;
     }
 }

@@ -47,8 +47,15 @@ public class DialogueNPC : MonoBehaviour
                   || faseActual == DayPhase.FirstLight
                   || faseActual == DayPhase.Dawn;
 
-        if (CheckQuest())
+        if (CheckPrincipalQuest())
         {
+            lineas = dialogueData.QuestDialogue;
+            return lineas;
+        }
+
+        if (CheckSecondaryQuest())
+        {
+            QuestManager.instance.AddSecondaryQuest(dialogueData.GiveSecondaryQuest);
             lineas = dialogueData.QuestDialogue;
             return lineas;
         }
@@ -73,8 +80,16 @@ public class DialogueNPC : MonoBehaviour
         return lineas; 
     }
 
-    private bool CheckQuest()
+    private bool CheckPrincipalQuest()
     {
         return dialogueData.ActualQuest != null && dialogueData.QuestDialogue.Count != 0 && QuestManager.instance.GetActualQuest() == dialogueData.ActualQuest.questId;
+    }
+
+    private bool CheckSecondaryQuest()
+    {
+        return dialogueData.GiveSecondaryQuest != null 
+               && dialogueData.GiveSecondaryQuest.questType == QuestType.Secondary
+               && dialogueData.QuestDialogue.Count != 0 
+               && !QuestManager.instance.HasSecondaryQuest(dialogueData.GiveSecondaryQuest.questId);
     }
 }
