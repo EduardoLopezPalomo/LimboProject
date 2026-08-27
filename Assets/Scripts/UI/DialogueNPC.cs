@@ -6,7 +6,8 @@ public class DialogueNPC : MonoBehaviour
     [SerializeField] private NPCDialogueData dialogueData;
     [SerializeField] private bool esNPCDeFiesta = false;
     private bool haSaludadoHoy = false;
-    public string NpcName => dialogueData.NpcName;
+
+    public string NpcName => dialogueData.NpcName; 
     public TipoVoz VozNPC => dialogueData.tipoVoz;
     public Sprite RetratoNPC => dialogueData.retrato;
 
@@ -52,9 +53,9 @@ public class DialogueNPC : MonoBehaviour
                 lineas = dialogueData.dayGreeting;
                 haSaludadoHoy = true;
             }
-            else 
+            else
             {
-                lineas.Add(dialogueData.dayGreeting[^1]);   
+                lineas.Add(dialogueData.dayGreeting[^1]);
             }
         }
         else
@@ -62,6 +63,43 @@ public class DialogueNPC : MonoBehaviour
             lineas.Add(dialogueData.nightText);
         }
 
-        return lineas;
+        
+        DialogoMision dialogoActivo = ObtenerDialogoMisionActivo();
+
+        if (dialogoActivo != null)
+        {
+            lineas.Add(dialogoActivo.texto);
+            if (dialogoActivo.estadoAlCompletar != EstadoMision.Inicio)
+                QuestManager.Instance.AvanzarA(dialogoActivo.estadoAlCompletar);
+        }
+        else if (!string.IsNullOrEmpty(dialogueData.textoTrasCompletarMision) && HayMisionCompletada())
+        {
+            lineas.Add(dialogueData.textoTrasCompletarMision);
+        }
+
+        return lineas; 
+    }
+
+    private DialogoMision ObtenerDialogoMisionActivo()
+    {
+        foreach (var d in dialogueData.dialogosMision)
+        {
+            if (d.estadoParaMostrar == EstadoMision.Inicio) continue;
+            if (!QuestManager.Instance.EstaEnEstado(d.estadoParaMostrar)) continue;
+            if (!string.IsNullOrEmpty(d.flagRequerido) && !QuestManager.Instance.TieneFlag(d.flagRequerido)) continue;
+
+            return d;
+        }
+        return null;
+    }
+
+    private bool HayMisionCompletada()
+    {
+        foreach (var d in dialogueData.dialogosMision)
+        {
+            if (d.estadoParaMostrar != EstadoMision.Inicio && QuestManager.Instance.EstadoActual > d.estadoParaMostrar)
+                return true;
+        }
+        return false;
     }
 }
