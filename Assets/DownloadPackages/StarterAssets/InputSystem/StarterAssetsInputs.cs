@@ -62,9 +62,15 @@ namespace StarterAssets
 			JumpInput(value.isPressed);
 		}
 
-		public void OnSprint(InputValue value)
+		public void OnSprintKeyboard(InputValue value)
 		{
-			SprintInput(value.isPressed);
+			sprint = value.isPressed;
+		}
+
+		public void OnSprintGamepad(InputValue value)
+		{
+			if (value.isPressed)
+				sprint = !sprint;
 		}
 		
 		public void OnLockOn(InputValue value)
