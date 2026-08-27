@@ -7,7 +7,6 @@ public class Goals : ScriptableObject
    public static event Action OnGoalCompleted;
   
    public string tittle;
-   public string description;
    public int currentAmount;
    public int requiredAmount;
    public bool completed;
@@ -17,8 +16,6 @@ public class Goals : ScriptableObject
    {
       currentAmount = 0;
       completed = false;
-      Debug.Log(tittle);
-      Debug.Log(description);
    }
 
    public void Evaluate()

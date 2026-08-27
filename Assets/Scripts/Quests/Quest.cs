@@ -30,8 +30,6 @@ public class Quest : ScriptableObject
       goals.ForEach(goal => goal.Init());
       completed = false;
       Goals.OnGoalCompleted += CheckGoals;
-      Debug.Log(tittle);
-      Debug.Log(description);
    }
 
    public void CheckGoals()

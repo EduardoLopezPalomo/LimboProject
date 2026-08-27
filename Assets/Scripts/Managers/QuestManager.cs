@@ -41,7 +41,8 @@ public class QuestManager : MonoBehaviour
     private void Start()
     {
         SecondaryQuests = new Dictionary<string, Quest>();
-        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
+        if(PrincipalQuests.Count > 0)
+            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
     }
 
     private void OnQuestCompleted(Quest quest)

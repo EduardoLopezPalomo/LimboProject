@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -16,8 +17,17 @@ public class DescriptionQuestUI : MonoBehaviour
         descriptionText.text = "";
     }
     
-    private void ShowDescription(string description)
+    private void ShowDescription(Quest quest)
     {
-        descriptionText.text = description;
+        StringBuilder text = new StringBuilder();
+        
+        text.AppendLine(quest.description);
+        
+        foreach (Goals goal in quest.goals)
+        {
+            text.AppendLine($"{goal.tittle} [{goal.currentAmount}/{goal.requiredAmount}]");
+        }
+
+        descriptionText.text = text.ToString();
     }
 }

@@ -4,19 +4,19 @@ using System;
 
 public class QuestItemUI : MonoBehaviour
 {
-    public static event Action<string> OnClickedQuestUI;
+    public static event Action<Quest> OnClickedQuestUI;
     [SerializeField] private TMP_Text tittleText;
     
-    private string description;
+    private Quest quest;
 
     public void Setup(Quest quest)
     {
         tittleText.text = quest.tittle;
-        description = quest.description;
+        this.quest = quest;
     }
 
     public void ClickButton()
     {
-        OnClickedQuestUI?.Invoke(description);
+        OnClickedQuestUI?.Invoke(quest);
     }
 }
