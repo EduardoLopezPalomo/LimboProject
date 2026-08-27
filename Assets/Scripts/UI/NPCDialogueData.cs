@@ -24,4 +24,17 @@ public class NPCDialogueData : ScriptableObject
 
     [Header("Fiesta")]
     [TextArea] public string partyText;
+
+    [Header("Diálogos de misión (opcional)")]
+    public List<DialogoMision> dialogosMision = new List<DialogoMision>(); // <-- NUEVO
+    [TextArea] public string textoTrasCompletarMision;
+}
+
+[System.Serializable]
+public class DialogoMision
+{
+    public EstadoMision estadoParaMostrar = EstadoMision.Inicio;
+    public string flagRequerido;
+    [TextArea] public string texto;
+    public EstadoMision estadoAlCompletar = EstadoMision.Inicio;
 }

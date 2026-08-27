@@ -18,9 +18,9 @@ public class InternalDialogueTrigger : MonoBehaviour
     [Header("Comportamiento")]
     [SerializeField] private bool soloUnaVez = true;
 
-    // TODO (pendiente de la misión principal): aquí más adelante añadiremos
-    // una comprobación tipo "if (!QuestManager.CondicionParaEsteDialogo()) return;"
-    // antes de disparar el diálogo, para que solo aparezca cuando corresponda al flujo de misión.
+    [Header("Mision")]
+    [SerializeField] private EstadoMision estadoAlMostrarse = EstadoMision.Inicio;
+
 
     private bool yaMostrado = false;
 
@@ -28,7 +28,7 @@ public class InternalDialogueTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         if (soloUnaVez && yaMostrado) return;
-        if (dialogueUI.EnDialogo) return; // evita solaparse si ya hay un diálogo abierto
+        if (dialogueUI.EnDialogo) return; 
 
         PlayerInput playerInput = other.GetComponent<PlayerInput>();
         if (playerInput == null) return;
@@ -37,5 +37,8 @@ public class InternalDialogueTrigger : MonoBehaviour
         playerInput.SwitchCurrentActionMap("UI");
 
         yaMostrado = true;
+
+        if (estadoAlMostrarse != EstadoMision.Inicio) 
+            QuestManager.Instance.AvanzarA(estadoAlMostrarse);
     }
 }
