@@ -2,9 +2,10 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "PlaceGoal", menuName = "Quests/Goals/Place")]
-public class PlaceGoal : Goals
+public class PlaceGoal : Goals, IMinimapTarget
 {
     public string ZoneId;
+    public string MinimapTargetId => ZoneId;
     public override void Init()
     {
         base.Init();

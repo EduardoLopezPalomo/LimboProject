@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,7 +14,22 @@ public class QuestItemInteractable : MonoBehaviour
 
     private bool playerInside = false;
     private PlayerInput playerInput;
- 
+    private MinimapIcon minimapIcon;
+    
+    private void Awake()
+    {
+        minimapIcon = GetComponent<MinimapIcon>();
+        minimapIcon.enabled = false; 
+    }
+    
+    void OnEnable()
+    {
+        QuestManager.OnGoalChange += HandleGoalsChanged;
+        HandleGoalsChanged(null);
+    }
+
+    void OnDisable() => QuestManager.OnGoalChange -= HandleGoalsChanged;
+
     private void Update()
     {
         if (!playerInside || playerInput == null || !CanInteract()) return;
@@ -52,6 +68,13 @@ public class QuestItemInteractable : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerInside = false;
         if (interactUI != null) interactUI.SetActive(false);
+    }
+    
+    private void HandleGoalsChanged(HashSet<string> ids)
+    {
+        bool esObjetivo = QuestManager.IsCurrentGoal(itemId);
+        minimapIcon.enabled = esObjetivo;
+        if (esObjetivo) minimapIcon.SetAsGoal(true);
     }
     
     [ContextMenu("Create Id")]

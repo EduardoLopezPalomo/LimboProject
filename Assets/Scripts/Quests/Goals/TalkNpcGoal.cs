@@ -2,9 +2,10 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "TalkGoal", menuName = "Quests/Goals/Talk")]
-public class TalkNpcGoal : Goals
+public class TalkNpcGoal : Goals, IMinimapTarget
 {
     public string npcId;
+    public string MinimapTargetId => npcId;
     
     public override void Init()
     {

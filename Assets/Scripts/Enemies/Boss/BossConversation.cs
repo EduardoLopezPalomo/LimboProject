@@ -52,6 +52,8 @@ public class BossConversation : MonoBehaviour
 
     private void EndDialogue(string NpcId)
     {
+        if (NpcId != dataIntro.NpcId) return;
+        
         if (!BattleStarted)
         {
             agent.BlackboardReference.SetVariableValue("StartAttack", true);

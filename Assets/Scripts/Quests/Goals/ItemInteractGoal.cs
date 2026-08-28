@@ -2,10 +2,11 @@ using System;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ItemInteractGoal", menuName = "Quests/Goals/Item")]
-public class ItemInteractGoal : Goals
+public class ItemInteractGoal : Goals, IMinimapTarget
 {
     public string itemId;
-    
+    public string MinimapTargetId => itemId;
+
     public override void Init()
     {
         base.Init();

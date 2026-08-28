@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -12,16 +13,28 @@ public class DialogueNPC : MonoBehaviour
     public TipoVoz VozNPC => dialogueData.tipoVoz;
     public Sprite RetratoNPC => dialogueData.retrato;
 
+    private MinimapIcon minimapIcon;
+
+    private void Awake()
+    {
+        minimapIcon = GetComponent<MinimapIcon>();
+    }
+
     private void OnEnable()
     {
         if (!esNPCDeFiesta)
             DayNight.OnDayPhaseChanged += OnDayPhaseChanged;
+        
+        QuestManager.OnGoalChange += HandleGoalsChanged;
+        HandleGoalsChanged(null);
     }
 
     private void OnDisable()
     {
         if (!esNPCDeFiesta)
             DayNight.OnDayPhaseChanged -= OnDayPhaseChanged;
+        
+        QuestManager.OnGoalChange -= HandleGoalsChanged;
     }
 
     private void OnDayPhaseChanged(DayPhase nuevaFase)
@@ -30,6 +43,13 @@ public class DialogueNPC : MonoBehaviour
         {
             haSaludadoHoy = false;
         }
+    }
+    
+    private void HandleGoalsChanged(HashSet<string> ids)
+    {
+        if (minimapIcon == null) return;
+        string npcId = dialogueData.NpcId;
+        minimapIcon.SetAsGoal(QuestManager.IsCurrentGoal(npcId));
     }
 
     public List<string> ObtenerLineasDialogo()

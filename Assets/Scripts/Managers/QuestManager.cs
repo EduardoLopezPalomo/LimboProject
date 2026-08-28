@@ -10,9 +10,12 @@ public class QuestManager : MonoBehaviour
 {
     public static QuestManager instance { get; private set; }
     
+    public static event Action<HashSet<string>> OnGoalChange;
+    
     [SerializeField] private List<Quest> PrincipalQuests;
     
     private Dictionary<string, Quest> SecondaryQuests;
+    private static HashSet<string> currentGoalIds = new HashSet<string>();
     private int actualPrincipalQuestIndex = 0;
     
     private void OnEnable()
@@ -81,7 +84,24 @@ public class QuestManager : MonoBehaviour
     private void ActivateQuest(Quest quest)
     {
         quest.InitGoals();
+        SetCurrentGoals(PrincipalQuests[actualPrincipalQuestIndex].goals);
     }
+    
+    private static void SetCurrentGoals(List<Goals> goals)
+    {
+        HashSet<string> ids = new HashSet<string>();
+        foreach (Goals goal in goals)
+        {
+            if (goal is IMinimapTarget minimapTarget && !string.IsNullOrEmpty(minimapTarget.MinimapTargetId))
+            {
+                ids.Add(minimapTarget.MinimapTargetId);
+            }
+        }
+        currentGoalIds = ids;
+        OnGoalChange?.Invoke(currentGoalIds);
+    }
+    
+    public static bool IsCurrentGoal(string id) => !string.IsNullOrEmpty(id) && currentGoalIds.Contains(id);
 
     public void AddSecondaryQuest(Quest quest)
     {
