@@ -28,6 +28,7 @@ public class PlayerUIController : MonoBehaviour
 
     public void PressStartButton()
     {
+        if (playerUI == null || PauseMenu == null || AblityMenu == null) return;
         playerUI.SetActive(false);
         PauseMenu.SetActive(true);
         playerInput.SwitchCurrentActionMap("UI");
@@ -38,6 +39,7 @@ public class PlayerUIController : MonoBehaviour
 
     public void PressAbilityMenuButton()
     {
+        if (playerUI == null || PauseMenu == null || AblityMenu == null) return;
         if (PauseMenu.activeSelf) return;
         
         if (AblityMenu.activeSelf)

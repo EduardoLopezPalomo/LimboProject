@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameLoader : MonoBehaviour
@@ -12,6 +13,7 @@ public class GameLoader : MonoBehaviour
             return;
         }
         
+        LoadQuestData(gameData.worldData);
         LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneIndex, OnLoaded, false);
 
         void OnLoaded()
@@ -95,5 +97,22 @@ public class GameLoader : MonoBehaviour
         {
             abilityHolder.EquipAbility(ability, slot);
         }
+    }
+
+    private void LoadQuestData(WorldData worldData)
+    {
+        if (QuestManager.instance.GetQuestNumber() != worldData.questId.Length)
+        {
+            Debug.LogWarning("Quest number has change so it will not load");
+            return;
+        }
+
+        if (!QuestManager.instance.GetIdOfQuests().SequenceEqual(worldData.questId))
+        {
+            Debug.LogWarning("Quest order has change so it will not load");
+            return;
+        }
+        QuestManager.instance.SetQuestIndex(worldData.questIndex);
+        QuestManager.instance.LoadGoalData(worldData.currentAmount, worldData.requiredAmount,worldData.completed);
     }
 }

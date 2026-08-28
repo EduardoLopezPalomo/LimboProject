@@ -99,6 +99,11 @@ public class QuestManager : MonoBehaviour
     {
         return SecondaryQuests.ContainsKey(questId);
     }
+
+    public int GetQuestNumber()
+    {
+        return PrincipalQuests.Count;
+    }
     
     public List<Quest> GetActiveQuests()
     {
@@ -111,4 +116,89 @@ public class QuestManager : MonoBehaviour
 
         return activas;
     }
+
+    #region SaveAndLoadData
+    public int GetQuestIndex()
+    {
+        return actualPrincipalQuestIndex;
+    }
+
+    public void SetQuestIndex(int index)
+    {
+        actualPrincipalQuestIndex = index;
+    }
+    
+    public string[] GetIdOfQuests()
+    {
+        string[] listId = new string[PrincipalQuests.Count];
+        
+        int i = 0;
+        foreach (Quest quest in PrincipalQuests)
+        {
+            listId[i] = quest.questId;
+            i++;
+        }
+        
+        return listId;
+    }
+
+    public int[] GetCurrentAmountOfQuest()
+    {
+        int[] actualAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        
+        int i = 0;
+        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        {
+            actualAmount[i] = goal.currentAmount;
+            i++;
+        }
+        
+        return actualAmount;
+    }
+    
+    public int[] GetRequiredAmountOfQuest()
+    {
+        int[] requiredAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        
+        int i = 0;
+        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        {
+            requiredAmount[i] = goal.requiredAmount;
+            i++;
+        }
+        
+        return requiredAmount;
+    }
+    
+    public bool[] GetCompletedGoalOfQuest()
+    {
+        bool[] completed = new bool[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        
+        int i = 0;
+        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        {
+            completed[i] = goal.completed;
+            i++;
+        }
+        
+        return completed;
+    }
+
+
+    public void LoadGoalData(int[] currentAmount, int[] requiredAmount, bool[] completed)
+    {
+        int i = 0;
+        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        {
+            goal.currentAmount = currentAmount[i];
+            goal.requiredAmount = requiredAmount[i];
+            goal.completed = completed[i];
+
+            i++;
+        }
+    }
+    
+
+    #endregion
+    
 }

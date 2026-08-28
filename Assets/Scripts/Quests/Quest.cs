@@ -20,7 +20,7 @@ public class Quest : ScriptableObject
    public List<Goals> goals;
    public bool completed;
    
-   private void OnValidate()
+   public void CreateId()
    {
       questId = title + Guid.NewGuid().ToString();
    }
