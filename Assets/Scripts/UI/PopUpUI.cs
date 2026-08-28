@@ -8,6 +8,8 @@ public class PopUpUI : MonoBehaviour
     public TMP_Text infoDelPopUp;
 
     private bool PartyOn = false;
+    private Vector3 pointNewScene;
+    private Quaternion rotationNewScene;
     private PlayerInput playerInput;
     private int sceneIndex;
 
@@ -16,11 +18,13 @@ public class PopUpUI : MonoBehaviour
         infoDelPopUp.text = mensaje;
     }
 
-    public void SetVariables(bool partyOn, PlayerInput input, string scene)
+    public void SetVariables(bool partyOn, PlayerInput input, string scene, Vector3 point, Quaternion rotation)
     {
         PartyOn = partyOn;
         playerInput = input;
         sceneIndex = SceneUtility.GetBuildIndexByScenePath(scene);
+        pointNewScene = point;
+        rotationNewScene = rotation;
     }
     
     public void Confirmar()
@@ -28,11 +32,11 @@ public class PopUpUI : MonoBehaviour
         if (PartyOn)
         {
             int index = SceneUtility.GetBuildIndexByScenePath("Party");
-            LevelLoader.Instance.LoadLevelAsync(index);
+            LevelLoader.Instance.LoadLevelAndTeleportAsync(index, pointNewScene, rotationNewScene);
         }
         else
         {
-            LevelLoader.Instance.LoadLevelAsync(sceneIndex);
+            LevelLoader.Instance.LoadLevelAndTeleportAsync(sceneIndex, pointNewScene, rotationNewScene);
         }
         playerInput.SwitchCurrentActionMap("Player");
         TimeEffectsManager.ResumeGame();

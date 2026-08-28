@@ -6,6 +6,8 @@ using UnityEngine.EventSystems;
 public class teleport_script : MonoBehaviour
 {
     [SerializeField] private string sceneName;
+    [SerializeField] private Vector3 pointInNewScene;
+    [SerializeField] private Quaternion rotationInNewScene;
     [SerializeField] private bool PartyOn = false;
     [SerializeField] private GameObject popUp;
     [SerializeField] private GameObject botonAceptar;
@@ -27,7 +29,7 @@ public class teleport_script : MonoBehaviour
             if (playerInput != null && popUpUI != null)
             {
                 playerInput.SwitchCurrentActionMap("UI");
-                popUpUI.SetVariables(PartyOn, playerInput, sceneName);
+                popUpUI.SetVariables(PartyOn, playerInput, sceneName, pointInNewScene, rotationInNewScene);
                 popUpUI.MostrarMensaje(mensajePopUP);
                 
             }

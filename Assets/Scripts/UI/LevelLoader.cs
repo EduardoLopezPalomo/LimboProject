@@ -23,6 +23,12 @@ public class LevelLoader : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+    
+    public void LoadLevelAndTeleportAsync(int index, Vector3 point, Quaternion rotation)
+    {
+        StartCoroutine(LoadLevelAndTeleportAsyncCoroutine(index, point, rotation));
+    }
+    
 
     public void LoadLevelAsync(int index, System.Action onLoaded = null, bool useAttributeCache = true)
     {
@@ -47,6 +53,18 @@ public class LevelLoader : MonoBehaviour
         newPlayer?.GetComponent<PlayerGASPersistance>()?.RestoreState();
     }
 
+    private void TeleportPlayer(Vector3 point, Quaternion rotation)
+    {
+        GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
+        
+        CharacterController cc = newPlayer.GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        newPlayer.transform.SetPositionAndRotation(point, rotation);
+
+        if (cc != null) cc.enabled = true;
+    }
+
     IEnumerator LoadLevelAsyncCoroutine(int levelIndex,  System.Action onLoaded, bool useAttributeCache)
     {
         animator.SetTrigger("StartLoading");
@@ -67,6 +85,27 @@ public class LevelLoader : MonoBehaviour
         animator.SetTrigger("EndLoading");
         if (useAttributeCache) SetPlayerAttributes();
         onLoaded?.Invoke();
+        GetPlayerInput()?.ActivateInput();
+    }
+    
+    IEnumerator LoadLevelAndTeleportAsyncCoroutine(int levelIndex, Vector3 point, Quaternion rotation)
+    {
+        animator.SetTrigger("StartLoading");
+        GetPlayerInput()?.DeactivateInput();
+        float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
+        
+        yield return new WaitForSecondsRealtime(transitionTime);
+        
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelIndex);
+
+        while (!asyncLoad.isDone)
+        {
+            yield return null;
+        }
+        TeleportPlayer(point, rotation);
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
+        animator.SetTrigger("EndLoading");
         GetPlayerInput()?.ActivateInput();
     }
 }
