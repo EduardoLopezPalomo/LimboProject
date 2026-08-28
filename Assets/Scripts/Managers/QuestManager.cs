@@ -145,6 +145,10 @@ public class QuestManager : MonoBehaviour
 
     public void SetQuestIndex(int index)
     {
+        if (index != actualPrincipalQuestIndex)
+        {
+            PrincipalQuests[actualPrincipalQuestIndex].Complete(true);
+        }
         actualPrincipalQuestIndex = index;
     }
     

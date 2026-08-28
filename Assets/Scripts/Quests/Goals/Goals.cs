@@ -29,6 +29,7 @@ public class Goals : ScriptableObject
    public virtual void Completed()
    {
       completed = true;
+      NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.GoalCompleted, title));
       OnGoalCompleted?.Invoke();
    }
 

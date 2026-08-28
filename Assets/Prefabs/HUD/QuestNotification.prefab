@@ -109,7 +109,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.67082286}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.0002593994, y: -0.040748596}
+  m_AnchoredPosition: {x: -0.00024414062, y: -0.040748596}
   m_SizeDelta: {x: -0.519989, y: 0.20349884}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4679351864947503227
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "T\xEDtulo mision"
+  m_text: New Mision/ Mision, Goal Completed
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b18a942ddb4c0a7489d405b1a1a64103, type: 2}
   m_sharedMaterial: {fileID: 1693745628547534513, guid: b18a942ddb4c0a7489d405b1a1a64103, type: 2}
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: -36.032513}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -248,7 +248,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.20463234, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.38635254, y: 0.000831604}
+  m_AnchoredPosition: {x: -0.38635254, y: 0.0008239746}
   m_SizeDelta: {x: 0.01071167, y: 0.1000061}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &604788269975013083
@@ -378,8 +378,10 @@ GameObject:
   - component: {fileID: 7704103252327375875}
   - component: {fileID: 5168380667534337753}
   - component: {fileID: 4754264106410961283}
+  - component: {fileID: 1089900284059275808}
+  - component: {fileID: 8768788487894766213}
   m_Layer: 5
-  m_Name: Mision HUD Canvas
+  m_Name: QuestNotification
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -441,12 +443,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -469,6 +471,35 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &1089900284059275808
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5186089901556714605}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
+--- !u!114 &8768788487894766213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5186089901556714605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5c355a2dc4af040b1af3f0766fae1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NotificationUI
+  canvasGroup: {fileID: 1089900284059275808}
+  notificationTypeText: {fileID: 5156020654098996755}
+  titleText: {fileID: 800869448669382117}
+  notificationSound: {fileID: 11400000, guid: 39cabbeaa2405cf41a9f7ad8ca5a0a9f, type: 2}
+  fadeDuration: 0.3
 --- !u!1 &6177712562628416572
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0.67082286}
-  m_AnchoredPosition: {x: -0.0001373291, y: -0.102005005}
+  m_AnchoredPosition: {x: -0.00012207031, y: -0.102005005}
   m_SizeDelta: {x: -0.519989, y: -0.08000183}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6509991434549969780
@@ -534,7 +565,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Detalles mision
+  m_text: 'Title '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9afe9362982deac488ffb089aeb4109d, type: 2}
   m_sharedMaterial: {fileID: -5405904199569464506, guid: 9afe9362982deac488ffb089aeb4109d, type: 2}
@@ -568,8 +599,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 50
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -600,7 +631,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 51.24577, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -640,7 +671,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.9471666, y: 0.6054074}
   m_AnchorMax: {x: 1, y: 0.72400004}
-  m_AnchoredPosition: {x: 3.1046753, y: -2.4485016}
+  m_AnchoredPosition: {x: 3.1047363, y: -2.4485016}
   m_SizeDelta: {x: -6.2097015, y: 0.9095993}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3374346427579545887

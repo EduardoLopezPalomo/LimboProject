@@ -29,6 +29,12 @@ public class Quest : ScriptableObject
    {
       goals.ForEach(goal => goal.Init());
       completed = false;
+      
+      if (NotificationManager.Instance != null)
+      {
+         NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.NewQuest, title));  
+      }
+      
       Goals.OnGoalCompleted += CheckGoals;
    }
 
@@ -40,10 +46,14 @@ public class Quest : ScriptableObject
       }
    }
 
-   public bool Complete()
+   public bool Complete(bool fromLoad = false)
    {
+      if (!fromLoad)
+      {
+         NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.QuestCompleted, title));
+         OnQuestComplete?.Invoke(this);
+      }
       completed = true;
-      OnQuestComplete?.Invoke(this);
       Goals.OnGoalCompleted -= CheckGoals;
       return completed;
    }
