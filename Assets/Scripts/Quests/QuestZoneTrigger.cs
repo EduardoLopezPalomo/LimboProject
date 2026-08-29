@@ -21,6 +21,8 @@ public class QuestZoneTrigger : MonoBehaviour
 
     private void Start()
     {
+        if (ActualGoal == null) return;
+        
         boxCollider.enabled = !ActualGoal.completed;
         
         if(ActualGoal.completed) minimapIcon.SetAsGoal(false);

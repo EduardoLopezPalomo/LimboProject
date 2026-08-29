@@ -28,6 +28,7 @@ public class QuestItemInteractable : MonoBehaviour
 
     private void Start()
     {
+        if (actualGoal == null) return;
         boxCollider.enabled = !actualGoal.completed;
         
         if(actualGoal.completed) minimapIcon.SetAsGoal(false);
