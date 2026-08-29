@@ -56,13 +56,11 @@ public class LevelLoader : MonoBehaviour
     private void TeleportPlayer(Vector3 point, Quaternion rotation)
     {
         GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
-        Debug.Log($"[Teleport] Player encontrado: {newPlayer?.name}, destino: {point}");
 
         CharacterController cc = newPlayer.GetComponent<CharacterController>();
         if (cc != null) cc.enabled = false;
 
         newPlayer.transform.SetPositionAndRotation(point, rotation);
-        Debug.Log($"[Teleport] Posición inmediatamente después de setear: {newPlayer.transform.position}");
 
         if (cc != null) cc.enabled = true;
     }
