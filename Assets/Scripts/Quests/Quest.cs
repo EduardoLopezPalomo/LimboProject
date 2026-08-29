@@ -27,6 +27,7 @@ public class Quest : ScriptableObject
 
    public void InitGoals()
    {
+      Goals.OnGoalCompleted -= CheckGoals;
       goals.ForEach(goal => goal.Init());
       completed = false;
       

@@ -8,6 +8,7 @@ public class QuestItemInteractable : MonoBehaviour
     public static event Action<string> OnItemInteracted;
     public string itemId;
     public Quest actualQuest;
+    public Goals actualGoal;
     
     [Header("Referencias")]
     [SerializeField] private GameObject interactUI;
@@ -15,13 +16,23 @@ public class QuestItemInteractable : MonoBehaviour
     private bool playerInside = false;
     private PlayerInput playerInput;
     private MinimapIcon minimapIcon;
+    private BoxCollider boxCollider;
     
     private void Awake()
     {
         minimapIcon = GetComponent<MinimapIcon>();
         minimapIcon.enabled = false; 
+        boxCollider = GetComponent<BoxCollider>();
+        boxCollider.enabled = false;
     }
-    
+
+    private void Start()
+    {
+        boxCollider.enabled = !actualGoal.completed;
+        
+        if(actualGoal.completed) minimapIcon.SetAsGoal(false);
+    }
+
     void OnEnable()
     {
         QuestManager.OnGoalChange += HandleGoalsChanged;
@@ -43,7 +54,7 @@ public class QuestItemInteractable : MonoBehaviour
     
     private bool CanInteract()
     {
-        return actualQuest != null && QuestManager.instance.GetActualQuest() == actualQuest.questId;
+        return actualQuest != null && QuestManager.instance.GetActualQuest() == actualQuest.questId && !actualGoal.completed;
     }
 
     private void Interact()
@@ -74,7 +85,7 @@ public class QuestItemInteractable : MonoBehaviour
     {
         bool esObjetivo = QuestManager.IsCurrentGoal(itemId);
         minimapIcon.enabled = esObjetivo;
-        if (esObjetivo) minimapIcon.SetAsGoal(true);
+        if (esObjetivo && !actualGoal.completed) minimapIcon.SetAsGoal(true);
     }
     
     [ContextMenu("Create Id")]

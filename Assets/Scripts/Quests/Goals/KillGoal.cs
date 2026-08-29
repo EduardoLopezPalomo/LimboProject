@@ -6,6 +6,7 @@ public class KillGoal : Goals
 {
     public override void Init()
     {
+        EnemyGraphBridge.OnDeath -= EnemyDied;
         base.Init();
         EnemyGraphBridge.OnDeath += EnemyDied;
     }

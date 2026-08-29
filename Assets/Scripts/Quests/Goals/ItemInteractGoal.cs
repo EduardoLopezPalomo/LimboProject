@@ -9,6 +9,7 @@ public class ItemInteractGoal : Goals, IMinimapTarget
 
     public override void Init()
     {
+        QuestItemInteractable.OnItemInteracted -= Interact;
         base.Init();
         QuestItemInteractable.OnItemInteracted += Interact;
     }

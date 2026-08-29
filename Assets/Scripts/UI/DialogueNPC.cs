@@ -20,6 +20,11 @@ public class DialogueNPC : MonoBehaviour
         minimapIcon = GetComponent<MinimapIcon>();
     }
 
+    private void Start()
+    {
+        if(dialogueData.ActualGoal != null && dialogueData.ActualGoal.completed) minimapIcon.SetAsGoal(false);
+    }
+
     private void OnEnable()
     {
         if (!esNPCDeFiesta)

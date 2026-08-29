@@ -9,6 +9,7 @@ public class TalkNpcGoal : Goals, IMinimapTarget
     
     public override void Init()
     {
+        DialogueUI.OnEndDialogue -= Talked;
         base.Init();
         DialogueUI.OnEndDialogue += Talked;
     }

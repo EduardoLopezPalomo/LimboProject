@@ -48,6 +48,12 @@ public class QuestManager : MonoBehaviour
             ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
     }
 
+    public void ReStart()
+    {
+        actualPrincipalQuestIndex = 0;
+        Start();
+    }
+
     private void OnQuestCompleted(Quest quest)
     {
         switch (quest.questType)
@@ -145,11 +151,14 @@ public class QuestManager : MonoBehaviour
 
     public void SetQuestIndex(int index)
     {
-        if (index != actualPrincipalQuestIndex)
+        while (index > actualPrincipalQuestIndex)
         {
             PrincipalQuests[actualPrincipalQuestIndex].Complete(true);
+            actualPrincipalQuestIndex ++;
         }
+        
         actualPrincipalQuestIndex = index;
+        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
     }
     
     public string[] GetIdOfQuests()

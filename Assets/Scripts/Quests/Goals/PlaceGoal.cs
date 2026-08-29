@@ -8,6 +8,7 @@ public class PlaceGoal : Goals, IMinimapTarget
     public string MinimapTargetId => ZoneId;
     public override void Init()
     {
+        QuestZoneTrigger.OnEnterQuestZone -= ArrivePlace;
         base.Init();
         QuestZoneTrigger.OnEnterQuestZone += ArrivePlace;
     }

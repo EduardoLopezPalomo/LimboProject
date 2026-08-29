@@ -19,6 +19,7 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
+        QuestManager.instance.ReStart();
         LevelLoader.Instance.LoadLevelAsync(levelToLoad);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = true;

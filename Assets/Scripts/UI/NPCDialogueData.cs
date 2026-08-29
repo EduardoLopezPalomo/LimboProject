@@ -29,6 +29,7 @@ public class NPCDialogueData : ScriptableObject
     [Header("Quest")] 
     public string NpcId;
     public Quest ActualQuest;
+    public Goals ActualGoal;
     public Quest GiveSecondaryQuest;
     [TextArea] public List<string> QuestDialogue;
 

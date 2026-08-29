@@ -5,7 +5,7 @@ public class MinimapIcon : MonoBehaviour
     [Header("Configuracion del icono")]
     public Color iconColor = Color.red;
     public float iconSize = 1.5f;
-    public float heightOffset = 3f;
+    public float HeightOffset = 30f;
     public string minimapLayerName = "MinimapIcon";
     
     [Header("Behavior in edge")]
@@ -90,7 +90,7 @@ public class MinimapIcon : MonoBehaviour
             if (hasBounds) { x = bounds.center.x; z = bounds.center.z; }
         }
 
-        Vector3 realWorldPos = new Vector3(x, transform.position.y + heightOffset, z);
+        Vector3 realWorldPos = new Vector3(x, transform.position.y + HeightOffset, z);
 
         if (clampToMinimapEdge && MinimapCamera.Instance != null)
         {
