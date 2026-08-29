@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.IO;
 
@@ -5,6 +6,9 @@ public static class SaveSystem
 {
     private static string AudioPath => Path.Combine(Application.persistentDataPath, "audioData.json");
     private static string GamePath => Path.Combine(Application.persistentDataPath, "gameData.json");
+
+    public static event Action<bool> OnSaveGame;
+    public static event Action<string> OnFailLoadGame;
 
     #region Audio
         
@@ -56,10 +60,12 @@ public static class SaveSystem
         try
         {
             File.WriteAllText(GamePath, json);
+            OnSaveGame?.Invoke(true);
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error saving game: {e.Message}");
+            OnSaveGame?.Invoke(false);
         }
     }
 
@@ -68,19 +74,40 @@ public static class SaveSystem
         if (!File.Exists(GamePath))
         {
             Debug.LogWarning("Save file not found in " + GamePath);
+            OnFailLoadGame?.Invoke("No save data found.");
             return null;
         }
 
         try
         {
             string json = File.ReadAllText(GamePath);
-            return JsonUtility.FromJson<GameData>(json);
+            GameData data = JsonUtility.FromJson<GameData>(json);
+
+            if (!IsValidGameData(data))
+            {
+                Debug.LogError("Save file is corrupted or incomplete.");
+                OnFailLoadGame?.Invoke("Save file is corrupted or incomplete.");
+                return null;
+            }
+            
+            return data;
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error Loading game: {e.Message}");
+            OnFailLoadGame?.Invoke("Failed to load save data.");
             return null;
         }
+    }
+    
+    private static bool IsValidGameData(GameData data)
+    {
+        if (data == null) return false;
+        if (data.worldData == null) return false;
+        if (data.playerData == null) return false;
+        if (data.playerData.position == null || data.playerData.position.Length < 3) return false;
+
+        return true;
     }
 
     #endregion

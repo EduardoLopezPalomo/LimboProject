@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 
 public class GameLoader : MonoBehaviour
 {
+    public static event Action<string> OnGameLoadFail;
     public void LoadSaveGame()
     {
         GameData gameData = SaveSystem.LoadGame();
@@ -13,22 +15,33 @@ public class GameLoader : MonoBehaviour
             return;
         }
         
-        LoadQuestData(gameData.worldData);
+        bool gameDataLoaded = LoadQuestData(gameData.worldData);
+        if (!gameDataLoaded)
+        {
+            OnGameLoadFail?.Invoke("Save loaded with inconsistent quest data.");
+            return;
+        }
         LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneIndex, OnLoaded, false);
 
         void OnLoaded()
         {
-            LoadPlayerData(gameData.playerData);    
+            bool playerDataLoaded = LoadPlayerData(gameData.playerData);
+
+            if (!playerDataLoaded)
+            {
+                OnGameLoadFail?.Invoke("Save loaded with inconsistent player data.");
+                LevelLoader.Instance.LoadLevelAsync(0);
+            }
         }
     }
 
-    private void LoadPlayerData(PlayerData playerData)
+    private bool LoadPlayerData(PlayerData playerData)
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
         {
             Debug.LogWarning("Couldn't find player in scene");
-            return; 
+            return false; 
         }
         
         CharacterController cc = player.GetComponent<CharacterController>();
@@ -46,7 +59,7 @@ public class GameLoader : MonoBehaviour
         
         AbilityHolder abilityHolder = player.GetComponent<AbilityHolder>();
         
-        if(abilityHolder == null) return; 
+        if(abilityHolder == null) return false; 
         
         if (playerData.slot1Id != -1)
         {
@@ -65,6 +78,8 @@ public class GameLoader : MonoBehaviour
         {
             abilityHolder.UnequipAbility(2);
         }
+
+        return true;
     }
 
     private void ApplyHealthEffect(GameObject player, PlayerData playerData)
@@ -99,20 +114,22 @@ public class GameLoader : MonoBehaviour
         }
     }
 
-    private void LoadQuestData(WorldData worldData)
+    private bool LoadQuestData(WorldData worldData)
     {
         if (QuestManager.instance.GetQuestNumber() != worldData.questId.Length)
         {
             Debug.LogWarning("Quest number has change so it will not load");
-            return;
+            return false;
         }
 
         if (!QuestManager.instance.GetIdOfQuests().SequenceEqual(worldData.questId))
         {
             Debug.LogWarning("Quest order has change so it will not load");
-            return;
+            return false;
         }
         QuestManager.instance.SetQuestIndex(worldData.questIndex);
         QuestManager.instance.LoadGoalData(worldData.currentAmount, worldData.requiredAmount,worldData.completed);
+
+        return true;
     }
 }
