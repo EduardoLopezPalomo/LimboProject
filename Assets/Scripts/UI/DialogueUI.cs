@@ -1,9 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+
+[Serializable]
+public struct DialogueInitData
+{
+    public List<string> lineas;
+    public string npcId;
+    public string nombre;
+    public TipoVoz voz;
+    public Sprite retrato;
+    public PlayerInput input;
+}
 
 public class DialogueUI : MonoBehaviour
 {
@@ -32,6 +44,16 @@ public class DialogueUI : MonoBehaviour
 
     public bool EnDialogo => panelDialogo.activeSelf;
 
+    private void OnEnable()
+    {
+        NpcPlayerDetection.OnDialogueInit += DialogueInit;
+    }
+
+    private void OnDisable()
+    {
+        NpcPlayerDetection.OnDialogueInit -= DialogueInit;
+    }
+
     private void Update()
     {
         if (!EnDialogo || playerInputActual == null) return;
@@ -48,6 +70,11 @@ public class DialogueUI : MonoBehaviour
                 MostrarSiguienteLinea();
             }
         }
+    }
+
+    private void DialogueInit(DialogueInitData data)
+    {
+        MostrarDialogo(data.lineas, data.npcId, data.nombre, data.voz, data.retrato, data.input);
     }
 
     public void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)

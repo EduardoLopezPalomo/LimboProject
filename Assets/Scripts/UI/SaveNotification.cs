@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class SaveNotification : MonoBehaviour
 {
-    public string successSaveNotification;
-    public string failSaveNotification;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TMP_Text notificationText;
     [SerializeField] private float fadeDuration = 0.3f;
@@ -28,11 +26,11 @@ public class SaveNotification : MonoBehaviour
         SaveSystem.OnSaveGame -= SaveGame;
     }
 
-    private void SaveGame(bool success)
+    private void SaveGame(string message)
     {
         if (showNotificationCo != null) return;
         
-        notificationText.text = success ? successSaveNotification : failSaveNotification;
+        notificationText.text = message;
         showNotificationCo = StartCoroutine(ShowNotification());
     }
 

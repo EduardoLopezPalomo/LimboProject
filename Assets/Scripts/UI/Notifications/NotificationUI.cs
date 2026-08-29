@@ -36,7 +36,7 @@ public class NotificationUI : MonoBehaviour
         float t = 0f;
         while (t < fadeDuration)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             canvasGroup.alpha = Mathf.Lerp(from, to, t / fadeDuration);
             yield return null;
         }

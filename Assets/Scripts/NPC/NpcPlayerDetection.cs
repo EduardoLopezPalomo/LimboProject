@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class NpcPlayerDetection : MonoBehaviour
 {
+    public static event Action<DialogueInitData> OnDialogueInit;
     public float detectionAngle = 0.6f;
 
     [SerializeField] private GameObject interactUI;
@@ -46,13 +48,15 @@ public class NpcPlayerDetection : MonoBehaviour
 
     private void IniciarDialogo()
     {
-        dialogueUI.MostrarDialogo(
-            dialogueNPC.ObtenerLineasDialogo(),
-            dialogueNPC.NpcId,
-            dialogueNPC.NpcName,
-            dialogueNPC.VozNPC,
-            dialogueNPC.RetratoNPC,
-            playerInput);
+        DialogueInitData data = new DialogueInitData();
+        data.lineas = dialogueNPC.ObtenerLineasDialogo();
+        data.npcId = dialogueNPC.NpcId;
+        data.nombre = dialogueNPC.NpcName;
+        data.voz = dialogueNPC.VozNPC;
+        data.retrato = dialogueNPC.RetratoNPC;
+        data.input = playerInput;
+        
+        OnDialogueInit?.Invoke(data);
 
         playerInput.SwitchCurrentActionMap("UI");
         interactUI.SetActive(false);

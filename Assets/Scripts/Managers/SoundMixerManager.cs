@@ -17,7 +17,6 @@ public class SoundMixerManager : MonoBehaviour
 {
     public static SoundMixerManager instance;
     [SerializeField] private AudioMixer audioMixer;
-    [SerializeField] private ApplyAudioData applyAudioData;
     
     private Coroutine currentFade;
     
@@ -109,10 +108,11 @@ public class SoundMixerManager : MonoBehaviour
     
     public void LoadAudioSettings()
     {
-        AudioData audioData = SaveSystem.LoadAudioData();
-        if (audioData != null)
+        AudioData cachedData = SaveSystem.LoadAudioData();   
+        
+        if (cachedData != null)
         {
-            StartCoroutine(ApplyAudioSettingsFrame1(audioData.masterVolume, audioData.musicVolume, audioData.sfxVolume, audioData.ambienceVolume));
+            StartCoroutine(ApplyAudioSettingsFrame1(cachedData.masterVolume, cachedData.musicVolume, cachedData.sfxVolume, cachedData.ambienceVolume));
         }
     }
     
@@ -124,6 +124,12 @@ public class SoundMixerManager : MonoBehaviour
         SetMusicVolume(DecibelToLinear(musicVolume));
         SetSFXVolume(DecibelToLinear(sfxVolume));
         SetAmbienceVolume(DecibelToLinear(ambienceVolume));
+    }
+
+    
+    public void RevertToSaved()
+    {
+        LoadAudioSettings();
     }
     
     private float DecibelToLinear(float dB)

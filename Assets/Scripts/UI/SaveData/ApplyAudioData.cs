@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,16 +9,21 @@ public class ApplyAudioData : MonoBehaviour
     public Slider SfxVolumeSlider;
     public Slider AmbienceVolumeSlider;
 
-    void Start()
+    private void OnEnable()
     {
         AudioData data = SaveSystem.LoadAudioData();
         if (data != null)
         {
-            masterVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.masterVolume));
-            musicVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.musicVolume));
-            SfxVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.sfxVolume));
-            AmbienceVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.ambienceVolume));   
+            RefreshSliders(data);
         }
+    }
+    
+    public void RefreshSliders(AudioData data)
+    {
+        masterVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.masterVolume));
+        musicVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.musicVolume));
+        SfxVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.sfxVolume));
+        AmbienceVolumeSlider.SetValueWithoutNotify(DecibelToLinear(data.ambienceVolume));
     }
     
     

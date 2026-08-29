@@ -7,7 +7,7 @@ public static class SaveSystem
     private static string AudioPath => Path.Combine(Application.persistentDataPath, "audioData.json");
     private static string GamePath => Path.Combine(Application.persistentDataPath, "gameData.json");
 
-    public static event Action<bool> OnSaveGame;
+    public static event Action<string> OnSaveGame;
     public static event Action<string> OnFailLoadGame;
 
     #region Audio
@@ -20,10 +20,12 @@ public static class SaveSystem
         try
         {
             File.WriteAllText(AudioPath, json);
+            OnSaveGame?.Invoke("Settings Saved");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error saving audio data: {e.Message}");
+            OnSaveGame?.Invoke("Fail to save settings");
         }
     }
 
@@ -60,12 +62,12 @@ public static class SaveSystem
         try
         {
             File.WriteAllText(GamePath, json);
-            OnSaveGame?.Invoke(true);
+            OnSaveGame?.Invoke("Game Saved");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error saving game: {e.Message}");
-            OnSaveGame?.Invoke(false);
+            OnSaveGame?.Invoke("Fail to save game");
         }
     }
 

@@ -35,14 +35,20 @@ public class MenuNavigation : MonoBehaviour
         go.SetActive(true);
     }
 
+    public void SaveData()
+    {
+        SaveSystem.SaveAudioData(SoundMixerManager.instance);
+    }
+
     public void GoBack()
     {
+        SoundMixerManager.instance.RevertToSaved();
+        
         if (LastMenu != null)
         {
             LastMenu.SetActive(true);   
         }
         gameObject.SetActive(false);
-        SaveSystem.SaveAudioData(SoundMixerManager.instance);
     }
 
     public void UpdateNavigation(Button lastClickButton)

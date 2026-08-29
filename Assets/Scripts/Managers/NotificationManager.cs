@@ -43,7 +43,7 @@ public class NotificationManager : MonoBehaviour
             
             yield return StartCoroutine(notificationUI.ShowNotification(current));
             
-            yield return new WaitForSeconds(displayDuration);
+            yield return new WaitForSecondsRealtime(displayDuration);
             
             yield return StartCoroutine(notificationUI.HideNotification());
         }
