@@ -25,10 +25,7 @@ public class SoundFXManager : MonoBehaviour
             return null;
         }
         
-        GameObject go = new GameObject("Sound_" + clip.name);
-        go.transform.parent = this.transform;
-
-        AudioSource audioSource = go.AddComponent<AudioSource>();
+        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity, transform);
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
@@ -50,10 +47,8 @@ public class SoundFXManager : MonoBehaviour
             Debug.LogWarning("SoundFXManager::PlaySound: clip is null");
             return null;
         }
-        GameObject go = new GameObject("Sound_" + clip.name);
-        go.transform.parent = this.transform;
-
-        AudioSource audioSource = go.AddComponent<AudioSource>();
+        
+        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity, transform);
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
@@ -79,10 +74,7 @@ public class SoundFXManager : MonoBehaviour
         int random = Random.Range(0, clips.Length);
         AudioClip clip = clips[random];
 
-        GameObject go = new GameObject("Sound_" + clip.name);
-        go.transform.parent = this.transform;
-
-        AudioSource audioSource = go.AddComponent<AudioSource>();
+        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity, transform);
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
@@ -108,10 +100,7 @@ public class SoundFXManager : MonoBehaviour
         int random = Random.Range(0, clips.Length);
         AudioClip clip = clips[random];
 
-        GameObject go = new GameObject("Sound_" + clip.name);
-        go.transform.parent = this.transform;
-
-        AudioSource audioSource = go.AddComponent<AudioSource>();
+        AudioSource audioSource = Instantiate(soundFXObject, spawnTransform.position, Quaternion.identity, transform);
         audioSource.clip = clip;
         audioSource.volume = volume;
         audioSource.Play();
