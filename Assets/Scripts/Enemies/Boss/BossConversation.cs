@@ -3,10 +3,9 @@ using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class BossConversation : MonoBehaviour
+public class BossConversation : MonoBehaviour, IConversation
 {
     [SerializeField] private GameObject Boss;
-    [SerializeField] private DialogueUI dialogueUI;
     [SerializeField] private NPCDialogueData dataIntro;
     [SerializeField] private NPCDialogueData dataBeaten;
     [SerializeField] private DialogueNPC dialogueNPC;
@@ -37,13 +36,15 @@ public class BossConversation : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInput = other.GetComponent<PlayerInput>();
-            dialogueUI.MostrarDialogo(
-                dataIntro.dayGreeting,
-                dialogueNPC.NpcId,
-                dataIntro.NpcName,
-                dialogueNPC.VozNPC,
-                dialogueNPC.RetratoNPC,
-                playerInput);
+            DialogueInitData data = new DialogueInitData();
+            data.lineas = dataIntro.dayGreeting;
+            data.npcId = dialogueNPC.NpcId;
+            data.nombre = dataIntro.NpcName;
+            data.voz = dialogueNPC.VozNPC;
+            data.retrato = dialogueNPC.RetratoNPC;
+            data.input = playerInput;
+            
+            IConversation.RaiseDialogueInit(data);
 
             playerInput.SwitchCurrentActionMap("UI");
             boxCollider.enabled = false;
@@ -70,13 +71,15 @@ public class BossConversation : MonoBehaviour
     {
         if (deathEnemy == Boss && playerInput)
         {
-            dialogueUI.MostrarDialogo(
-                dataBeaten.dayGreeting,
-                dialogueNPC.NpcId,
-                dataBeaten.NpcName,
-                dialogueNPC.VozNPC,
-                dialogueNPC.RetratoNPC,
-                playerInput);
+            DialogueInitData data = new DialogueInitData();
+            data.lineas = dataBeaten.dayGreeting;
+            data.npcId = dialogueNPC.NpcId;
+            data.nombre = dataBeaten.NpcName;
+            data.voz = dialogueNPC.VozNPC;
+            data.retrato = dialogueNPC.RetratoNPC;
+            data.input = playerInput;
+            
+            IConversation.RaiseDialogueInit(data);
 
             playerInput.SwitchCurrentActionMap("UI");
         }

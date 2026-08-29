@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class InternalDialogueTrigger : MonoBehaviour
+public class InternalDialogueTrigger : MonoBehaviour, IConversation
 {
     [Header("Contenido del diálogo interno")]
     [SerializeField] private List<string> lineas;
@@ -12,9 +12,6 @@ public class InternalDialogueTrigger : MonoBehaviour
     [SerializeField] private string nombreProtagonista = "Tú";
     [SerializeField] private Sprite retratoProtagonista;
     [SerializeField] private TipoVoz vozProtagonista = TipoVoz.Masculina;
-
-    [Header("Referencias")]
-    [SerializeField] private DialogueUI dialogueUI;
 
     [Header("Comportamiento")]
     [SerializeField] private bool soloUnaVez = true;
@@ -26,12 +23,20 @@ public class InternalDialogueTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
         if (soloUnaVez && yaMostrado) return;
-        if (dialogueUI.EnDialogo) return; 
 
         PlayerInput playerInput = other.GetComponent<PlayerInput>();
         if (playerInput == null) return;
-
-        dialogueUI.MostrarDialogo(lineas, "" ,nombreProtagonista , vozProtagonista, retratoProtagonista, playerInput);
+        
+        DialogueInitData data = new DialogueInitData();
+        data.lineas = lineas;
+        data.npcId = "";
+        data.nombre = nombreProtagonista;
+        data.voz = vozProtagonista;
+        data.retrato = retratoProtagonista;
+        data.input = playerInput;
+        
+        IConversation.RaiseDialogueInit(data);
+        
         playerInput.SwitchCurrentActionMap("UI");
 
         yaMostrado = true;

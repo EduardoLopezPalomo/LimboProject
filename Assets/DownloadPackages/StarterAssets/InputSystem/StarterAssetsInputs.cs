@@ -87,7 +87,10 @@ namespace StarterAssets
 
 		public void OnLightAttack(InputValue value)
 		{
-			if (value.isPressed) OnLightAttackEvent?.Invoke();
+			if (!value.isPressed) return;
+			if (NpcPlayerDetection.PossibleInteraction) return;
+			
+			OnLightAttackEvent?.Invoke();
 		}
 
 		public void OnDash(InputValue value)

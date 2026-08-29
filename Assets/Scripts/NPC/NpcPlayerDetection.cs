@@ -2,15 +2,15 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class NpcPlayerDetection : MonoBehaviour
+public class NpcPlayerDetection : MonoBehaviour , IConversation
 {
-    public static event Action<DialogueInitData> OnDialogueInit;
+    public static bool PossibleInteraction = false;
+    
     public float detectionAngle = 0.6f;
 
     [SerializeField] private GameObject interactUI;
     [SerializeField] private GameObject npc;
     [SerializeField] private DialogueNPC dialogueNPC;
-    [SerializeField] private DialogueUI dialogueUI;
     
     private GameObject player;
     private PlayerInput playerInput;
@@ -31,7 +31,9 @@ public class NpcPlayerDetection : MonoBehaviour
 
             interactUI.SetActive(mirandoAlNPC);
 
-            if (mirandoAlNPC && !dialogueUI.EnDialogo && playerInput != null)
+            PossibleInteraction = mirandoAlNPC;
+
+            if (mirandoAlNPC && playerInput.currentActionMap.name != "UI" && playerInput != null)
             {
                 InputAction interactAction = playerInput.currentActionMap.FindAction("Interact");
 
@@ -56,7 +58,7 @@ public class NpcPlayerDetection : MonoBehaviour
         data.retrato = dialogueNPC.RetratoNPC;
         data.input = playerInput;
         
-        OnDialogueInit?.Invoke(data);
+        IConversation.RaiseDialogueInit(data);
 
         playerInput.SwitchCurrentActionMap("UI");
         interactUI.SetActive(false);
@@ -79,6 +81,7 @@ public class NpcPlayerDetection : MonoBehaviour
         {
             playerDetected = false;
             interactUI.SetActive(false);
+            PossibleInteraction = false;
         }
     }
 

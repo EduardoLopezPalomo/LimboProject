@@ -42,21 +42,21 @@ public class DialogueUI : MonoBehaviour
     private AudioClip LastClip;
     private AudioSource LastAudioSource;
 
-    public bool EnDialogo => panelDialogo.activeSelf;
+    private bool InDialogue = false;
 
     private void OnEnable()
     {
-        NpcPlayerDetection.OnDialogueInit += DialogueInit;
+        IConversation.OnDialogueInit += DialogueInit;
     }
 
     private void OnDisable()
     {
-        NpcPlayerDetection.OnDialogueInit -= DialogueInit;
+        IConversation.OnDialogueInit -= DialogueInit;
     }
 
     private void Update()
     {
-        if (!EnDialogo || playerInputActual == null) return;
+        if (!InDialogue || playerInputActual == null) return;
 
         InputAction interactAction = playerInputActual.currentActionMap.FindAction("Interact");
         if (interactAction != null && interactAction.WasPressedThisFrame())
@@ -74,10 +74,11 @@ public class DialogueUI : MonoBehaviour
 
     private void DialogueInit(DialogueInitData data)
     {
+        InDialogue = true;
         MostrarDialogo(data.lineas, data.npcId, data.nombre, data.voz, data.retrato, data.input);
     }
 
-    public void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
+    private void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
     {
 
         colaLineas = new Queue<string>(lineas);
@@ -167,6 +168,7 @@ public class DialogueUI : MonoBehaviour
         
         LastClip = null;
         LastAudioSource = null;
+        InDialogue = false;
         if (playerInputActual != null)
             playerInputActual.SwitchCurrentActionMap("Player");
         OnEndDialogue?.Invoke(actualNpcId);
