@@ -4,7 +4,7 @@ using System.IO;
 
 public static class SaveSystem 
 {
-    private static string AudioPath => Path.Combine(Application.persistentDataPath, "audioData.json");
+    private static string SettingsPath => Path.Combine(Application.persistentDataPath, "settingsData.json");
     private static string GamePath => Path.Combine(Application.persistentDataPath, "gameData.json");
 
     public static event Action<string> OnSaveGame;
@@ -12,39 +12,39 @@ public static class SaveSystem
 
     #region Audio
         
-    public static void SaveAudioData(SoundMixerManager soundMixerManager)
+    public static void SaveSettingsData(SoundMixerManager soundMixerManager)
     {
-        AudioData data = new AudioData(soundMixerManager);
+        SettingsData data = new SettingsData(soundMixerManager);
         string json = JsonUtility.ToJson(data, true);
 
         try
         {
-            File.WriteAllText(AudioPath, json);
+            File.WriteAllText(SettingsPath, json);
             OnSaveGame?.Invoke("Settings Saved");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error saving audio data: {e.Message}");
+            Debug.LogError($"Error saving settings data: {e.Message}");
             OnSaveGame?.Invoke("Fail to save settings");
         }
     }
 
-    public static AudioData LoadAudioData()
+    public static SettingsData LoadSettingsData()
     {
-        if (!File.Exists(AudioPath))
+        if (!File.Exists(SettingsPath))
         {
-            Debug.LogWarning("Save file not found in " + AudioPath);
+            Debug.LogWarning("Save file not found in " + SettingsPath);
             return null;
         }
 
         try
         {
-            string json = File.ReadAllText(AudioPath);
-            return JsonUtility.FromJson<AudioData>(json);
+            string json = File.ReadAllText(SettingsPath);
+            return JsonUtility.FromJson<SettingsData>(json);
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"Error loading audio data: {e.Message}");
+            Debug.LogError($"Error loading settings data: {e.Message}");
             return null;
         }
     }

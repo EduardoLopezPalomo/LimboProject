@@ -11,7 +11,7 @@ public class ApplyAudioData : MonoBehaviour
 
     private void OnEnable()
     {
-        AudioData data = SaveSystem.LoadAudioData();
+        AudioData data = SaveSystem.LoadSettingsData().audioData;
         if (data != null)
         {
             RefreshSliders(data);

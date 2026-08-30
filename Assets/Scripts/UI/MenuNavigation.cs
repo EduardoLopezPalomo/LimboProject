@@ -37,12 +37,13 @@ public class MenuNavigation : MonoBehaviour
 
     public void SaveData()
     {
-        SaveSystem.SaveAudioData(SoundMixerManager.instance);
+        SaveSystem.SaveSettingsData(SoundMixerManager.instance);
     }
 
     public void GoBack()
     {
         SoundMixerManager.instance.RevertToSaved();
+        VibrationManager.Instance.RevertToSaved();
         
         if (LastMenu != null)
         {
