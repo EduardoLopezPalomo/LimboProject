@@ -48,6 +48,7 @@ public class DefenseState : MonoBehaviour
                 sfx.SpawnSFX(SFXType.Counter);
                 CameraShakeManager.instance.CameraShake(CounterCameraShake, impulseSource);
                 TimeEffectsManager.DoParrySlowMotion(scale, duration, recoverDuration);
+                VibrationManager.Instance.Vibrate(1f, 1f, 0.2f);
                 activeSpec?.NotifyPerfectParry();
                 return HitResult.PerfectParry;
 

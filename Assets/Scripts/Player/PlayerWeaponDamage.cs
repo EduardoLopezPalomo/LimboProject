@@ -136,6 +136,7 @@ public class PlayerWeaponDamage : MonoBehaviour
                 sfx.SpawnSFX(SFXType.Counter);
             }
             effectManager.ApplyEffect(CounterEffect, attributeSystem);
+            VibrationManager.Instance.Vibrate(0.3f, 1f, 0.2f);
             return;
         }
         
@@ -162,7 +163,7 @@ public class PlayerWeaponDamage : MonoBehaviour
             Debug.LogWarning("the combo number has no effect on the player weapon");
             return;
         }
-
+        VibrationManager.Instance.Vibrate(0.6f, 0.6f, 0.2f);
         effectmanager.ApplyEffect(effect, AS);
     }
 

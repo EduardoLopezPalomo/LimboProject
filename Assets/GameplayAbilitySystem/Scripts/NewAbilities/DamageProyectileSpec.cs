@@ -89,6 +89,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         CreateProyectile(initialPosition, player.transform.rotation);
         CreateProyectile(position1, Quaternion.LookRotation(direction1));
         CreateProyectile(position2, Quaternion.LookRotation(direction2));
+        VibrationManager.Instance.Vibrate(0.3f, 0.8f, 0.15f);
     }
 
     private void CreateProyectile(Vector3 position, Quaternion direction)
