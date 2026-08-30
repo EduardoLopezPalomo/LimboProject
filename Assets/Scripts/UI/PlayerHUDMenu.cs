@@ -8,6 +8,7 @@ public class PlayerHUDMenu : MonoBehaviour
     public RectTransform rectTransformWeapon;
     public RectTransform rectTransformAbilities;
     public RectTransform rectTransformMinimap;
+    public RectTransform rectTransformNotification;
 
     private bool ShowHUD = true;
 
@@ -15,6 +16,7 @@ public class PlayerHUDMenu : MonoBehaviour
     private Vector3 scaleWeaponBase;
     private Vector3 scaleAbilitiesBase;
     private Vector3 scaleMinimapBase;
+    private Vector3 scaleNotificationBase;
 
     private void Awake()
     {
@@ -22,6 +24,7 @@ public class PlayerHUDMenu : MonoBehaviour
         scaleWeaponBase = rectTransformWeapon.localScale;
         scaleAbilitiesBase = rectTransformAbilities.localScale;
         scaleMinimapBase = rectTransformMinimap.localScale;
+        scaleNotificationBase = rectTransformNotification.localScale;
     }
 
     public void Init()
@@ -58,6 +61,7 @@ public class PlayerHUDMenu : MonoBehaviour
         rectTransformWeapon.localScale = scaleWeaponBase * Mathf.Clamp(size, 0.5f, 1f);
         rectTransformAbilities.localScale = scaleAbilitiesBase * Mathf.Clamp(size, 0.5f, 1f);
         rectTransformMinimap.localScale = scaleMinimapBase * Mathf.Clamp(size, 0.5f, 1f);
+        rectTransformNotification.localScale = scaleNotificationBase * Mathf.Clamp(size, 0.5f, 1f);
     }
 
     private void SetHUDOpacity(float opacity)
