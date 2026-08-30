@@ -6,9 +6,11 @@ public class GameplayData
     public bool vibrationEnabled;
     public float vibrationIntensity;
 
-    public GameplayData()
+    public GameplayData() { }
+    
+    public GameplayData(VibrationManager vibrationManager)
     {
-        vibrationEnabled = VibrationManager.Instance.vibrationEnabled;
-        vibrationIntensity = VibrationManager.Instance.intensity;
+        vibrationEnabled = vibrationManager.vibrationEnabled;
+        vibrationIntensity = vibrationManager.intensity;
     }
 }

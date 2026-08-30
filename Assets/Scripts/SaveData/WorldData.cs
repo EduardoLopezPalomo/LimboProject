@@ -12,13 +12,15 @@ public class WorldData
     public int[] requiredAmount;
     public bool[] completed;
     
-    public WorldData()
+    public WorldData() { }
+
+    public WorldData(QuestManager questManager)
     {
         sceneIndex = SceneManager.GetActiveScene().buildIndex;
-        questIndex = QuestManager.instance.GetQuestIndex();
-        questId = QuestManager.instance.GetIdOfQuests();
-        currentAmount = QuestManager.instance.GetCurrentAmountOfQuest();
-        requiredAmount = QuestManager.instance.GetRequiredAmountOfQuest();
-        completed = QuestManager.instance.GetCompletedGoalOfQuest();
+        questIndex = questManager.GetQuestIndex();
+        questId = questManager.GetIdOfQuests();
+        currentAmount = questManager.GetCurrentAmountOfQuest();
+        requiredAmount = questManager.GetRequiredAmountOfQuest();
+        completed = questManager.GetCompletedGoalOfQuest();
     }
 }

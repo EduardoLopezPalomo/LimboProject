@@ -12,9 +12,9 @@ public static class SaveSystem
 
     #region Audio
         
-    public static void SaveSettingsData(SoundMixerManager soundMixerManager)
+    public static void SaveSettingsData()
     {
-        SettingsData data = new SettingsData(soundMixerManager);
+        SettingsData data = new SettingsData(SoundMixerManager.instance, VibrationManager.Instance, InterfaceManager.Instance);
         string json = JsonUtility.ToJson(data, true);
 
         try

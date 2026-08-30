@@ -11,7 +11,7 @@ public class GameData
 
     public GameData(GameObject player)
     {
-        worldData = new WorldData();
+        worldData = new WorldData(QuestManager.instance);
         playerData = new PlayerData(player);
     }
 }
