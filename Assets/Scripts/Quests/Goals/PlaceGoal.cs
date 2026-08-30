@@ -24,6 +24,7 @@ public class PlaceGoal : Goals, IMinimapTarget
     
     public override void Completed()
     {
+        if(completed) return;
         base.Completed();
         QuestZoneTrigger.OnEnterQuestZone -= ArrivePlace;
     }

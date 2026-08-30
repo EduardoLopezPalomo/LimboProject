@@ -25,6 +25,7 @@ public class ItemInteractGoal : Goals, IMinimapTarget
 
     public override void Completed()
     {
+        if(completed) return;
         base.Completed();
         QuestItemInteractable.OnItemInteracted -= Interact;
     }

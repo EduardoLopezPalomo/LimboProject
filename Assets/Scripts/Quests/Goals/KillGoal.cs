@@ -19,6 +19,7 @@ public class KillGoal : Goals
 
     public override void Completed()
     {
+        if(completed) return;
         base.Completed();
         EnemyGraphBridge.OnDeath -= EnemyDied;
     }

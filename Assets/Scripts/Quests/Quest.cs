@@ -49,6 +49,8 @@ public class Quest : ScriptableObject
 
    public bool Complete(bool fromLoad = false)
    {
+      if (completed) return true;
+      
       if (!fromLoad)
       {
          NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.QuestCompleted, title));

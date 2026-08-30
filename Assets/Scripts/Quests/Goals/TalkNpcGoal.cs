@@ -25,6 +25,7 @@ public class TalkNpcGoal : Goals, IMinimapTarget
 
     public override void Completed()
     {
+        if(completed) return;
         base.Completed();
         DialogueUI.OnEndDialogue -= Talked;
     }
