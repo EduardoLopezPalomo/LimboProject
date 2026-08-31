@@ -8,7 +8,9 @@ public class QuestZoneTrigger : MonoBehaviour
     public string ZoneId;
     public Quest ActualQuest;
     public Goals ActualGoal;
-    
+
+    public bool ActivateEndDialogue = true;
+
     private MinimapIcon minimapIcon;
     private BoxCollider boxCollider;
 
@@ -22,10 +24,10 @@ public class QuestZoneTrigger : MonoBehaviour
     private void Start()
     {
         if (ActualGoal == null) return;
-        
+
         boxCollider.enabled = !ActualGoal.completed;
-        
-        if(ActualGoal.completed) minimapIcon.SetAsGoal(false);
+
+        if (ActualGoal.completed) minimapIcon.SetAsGoal(false);
     }
 
     void OnEnable()
@@ -34,25 +36,35 @@ public class QuestZoneTrigger : MonoBehaviour
         HandleGoalsChanged(null);
     }
 
-    void OnDisable() =>  QuestManager.OnGoalChange -= HandleGoalsChanged;
+    void OnDisable() => QuestManager.OnGoalChange -= HandleGoalsChanged;
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
         bool esObjetivo = QuestManager.IsCurrentGoal(ZoneId);
         minimapIcon.enabled = esObjetivo;
         if (esObjetivo && !ActualGoal.completed) minimapIcon.SetAsGoal(true);
-        
+
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player") &&  ActualQuest != null && QuestManager.instance.GetActualQuest() == ActualQuest.questId && !ActualGoal.completed)
+        if (ActivateEndDialogue) return;
+
+        if (other.gameObject.CompareTag("Player"))
+        {
+            AlertQuest();
+        }
+    }
+
+    public void AlertQuest()
+    {
+        if (ActualQuest != null && QuestManager.instance.GetActualQuest() == ActualQuest.questId && !ActualGoal.completed)
         {
             OnEnterQuestZone?.Invoke(ZoneId);
             gameObject.SetActive(false);
         }
     }
-    
+
     [ContextMenu("Create Id")]
     public void CreateId()
     {

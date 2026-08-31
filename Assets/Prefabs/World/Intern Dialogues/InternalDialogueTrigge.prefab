@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7302099658200054016}
   - component: {fileID: 2749224409876990501}
   - component: {fileID: 2286023870447893356}
+  - component: {fileID: 2615529463046157282}
   m_Layer: 0
   m_Name: InternalDialogueTrigge
   m_TagString: Untagged
@@ -133,7 +134,6 @@ MonoBehaviour:
   nombreProtagonista: You
   retratoProtagonista: {fileID: 21300000, guid: 9fbef50a8aae0214fb9057a758d3a928, type: 3}
   vozProtagonista: 2
-  dialogueUI: {fileID: 0}
   soloUnaVez: 1
 --- !u!114 &2749224409876990501
 MonoBehaviour:
@@ -149,6 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestZoneTrigger
   ZoneId: 
   ActualQuest: {fileID: 0}
+  ActualGoal: {fileID: 0}
+  ActivateEndDialogue: 1
 --- !u!114 &2286023870447893356
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,8 +165,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   iconSize: 3
-  heightOffset: 3
+  HeightOffset: 30
   minimapLayerName: MinimapIcon
   clampToMinimapEdge: 0
   goalColor: {r: 0, g: 1, b: 1, a: 1}
   goalSizeMultiplier: 2
+--- !u!114 &2615529463046157282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474697347812202303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dfea453fb24e7449a18235515cea1c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerPrincipalQuest
