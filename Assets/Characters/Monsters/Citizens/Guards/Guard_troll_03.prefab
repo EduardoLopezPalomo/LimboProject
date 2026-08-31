@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4373196678005266}
   - component: {fileID: 5044546478426165829}
   - component: {fileID: 7380505324346599820}
+  - component: {fileID: 1443610230977129229}
   m_Layer: 0
   m_Name: Guard_troll_03
   m_TagString: Untagged
@@ -62,8 +63,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   iconSize: 3
-  heightOffset: 3
+  HeightOffset: 30
   minimapLayerName: MinimapIcon
+  clampToMinimapEdge: 0
+  goalColor: {r: 0, g: 1, b: 1, a: 1}
+  goalSizeMultiplier: 2
+--- !u!95 &1443610230977129229
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473157611212552}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
+  m_Controller: {fileID: 9100000, guid: 04ab2dffd3ec0294ca509ca62f82365e, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &330121115151996816
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,7 +254,6 @@ MonoBehaviour:
   interactUI: {fileID: 330121115151996816}
   npc: {fileID: 3926349844465110729}
   dialogueNPC: {fileID: 0}
-  dialogueUI: {fileID: 0}
 --- !u!65 &8678422180014519250
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -291,7 +316,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7606091131773362998}
-  - component: {fileID: 4154689121126177988}
   - component: {fileID: 6588394235257763310}
   - component: {fileID: 741499455332002210}
   - component: {fileID: 6492001668214496759}
@@ -322,28 +346,6 @@ Transform:
   - {fileID: 3880866150740157446}
   m_Father: {fileID: 4373196678005266}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &4154689121126177988
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3926349844465110729}
-  m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
-  m_Controller: {fileID: 9100000, guid: 04ab2dffd3ec0294ca509ca62f82365e, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!143 &6588394235257763310
 CharacterController:
   m_ObjectHideFlags: 0
@@ -849,7 +851,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6025261025456433025, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
       propertyPath: m_Name
-      value: mesh
+      value: Character_Troll_01
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
       propertyPath: m_Name
@@ -857,7 +859,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3139231742650279466, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
       propertyPath: m_Name
-      value: skeleton
+      value: SM_Chr_BR_BarbarianGiant_01
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5866666021909216657, guid: fdcd585c7463c8748ad7e3c788b21a18, type: 3}
