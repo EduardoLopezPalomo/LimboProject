@@ -17,14 +17,14 @@ public class MenuNavigation : MonoBehaviour
     public GameObject LastMenu;
     public GameObject FirstMenu;
     public List<NavigationButtons> navigationButtons;
-    
+
     private GameObject currentMenu;
 
     void OnEnable()
     {
         ShowMenu(FirstMenu);
     }
-    
+
     public void ShowMenu(GameObject go)
     {
         if (currentMenu != null)
@@ -45,10 +45,11 @@ public class MenuNavigation : MonoBehaviour
         SoundMixerManager.instance.RevertToSaved();
         VibrationManager.Instance.RevertToSaved();
         InterfaceManager.Instance.RevertToSave();
-        
+        DisplayManager.Instance.RevertToSave();
+
         if (LastMenu != null)
         {
-            LastMenu.SetActive(true);   
+            LastMenu.SetActive(true);
         }
         gameObject.SetActive(false);
     }
@@ -59,7 +60,7 @@ public class MenuNavigation : MonoBehaviour
         nav.mode = Navigation.Mode.Explicit;
         nav.selectOnRight = null;
         nav.selectOnDown = null;
-        
+
         foreach (var data in navigationButtons)
         {
             if (lastClickButton == data.ActualButton)
@@ -69,7 +70,7 @@ public class MenuNavigation : MonoBehaviour
                 break;
             }
         }
-        
+
         lastClickButton.navigation = nav;
     }
 }

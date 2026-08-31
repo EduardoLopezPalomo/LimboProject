@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using System.IO;
 
-public static class SaveSystem 
+public static class SaveSystem
 {
     private static string SettingsPath => Path.Combine(Application.persistentDataPath, "settingsData.json");
     private static string GamePath => Path.Combine(Application.persistentDataPath, "gameData.json");
@@ -11,10 +11,11 @@ public static class SaveSystem
     public static event Action<string> OnFailLoadGame;
 
     #region Audio
-        
+
     public static void SaveSettingsData()
     {
-        SettingsData data = new SettingsData(SoundMixerManager.instance, VibrationManager.Instance, InterfaceManager.Instance);
+        SettingsData data =
+            new SettingsData(SoundMixerManager.instance, VibrationManager.Instance, InterfaceManager.Instance, DisplayManager.Instance);
         string json = JsonUtility.ToJson(data, true);
 
         try
@@ -48,7 +49,7 @@ public static class SaveSystem
             return null;
         }
     }
-    
+
 
     #endregion
 
@@ -91,7 +92,7 @@ public static class SaveSystem
                 OnFailLoadGame?.Invoke("Save file is corrupted or incomplete.");
                 return null;
             }
-            
+
             return data;
         }
         catch (System.Exception e)
@@ -101,7 +102,7 @@ public static class SaveSystem
             return null;
         }
     }
-    
+
     private static bool IsValidGameData(GameData data)
     {
         if (data == null) return false;
