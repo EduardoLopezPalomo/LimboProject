@@ -5,11 +5,12 @@ using System.Collections.Generic;
 public class DialogueNPC : MonoBehaviour
 {
     [SerializeField] private NPCDialogueData dialogueData;
+    [SerializeField] private NPCDialogueData completeQuestData;
     [SerializeField] private bool esNPCDeFiesta = false;
     private bool haSaludadoHoy = false;
 
     public string NpcId => dialogueData.NpcId;
-    public string NpcName => dialogueData.NpcName; 
+    public string NpcName => dialogueData.NpcName;
     public TipoVoz VozNPC => dialogueData.tipoVoz;
     public Sprite RetratoNPC => dialogueData.retrato;
 
@@ -22,14 +23,14 @@ public class DialogueNPC : MonoBehaviour
 
     private void Start()
     {
-        if(dialogueData.ActualGoal != null && dialogueData.ActualGoal.completed) minimapIcon.SetAsGoal(false);
+        if (dialogueData.ActualGoal != null && dialogueData.ActualGoal.completed) minimapIcon.SetAsGoal(false);
     }
 
     private void OnEnable()
     {
         if (!esNPCDeFiesta)
             DayNight.OnDayPhaseChanged += OnDayPhaseChanged;
-        
+
         QuestManager.OnGoalChange += HandleGoalsChanged;
         HandleGoalsChanged(null);
     }
@@ -38,7 +39,7 @@ public class DialogueNPC : MonoBehaviour
     {
         if (!esNPCDeFiesta)
             DayNight.OnDayPhaseChanged -= OnDayPhaseChanged;
-        
+
         QuestManager.OnGoalChange -= HandleGoalsChanged;
     }
 
@@ -49,7 +50,7 @@ public class DialogueNPC : MonoBehaviour
             haSaludadoHoy = false;
         }
     }
-    
+
     private void HandleGoalsChanged(HashSet<string> ids)
     {
         if (minimapIcon == null) return;
@@ -78,6 +79,12 @@ public class DialogueNPC : MonoBehaviour
             return lineas;
         }
 
+        if (CheckCompleteQuest())
+        {
+            lineas = completeQuestData.QuestDialogue;
+            return lineas;
+        }
+
         if (CheckSecondaryQuest())
         {
             QuestManager.instance.AddSecondaryQuest(dialogueData.GiveSecondaryQuest);
@@ -102,7 +109,7 @@ public class DialogueNPC : MonoBehaviour
             lineas.Add(dialogueData.nightText);
         }
 
-        return lineas; 
+        return lineas;
     }
 
     private bool CheckPrincipalQuest()
@@ -110,11 +117,16 @@ public class DialogueNPC : MonoBehaviour
         return dialogueData.ActualQuest != null && dialogueData.QuestDialogue.Count != 0 && QuestManager.instance.GetActualQuest() == dialogueData.ActualQuest.questId;
     }
 
+    private bool CheckCompleteQuest()
+    {
+        return completeQuestData != null && completeQuestData.QuestDialogue.Count != 0 && QuestManager.instance.GetActualQuest() == completeQuestData.ActualQuest.questId;
+    }
+
     private bool CheckSecondaryQuest()
     {
-        return dialogueData.GiveSecondaryQuest != null 
+        return dialogueData.GiveSecondaryQuest != null
                && dialogueData.GiveSecondaryQuest.questType == QuestType.Secondary
-               && dialogueData.QuestDialogue.Count != 0 
+               && dialogueData.QuestDialogue.Count != 0
                && !QuestManager.instance.HasSecondaryQuest(dialogueData.GiveSecondaryQuest.questId);
     }
 }
