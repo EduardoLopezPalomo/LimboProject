@@ -8,9 +8,10 @@ public class PlayerUIController : MonoBehaviour
     public GameObject PauseMenu;
     public GameObject AblityMenu;
     public GameObject OptionsMenu;
+    public GameObject DeathMenu;
     public float TotalVolumeDB = -6f;
     public float DurationMusicFade = 2f;
-    
+
     private PlayerInput playerInput;
     private MenuNavigation optionsMenuNavigation;
 
@@ -24,10 +25,10 @@ public class PlayerUIController : MonoBehaviour
         if (PauseMenu)
         {
             PauseMenu menu = PauseMenu.GetComponent<PauseMenu>();
-            menu.player = gameObject;   
+            menu.player = gameObject;
         }
-        
-        if(OptionsMenu) optionsMenuNavigation = OptionsMenu.GetComponent<MenuNavigation>();
+
+        if (OptionsMenu) optionsMenuNavigation = OptionsMenu.GetComponent<MenuNavigation>();
     }
 
     public void PressStartButton()
@@ -45,14 +46,14 @@ public class PlayerUIController : MonoBehaviour
     {
         if (playerUI == null || PauseMenu == null || AblityMenu == null || OptionsMenu == null) return;
         if (PauseMenu.activeSelf) return;
-        
+
         playerUI.SetActive(false);
         AblityMenu.SetActive(true);
         playerInput.SwitchCurrentActionMap("UI");
         TimeEffectsManager.PauseGame();
 
-        SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);   
-        
+        SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);
+
     }
 
     public void OnBackMenu()
@@ -80,5 +81,11 @@ public class PlayerUIController : MonoBehaviour
             optionsMenuNavigation.GoBack();
         }
     }
-    
+
+    public void ShowDeathMenu()
+    {
+        DeathMenu.SetActive(true);
+        playerInput.SwitchCurrentActionMap("UI");
+    }
+
 }

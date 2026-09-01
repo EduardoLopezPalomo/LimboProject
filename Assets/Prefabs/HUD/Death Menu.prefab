@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 4694702049348145005}
   - component: {fileID: 4232326267745919112}
   - component: {fileID: 7253407341528491731}
-  - component: {fileID: 9053984507898714638}
   - component: {fileID: 1859816310340602265}
+  - component: {fileID: 6665327004510266411}
+  - component: {fileID: 2934053331336082794}
   m_Layer: 5
   m_Name: Death Menu
   m_TagString: Untagged
@@ -105,24 +106,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &9053984507898714638
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3489612613636650748}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6d65cca240aba14d83be7d2ec821110, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PauseMenu
-  OptionMenu: {fileID: 0}
-  HUD: {fileID: 0}
-  levelLoader: {fileID: 0}
-  continueButton: {fileID: 5172795857248002609}
-  levelToLoad: 0
-  DurationMusicFade: 2
 --- !u!114 &1859816310340602265
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,6 +120,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChangeActionMap
   fromStart: 0
   playerInput: {fileID: 0}
+--- !u!114 &6665327004510266411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3489612613636650748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1729bda429a41e4dbf59aceddd79773, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DeathMenu
+  continueButton: {fileID: 5172795857248002609}
+--- !u!114 &2934053331336082794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3489612613636650748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e28b1fc1d5acb4f43afd6d66db233ce7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameLoader
 --- !u!1 &6346097803070864766
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,7 +182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -8.9404, y: -15.2622}
+  m_AnchoredPosition: {x: -8.94043, y: -15.262207}
   m_SizeDelta: {x: 125.0386, y: 175.1377}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8607046762789555184
@@ -441,7 +449,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4253703267091322270, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_fontSize
-      value: 72
+      value: 38.8
       objectReference: {fileID: 0}
     - target: {fileID: 5654391665341461958, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_Name
@@ -546,7 +554,7 @@ PrefabInstance:
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 9053984507898714638}
+      objectReference: {fileID: 6665327004510266411}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -557,7 +565,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Continue
+      value: ReStartGame
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
@@ -565,7 +573,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PauseMenu, Assembly-CSharp
+      value: DeathMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
@@ -625,7 +633,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4253703267091322270, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_fontSize
-      value: 72
+      value: 38
       objectReference: {fileID: 0}
     - target: {fileID: 5654391665341461958, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_Name
@@ -730,7 +738,7 @@ PrefabInstance:
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 9053984507898714638}
+      objectReference: {fileID: 6665327004510266411}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
@@ -749,7 +757,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: PauseMenu, Assembly-CSharp
+      value: DeathMenu, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 9209636174426300145, guid: e5fd4b4ea49c7f44f8f13ccd7e66f376, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName

@@ -59,7 +59,7 @@ namespace StarterAssets
 
         [Tooltip("What layers the character uses as ground")]
         public LayerMask GroundLayers;
-        
+
         [Header("Lock-On")]
         public float lockOnRotationSpeed = 10f;
 
@@ -75,7 +75,7 @@ namespace StarterAssets
 
         [Tooltip("Pitch (rotación X) para la cámara isométrica")]
         public float IsoPitch = 30f;
-        
+
         [Tooltip("Reduccion de velocidad del movimiento de camara")]
         public float CameraRotationSpeedMultiplier = 0.5f;
 
@@ -133,7 +133,7 @@ namespace StarterAssets
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
-        
+
         private bool IsCurrentDeviceMouse
         {
             get
@@ -175,7 +175,7 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
-            
+
             if (IsometricMode && PlayerCameraVcam != null)
             {
                 // lens -> ortográfico
@@ -184,7 +184,7 @@ namespace StarterAssets
 
                 _cinemachineTargetPitch = IsoPitch;
             }
-            
+
         }
 
         private void Update()
@@ -221,10 +221,10 @@ namespace StarterAssets
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
-            
+
             Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
-            
+
             // update animator if using character
             if (_hasAnimator)
             {
@@ -239,7 +239,7 @@ namespace StarterAssets
                 if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
                 {
                     Vector3 dirToTarget = lockOnSystem.currentTarget.position - CinemachineCameraTarget.transform.position;
-                    dirToTarget.y = 0f; 
+                    dirToTarget.y = 0f;
 
                     if (dirToTarget.sqrMagnitude > 0.001f)
                     {
@@ -278,7 +278,7 @@ namespace StarterAssets
 
         private void Move()
         {
-            
+
             // set target speed based on move speed, sprint speed and if sprint is pressed
             float targetSpeed;
             if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
@@ -287,9 +287,9 @@ namespace StarterAssets
             }
             else
             {
-                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;    
+                targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
             }
-            
+
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 
@@ -340,7 +340,7 @@ namespace StarterAssets
                     Quaternion strafeRotation = Quaternion.LookRotation(lookDir);
                     transform.rotation = Quaternion.Slerp(transform.rotation, strafeRotation, Time.deltaTime * 10f);
                 }
-                
+
                 if (_input.move != Vector2.zero)
                 {
                     float cameraYaw = _mainCamera.transform.eulerAngles.y;
@@ -362,7 +362,7 @@ namespace StarterAssets
             // move the player
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
-            
+
             Vector3 horizontalVelocity = new Vector3(
                 _controller.velocity.x,
                 0.0f,
@@ -373,16 +373,16 @@ namespace StarterAssets
             {
                 _input.SprintInput(false);
             }
-            
+
             // update animator if using character
             if (_hasAnimator)
             {
                 if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
                 {
                     Vector3 worldMoveDir = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
-                    
+
                     Vector3 localMoveDir = Vector3.zero;
-        
+
                     if (_input.move != Vector2.zero)
                     {
                         localMoveDir = transform.InverseTransformDirection(targetDirection.normalized);
@@ -390,7 +390,7 @@ namespace StarterAssets
 
                     float targetVelX = localMoveDir.x * inputMagnitude;
                     float targetVelZ = localMoveDir.z * inputMagnitude;
-                    
+
                     float currentVelX = _animator.GetFloat(_animIDVelocityX);
                     float currentVelZ = _animator.GetFloat(_animIDVelocityZ);
 
@@ -403,7 +403,7 @@ namespace StarterAssets
                 else
                 {
                     _animator.SetFloat(_animIDSpeed, _animationBlend);
-                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);   
+                    _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
                 }
             }
         }
@@ -462,9 +462,9 @@ namespace StarterAssets
                     // update animator if using character
                     if (_hasAnimator)
                     {
-                      
+
                         _animator.SetBool(_animIDFreeFall, true);
-                    
+
                     }
                 }
 
@@ -523,6 +523,11 @@ namespace StarterAssets
         public void SetInputAviable(bool input)
         {
             InputAvaible = input;
+        }
+
+        public void InputAfterDeath()
+        {
+            InputAvaible = true;
         }
 
         public bool GetInputAviable() { return InputAvaible; }

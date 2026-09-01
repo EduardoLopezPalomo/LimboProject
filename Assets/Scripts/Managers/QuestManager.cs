@@ -9,23 +9,23 @@ using UnityEngine;
 public class QuestManager : MonoBehaviour
 {
     public static QuestManager instance { get; private set; }
-    
+
     public static event Action<HashSet<string>> OnGoalChange;
-    
+
     [SerializeField] private List<Quest> PrincipalQuests;
-    
+
     private Dictionary<string, Quest> SecondaryQuests;
     private static HashSet<string> currentGoalIds = new HashSet<string>();
     private int actualPrincipalQuestIndex = 0;
-    
+
     private void OnEnable()
     {
         Quest.OnQuestComplete += OnQuestCompleted;
     }
-    
+
     private void OnDisable()
     {
-        Quest.OnQuestComplete -=OnQuestCompleted;
+        Quest.OnQuestComplete -= OnQuestCompleted;
     }
 
     private void Awake()
@@ -44,8 +44,8 @@ public class QuestManager : MonoBehaviour
     private void Start()
     {
         SecondaryQuests = new Dictionary<string, Quest>();
-        if(PrincipalQuests.Count > 0)
-            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
+        if (PrincipalQuests.Count > 0)
+            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], false);
     }
 
     public void ReStart()
@@ -78,7 +78,7 @@ public class QuestManager : MonoBehaviour
                 return;
             }
 
-            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
+            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], true);
         }
     }
 
@@ -87,12 +87,12 @@ public class QuestManager : MonoBehaviour
         SecondaryQuests.Remove(questId);
     }
 
-    private void ActivateQuest(Quest quest)
+    private void ActivateQuest(Quest quest, bool notification)
     {
-        quest.InitGoals();
+        quest.InitGoals(notification);
         SetCurrentGoals(PrincipalQuests[actualPrincipalQuestIndex].goals);
     }
-    
+
     private static void SetCurrentGoals(List<Goals> goals)
     {
         HashSet<string> ids = new HashSet<string>();
@@ -106,13 +106,13 @@ public class QuestManager : MonoBehaviour
         currentGoalIds = ids;
         OnGoalChange?.Invoke(currentGoalIds);
     }
-    
+
     public static bool IsCurrentGoal(string id) => !string.IsNullOrEmpty(id) && currentGoalIds.Contains(id);
 
     public void AddSecondaryQuest(Quest quest)
     {
         if (SecondaryQuests.ContainsKey(quest.questId)) return;
-        
+
         SecondaryQuests.Add(quest.questId, quest);
     }
 
@@ -130,7 +130,7 @@ public class QuestManager : MonoBehaviour
     {
         return PrincipalQuests.Count;
     }
-    
+
     public List<Quest> GetActiveQuests()
     {
         List<Quest> activas = new List<Quest>();
@@ -154,66 +154,66 @@ public class QuestManager : MonoBehaviour
         while (index > actualPrincipalQuestIndex)
         {
             PrincipalQuests[actualPrincipalQuestIndex].Complete(true);
-            actualPrincipalQuestIndex ++;
+            actualPrincipalQuestIndex++;
         }
-        
+
         actualPrincipalQuestIndex = index;
-        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex]);
+        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], false);
     }
-    
+
     public string[] GetIdOfQuests()
     {
         string[] listId = new string[PrincipalQuests.Count];
-        
+
         int i = 0;
         foreach (Quest quest in PrincipalQuests)
         {
             listId[i] = quest.questId;
             i++;
         }
-        
+
         return listId;
     }
 
     public int[] GetCurrentAmountOfQuest()
     {
         int[] actualAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
-        
+
         int i = 0;
         foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
         {
             actualAmount[i] = goal.currentAmount;
             i++;
         }
-        
+
         return actualAmount;
     }
-    
+
     public int[] GetRequiredAmountOfQuest()
     {
         int[] requiredAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
-        
+
         int i = 0;
         foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
         {
             requiredAmount[i] = goal.requiredAmount;
             i++;
         }
-        
+
         return requiredAmount;
     }
-    
+
     public bool[] GetCompletedGoalOfQuest()
     {
         bool[] completed = new bool[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
-        
+
         int i = 0;
         foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
         {
             completed[i] = goal.completed;
             i++;
         }
-        
+
         return completed;
     }
 
@@ -230,8 +230,8 @@ public class QuestManager : MonoBehaviour
             i++;
         }
     }
-    
+
 
     #endregion
-    
+
 }

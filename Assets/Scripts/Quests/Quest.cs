@@ -19,23 +19,23 @@ public class Quest : ScriptableObject
    public QuestType questType = QuestType.Principal;
    public List<Goals> goals;
    public bool completed;
-   
+
    public void CreateId()
    {
       questId = title + Guid.NewGuid().ToString();
    }
 
-   public void InitGoals()
+   public void InitGoals(bool notification)
    {
       Goals.OnGoalCompleted -= CheckGoals;
       goals.ForEach(goal => goal.Init());
       completed = false;
-      
-      if (NotificationManager.Instance != null)
+
+      if (NotificationManager.Instance != null && notification)
       {
-         NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.NewQuest, title));  
+         NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.NewQuest, title));
       }
-      
+
       Goals.OnGoalCompleted += CheckGoals;
    }
 
@@ -50,7 +50,7 @@ public class Quest : ScriptableObject
    public bool Complete(bool fromLoad = false)
    {
       if (completed) return true;
-      
+
       if (!fromLoad)
       {
          NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.QuestCompleted, title));
