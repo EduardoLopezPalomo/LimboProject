@@ -5,11 +5,15 @@ public class NPCGraphBridge : MonoBehaviour
 {
 
     private BehaviorGraphAgent agent;
+    private DialogueNPC dialogueNPC;
     private bool HasReachedHome = false;
+
+    private NPCState stateBeforeDialogue = NPCState.Default;
 
     void Awake()
     {
         agent = GetComponent<BehaviorGraphAgent>();
+        dialogueNPC = GetComponentInParent<DialogueNPC>();
     }
     void Start()
     {
@@ -22,11 +26,15 @@ public class NPCGraphBridge : MonoBehaviour
     void OnEnable()
     {
         DayNight.OnDayPhaseChanged += HandleDayPhaseChanged;
+        IConversation.OnDialogueInit += SetTalking;
+        DialogueUI.OnEndDialogue += HandleEndDialogue;
     }
 
     void OnDisable()
     {
         DayNight.OnDayPhaseChanged -= HandleDayPhaseChanged;
+        IConversation.OnDialogueInit -= SetTalking;
+        DialogueUI.OnEndDialogue -= HandleEndDialogue;
     }
 
     private void HandleDayPhaseChanged(DayPhase newPhase)
@@ -49,11 +57,20 @@ public class NPCGraphBridge : MonoBehaviour
         }
     }
 
-    public void SetTalking()
+    public void SetTalking(DialogueInitData data)
     {
-        if (agent != null)
+        if (agent != null && data.npcId == dialogueNPC.NpcId)
         {
+            agent.BlackboardReference.GetVariableValue<NPCState>("NPCState", out stateBeforeDialogue);
             agent.BlackboardReference.SetVariableValue("NPCState", NPCState.Talking);
+        }
+    }
+
+    public void HandleEndDialogue(string npcId)
+    {
+        if (agent != null && npcId == dialogueNPC.NpcId)
+        {
+            agent.BlackboardReference.SetVariableValue("NPCState", stateBeforeDialogue);
         }
     }
 
