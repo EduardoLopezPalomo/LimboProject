@@ -27,10 +27,10 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private Image retratoNPC;
 
     [Header("Efecto de escritura")]
-    [SerializeField] private float velocidadEscritura = 0.03f; 
-    [SerializeField] private SFXDefinition sfxHablaMasculina;
-    [SerializeField] private SFXDefinition sfxHablaFemenina;
-    [SerializeField] private SFXDefinition sfxHablaMonstruo;
+    [SerializeField] private float velocidadEscritura = 0.03f;
+    [SerializeField] private List<SFXDefinition> sfxHablaMasculina;
+    [SerializeField] private List<SFXDefinition> sfxHablaFemenina;
+    [SerializeField] private List<SFXDefinition> sfxHablaMonstruo;
 
     private string actualNpcId;
     private TipoVoz vozActual;
@@ -77,6 +77,7 @@ public class DialogueUI : MonoBehaviour
         InDialogue = true;
         MostrarDialogo(data.lineas, data.npcId, data.nombre, data.voz, data.retrato, data.input);
     }
+
 
     private void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
     {
@@ -134,13 +135,17 @@ public class DialogueUI : MonoBehaviour
 
     private SFXDefinition ObtenerClipSegunVoz()
     {
-        switch (vozActual)
+        List<SFXDefinition> lista = vozActual switch
         {
-            case TipoVoz.Masculina: return sfxHablaMasculina;
-            case TipoVoz.Femenina: return sfxHablaFemenina;
-            case TipoVoz.Monstruo: return sfxHablaMonstruo;
-            default: return sfxHablaMasculina;
-        }
+            TipoVoz.Masculina => sfxHablaMasculina,
+            TipoVoz.Femenina => sfxHablaFemenina,
+            TipoVoz.Monstruo => sfxHablaMonstruo,
+            _ => sfxHablaMasculina
+        };
+
+        if (lista == null || lista.Count == 0) return null;
+
+        return lista[UnityEngine.Random.Range(0, lista.Count)];
     }
 
     private void CompletarLineaInstantaneamente()
