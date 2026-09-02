@@ -13,6 +13,12 @@ public class ResistanceResponse : AttributeResponse
             {
                 knockBack.KnockBackWithoutInv();
             }
+
+            CharacterSFX characterSFX = owner.GetComponent<CharacterSFX>();
+            if (characterSFX != null)
+            {
+                characterSFX.SpawnSFX(SFXType.Resistance);
+            }
         }
 
         if (owner.gameObject.CompareTag("Enemy"))
@@ -21,15 +27,15 @@ public class ResistanceResponse : AttributeResponse
             if (UI != null)
             {
                 UI.ShowResistance();
-            }   
-            if (attributeInstance.CurrentValue <= 0) 
+            }
+            if (attributeInstance.CurrentValue <= 0)
             {
                 var enemy = owner.GetComponent<EnemyGraphBridge>();
                 if (enemy)
                 {
-                    enemy.SetVulnerable(); 
+                    enemy.SetVulnerable();
                 }
-            }   
+            }
         }
     }
 }
