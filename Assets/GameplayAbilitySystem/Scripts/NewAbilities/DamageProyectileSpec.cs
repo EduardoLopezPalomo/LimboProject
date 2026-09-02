@@ -10,6 +10,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
     private AttributeSystem attributeSystem;
+    private CharacterSFX characterSFX;
 
     private float angle;
     private float DistanceOffset;
@@ -30,6 +31,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
+        characterSFX = owner.GetComponent<CharacterSFX>();
 
         player = owner;
         proyectile = proyectileObject;
@@ -42,7 +44,13 @@ public class DamageProyectileSpec : GameplayAbilitySpec
 
     public override bool CanActivateAbility()
     {
-        if (abilityHolder.HasAnyActiveAbility(this) || bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        if (bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        {
+            characterSFX.SpawnSFX(SFXType.Resistance);
+            return false;
+
+        }
+        if (abilityHolder.HasAnyActiveAbility(this))
         {
             return false;
         }
