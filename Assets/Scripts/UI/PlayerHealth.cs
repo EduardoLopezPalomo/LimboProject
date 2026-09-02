@@ -6,26 +6,25 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private AttributeSystem attributeSystem;
     [SerializeField] private string healthAttributeName = "PlayerHealth";
     [SerializeField] private Image fillImage;
-    [SerializeField] private Image overFillImage;
-    
+    [SerializeField] private SFXDefinition lowHealthSFX;
+    [SerializeField] private float lowHealthThreshold = 0.1f;
+
     private float maxHealth;
-    private float overFillMaxhealth;
-    
+    private Coroutine lowHealthSFXCoroutine;
+
     private void Start()
     {
         if (attributeSystem == null)
             attributeSystem = GetComponentInParent<AttributeSystem>();
-        
+
         maxHealth = attributeSystem.GetAttributeValue(healthAttributeName);
-        overFillMaxhealth = attributeSystem.GetAttributeMaxValue(healthAttributeName);
     }
-    
+
     private void LateUpdate()
     {
         UpdateFill();
-        UpdateOverFill();
     }
-    
+
     void UpdateFill()
     {
         float current = attributeSystem.GetAttributeValue(healthAttributeName);
@@ -33,18 +32,29 @@ public class PlayerHealth : MonoBehaviour
         if (maxHealth <= 0) return;
 
         fillImage.fillAmount = Mathf.Clamp01(current / maxHealth);
+
+        if (current / maxHealth <= lowHealthThreshold)
+        {
+            if (lowHealthSFXCoroutine == null)
+            {
+                lowHealthSFXCoroutine = StartCoroutine(PlayLowHealthSFX());
+            }
+        }
+        else
+        {
+            if (lowHealthSFXCoroutine != null)
+            {
+                StopCoroutine(lowHealthSFXCoroutine);
+                lowHealthSFXCoroutine = null;
+            }
+        }
     }
 
-    void UpdateOverFill()
+    private System.Collections.IEnumerator PlayLowHealthSFX()
     {
-        float current = attributeSystem.GetAttributeValue(healthAttributeName);
-        if (maxHealth <= 0 || current <= maxHealth)
-        {
-            overFillImage.fillAmount = 0f;
-            return;
-        }
-        
-        current -= maxHealth;
-        overFillImage.fillAmount = Mathf.Clamp01(current / (overFillMaxhealth - maxHealth));
+        SoundFXManager.instance.PlaySoundRandomPitch(lowHealthSFX.sfx, transform, lowHealthSFX.volume, lowHealthSFX.minPitch, lowHealthSFX.maxPitch);
+        yield return new WaitForSeconds(lowHealthSFX.sfx.length);
+
+        lowHealthSFXCoroutine = null;
     }
 }

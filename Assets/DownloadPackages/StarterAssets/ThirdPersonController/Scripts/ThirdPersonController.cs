@@ -19,6 +19,8 @@ namespace StarterAssets
         [Tooltip("Move speed of the character in m/s")]
         public float MoveSpeed = 2.0f;
 
+        public float LockSpeed = 3.0f;
+
         [Tooltip("Sprint speed of the character in m/s")]
         public float SprintSpeed = 5.335f;
 
@@ -283,7 +285,7 @@ namespace StarterAssets
             float targetSpeed;
             if (lockOnSystem != null && lockOnSystem.isLocked && lockOnSystem.currentTarget != null)
             {
-                targetSpeed = MoveSpeed;
+                targetSpeed = LockSpeed;
             }
             else
             {
