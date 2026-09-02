@@ -38,7 +38,6 @@ public class PlayerDamage : MonoBehaviour
     {
         Color color = image.color;
 
-        // Fade in rápido
         while (color.a < maxAlpha)
         {
             color.a += fadeInSpeed * Time.deltaTime;
@@ -46,7 +45,28 @@ public class PlayerDamage : MonoBehaviour
             yield return null;
         }
 
-        // Fade out lento
+        while (color.a > 0f)
+        {
+            color.a -= fadeOutSpeed * Time.deltaTime;
+            image.color = color;
+            yield return null;
+        }
+
+        color.a = 0f;
+        image.color = color;
+    }
+
+    public IEnumerator LowHealth()
+    {
+        Color color = image.color;
+
+        while (color.a < maxAlpha)
+        {
+            color.a += fadeInSpeed * Time.deltaTime;
+            image.color = color;
+            yield return null;
+        }
+
         while (color.a > 0f)
         {
             color.a -= fadeOutSpeed * Time.deltaTime;
