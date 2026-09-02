@@ -42,9 +42,10 @@ public class NotificationManager : MonoBehaviour
             NotificationData current = queue.Dequeue();
             
             yield return StartCoroutine(notificationUI.ShowNotification(current));
-            
-            yield return new WaitForSecondsRealtime(displayDuration);
-            
+
+            float duracion = notificationUI.ObtenerDuracionVisible(current.notificationType);
+            yield return new WaitForSecondsRealtime(duracion);
+
             yield return StartCoroutine(notificationUI.HideNotification());
         }
         
