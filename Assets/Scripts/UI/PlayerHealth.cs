@@ -8,9 +8,11 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] private Image fillImage;
     [SerializeField] private SFXDefinition lowHealthSFX;
     [SerializeField] private float lowHealthThreshold = 0.1f;
+    [SerializeField] private PlayerDamage playerDamage;
 
     private float maxHealth;
     private Coroutine lowHealthSFXCoroutine;
+    private Coroutine lowHealthVFXCoroutine;
 
     private void Start()
     {
@@ -18,6 +20,17 @@ public class PlayerHealth : MonoBehaviour
             attributeSystem = GetComponentInParent<AttributeSystem>();
 
         maxHealth = attributeSystem.GetAttributeValue(healthAttributeName);
+    }
+
+    void OnDisable()
+    {
+        if (lowHealthSFXCoroutine != null)
+        {
+            StopCoroutine(lowHealthSFXCoroutine);
+            StopCoroutine(lowHealthVFXCoroutine);
+            lowHealthSFXCoroutine = null;
+            lowHealthVFXCoroutine = null;
+        }
     }
 
     private void LateUpdate()
@@ -42,19 +55,23 @@ public class PlayerHealth : MonoBehaviour
         }
         else
         {
-            if (lowHealthSFXCoroutine != null)
+            if (lowHealthSFXCoroutine != null || lowHealthVFXCoroutine != null)
             {
                 StopCoroutine(lowHealthSFXCoroutine);
+                StopCoroutine(lowHealthVFXCoroutine);
                 lowHealthSFXCoroutine = null;
+                lowHealthVFXCoroutine = null;
             }
         }
     }
 
     private System.Collections.IEnumerator PlayLowHealthSFX()
     {
-        SoundFXManager.instance.PlaySoundRandomPitch(lowHealthSFX.sfx, transform, lowHealthSFX.volume, lowHealthSFX.minPitch, lowHealthSFX.maxPitch);
+        lowHealthVFXCoroutine = playerDamage.StartCoroutine(playerDamage.LowHealth());
+        SoundFXManager.instance.PlaySoundRandomPitch(lowHealthSFX.sfx, attributeSystem.transform, lowHealthSFX.volume, lowHealthSFX.minPitch, lowHealthSFX.maxPitch);
         yield return new WaitForSeconds(lowHealthSFX.sfx.length);
 
         lowHealthSFXCoroutine = null;
+        lowHealthVFXCoroutine = null;
     }
 }
