@@ -14,6 +14,7 @@ public class DashSpec : GameplayAbilitySpec
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
     private StarterAssetsInputs starterInputs;
+    private CharacterSFX characterSFX;
 
     private Vector3 direction;
     private Coroutine safetyCoroutine;
@@ -28,6 +29,7 @@ public class DashSpec : GameplayAbilitySpec
         makeInvincible = owner.GetComponent<MakeInvincible>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
+        characterSFX = owner.GetComponent<CharacterSFX>();
         dashTime = dashTimeIn;
         dashDistance = dashForce;
         resistanceNeeded = resistanceNeededIn;
@@ -36,11 +38,17 @@ public class DashSpec : GameplayAbilitySpec
 
     public override bool CanActivateAbility()
     {
-        if (bOnCooldown || abilityHolder.HasAnyActiveAbility(this) 
-                        || abilityHolder.IsAbilityActive("Dash") || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        if (bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        {
+            characterSFX.SpawnSFX(SFXType.Resistance);
+            return false;
+         
+        }
+        if (abilityHolder.HasAnyActiveAbility(this) || abilityHolder.IsAbilityActive("Dash"))
         {
             return false;
         }
+        
         return true;
     }
 

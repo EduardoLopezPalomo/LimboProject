@@ -14,11 +14,6 @@ public class ResistanceResponse : AttributeResponse
                 knockBack.KnockBackWithoutInv();
             }
 
-            CharacterSFX characterSFX = owner.GetComponent<CharacterSFX>();
-            if (characterSFX != null)
-            {
-                characterSFX.SpawnSFX(SFXType.Resistance);
-            }
         }
 
         if (owner.gameObject.CompareTag("Enemy"))
