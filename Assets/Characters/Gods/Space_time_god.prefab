@@ -150,12 +150,30 @@ MonoBehaviour:
   - rid: 1844794103293543237
   - rid: 1844794125822984748
   - rid: 1844794125822985019
+  - rid: 377534969283085158
+  - rid: 377534971264631341
   m_OriginalGraph: {fileID: 3707871144417483719, guid: e417fd68d4f90c64485e47c6af08ccc1, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
   references:
     version: 2
     RefIds:
+    - rid: 377534969283085158
+      type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 9240038038255724649
+          m_Value1: 10143663837156689930
+        Name: BossMesh
+        m_Value: {fileID: 2249049474622112348}
+    - rid: 377534971264631341
+      type: {class: 'BlackboardVariable`1[[MinimapIcon, Assembly-CSharp]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 7798626033428980704
+          m_Value1: 17411778889533619217
+        Name: MinimapIcon
+        m_Value: {fileID: 783201880301937904}
     - rid: 1844794084509089893
       type: {class: 'BlackboardVariable`1[[UnityEngine.GameObject, UnityEngine.CoreModule]]', ns: Unity.Behavior, asm: Unity.Behavior}
       data:
@@ -452,6 +470,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1d101655c90cd1b4388d8a3a1eaf02b4, type: 2}
   - {fileID: 11400000, guid: 01a3704d1dcafc44e910bfe9038ed5d5, type: 2}
   - {fileID: 11400000, guid: b66caf7721590ae4789934bb09920a7e, type: 2}
+  - {fileID: 11400000, guid: 19fe869c471238242a92c3333fbb6903, type: 2}
 --- !u!114 &3016345486183808774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,15 +495,18 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1997296248483302}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
   iconColor: {r: 1, g: 0, b: 0, a: 1}
   iconSize: 3
-  heightOffset: 3
+  HeightOffset: 30
   minimapLayerName: MinimapIcon
+  clampToMinimapEdge: 0
+  goalColor: {r: 0, g: 1, b: 1, a: 1}
+  goalSizeMultiplier: 2
 --- !u!114 &3640527814309089064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1026,6 +1048,11 @@ PrefabInstance:
 --- !u!4 &1476593780488476902 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ed563f5009f2aff4fbcda5121a7bf54d, type: 3}
+  m_PrefabInstance: {fileID: 1438710162543902477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2249049474622112348 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: ed563f5009f2aff4fbcda5121a7bf54d, type: 3}
   m_PrefabInstance: {fileID: 1438710162543902477}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &2493468634843561988 stripped
