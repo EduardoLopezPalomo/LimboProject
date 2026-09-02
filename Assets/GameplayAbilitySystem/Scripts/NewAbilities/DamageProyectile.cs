@@ -12,6 +12,6 @@ public class DamageProyectile : GameplayAbility
     public float dashTime = 0.5f;
     public override GameplayAbilitySpec CreateSpec(GameObject owner)
     {
-        return new DamageProyectileSpec(this, owner, proyectile, angle, distanceOffset, backDashDistance, dashTime);
+        return new DamageProyectileSpec(this, owner, proyectile, angle, distanceOffset, backDashDistance, dashTime, Mathf.Abs(EffectsToSelf[0].Value));
     }
 }

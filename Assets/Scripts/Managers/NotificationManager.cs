@@ -7,10 +7,9 @@ using UnityEngine;
 public class NotificationManager : MonoBehaviour
 {
     public static NotificationManager Instance;
-    
+
     [SerializeField] private NotificationUI notificationUI;
-    [SerializeField] private float displayDuration = 2f;
-    
+
     private Queue<NotificationData> queue = new Queue<NotificationData>();
     private bool isShowing = false;
 
@@ -40,7 +39,7 @@ public class NotificationManager : MonoBehaviour
         while (queue.Count > 0)
         {
             NotificationData current = queue.Dequeue();
-            
+
             yield return StartCoroutine(notificationUI.ShowNotification(current));
 
             float duracion = notificationUI.ObtenerDuracionVisible(current.notificationType);
@@ -48,7 +47,7 @@ public class NotificationManager : MonoBehaviour
 
             yield return StartCoroutine(notificationUI.HideNotification());
         }
-        
+
         isShowing = false;
     }
 }

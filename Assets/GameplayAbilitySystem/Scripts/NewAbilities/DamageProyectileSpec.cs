@@ -9,28 +9,32 @@ public class DamageProyectileSpec : GameplayAbilitySpec
     private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
-    
+    private AttributeSystem attributeSystem;
+
     private float angle;
     private float DistanceOffset;
     private float backDashDistance;
     private float dashTime;
     private VFXDefinition proyectile;
     private GameObject player;
-    
+
     private Coroutine safetyCoroutine;
     private bool dashEnded;
+    private float resistanceNeeded;
 
-    public DamageProyectileSpec(GameplayAbility ability, GameObject owner, VFXDefinition proyectileObject, float throwAngle, float offset, float distance, float time) : base(ability, owner)
+    public DamageProyectileSpec(GameplayAbility ability, GameObject owner, VFXDefinition proyectileObject, float throwAngle, float offset, float distance, float time, float resistance) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         charactercontroller = owner.GetComponent<CharacterController>();
         personcontroller = owner.GetComponent<ThirdPersonController>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
-        
+        attributeSystem = owner.GetComponent<AttributeSystem>();
+
         player = owner;
         proyectile = proyectileObject;
         angle = throwAngle;
+        resistanceNeeded = resistance;
         DistanceOffset = offset;
         backDashDistance = distance;
         dashTime = time;
@@ -38,7 +42,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
 
     public override bool CanActivateAbility()
     {
-        if (abilityHolder.HasAnyActiveAbility(this) || bOnCooldown)
+        if (abilityHolder.HasAnyActiveAbility(this) || bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
         {
             return false;
         }
@@ -54,14 +58,14 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         }
         base.ActivateAbility();
         animator.SetTrigger("Throw");
-        
+
         makeInvincible.SetInvincible(true);
         personcontroller.SetInputAviable(false);
 
         dashEnded = false;
         safetyCoroutine = abilityHolder.StartCoroutine(SafetyTimeout());
     }
-    
+
     public override void CancelAbility()
     {
         base.CancelAbility();
@@ -96,17 +100,17 @@ public class DamageProyectileSpec : GameplayAbilitySpec
     {
         VFXManager.Instance.Play(proyectile, position, direction, player);
     }
-    
+
     private IEnumerator SafetyTimeout()
     {
-        yield return new WaitForSeconds(dashTime + 0.5f); 
+        yield return new WaitForSeconds(dashTime + 0.5f);
 
         if (!dashEnded)
         {
             EndDash();
         }
     }
-    
+
     private IEnumerator waitTillEndFrame()
     {
         float elapsed = 0f;
@@ -114,12 +118,12 @@ public class DamageProyectileSpec : GameplayAbilitySpec
 
         while (elapsed < dashTime)
         {
-            charactercontroller.Move( -player.transform.forward * speed * Time.deltaTime);
+            charactercontroller.Move(-player.transform.forward * speed * Time.deltaTime);
             elapsed += Time.deltaTime;
 
             yield return null;
         }
-        
+
         EndDash();
     }
 
@@ -128,7 +132,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         ThrowProyectiles();
         abilityHolder.StartCoroutine(waitTillEndFrame());
     }
-    
+
     public void EndDash()
     {
         if (dashEnded) return;
