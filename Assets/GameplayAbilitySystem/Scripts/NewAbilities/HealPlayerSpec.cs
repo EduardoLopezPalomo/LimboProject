@@ -40,6 +40,7 @@ public class HealPlayerSpec : GameplayAbilitySpec
         base.ActivateAbility();
         animator.SetTrigger("Magic");
         VFXManager.Instance.Play(healEffectVFX, owner.transform, owner);
+        characterSFX.SpawnSFX(SFXType.Healing);
         EndAbility();
     }
     
