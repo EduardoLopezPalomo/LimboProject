@@ -8,7 +8,8 @@ public class HealPlayerSpec : GameplayAbilitySpec
     private AttributeSystem attributeSystem;
     private VFXDefinition healEffectVFX;
     private float resistanceNeeded;
-  
+    private CharacterSFX characterSFX;
+
     public HealPlayerSpec(GameplayAbility ability, GameObject owner, VFXDefinition vfx, float resistance) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
@@ -16,11 +17,18 @@ public class HealPlayerSpec : GameplayAbilitySpec
         attributeSystem = owner.GetComponent<AttributeSystem>();
         healEffectVFX = vfx;
         resistanceNeeded = resistance;
+        characterSFX = owner.GetComponent<CharacterSFX>();
     }
     
     public override bool CanActivateAbility()
     {
-        if (abilityHolder.HasAnyActiveAbility(this) || bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        if (bOnCooldown || attributeSystem.GetAttributeValue("Resistance") < resistanceNeeded)
+        {
+            characterSFX.SpawnSFX(SFXType.Resistance);
+            return false;
+
+        }
+        if (abilityHolder.HasAnyActiveAbility(this))
         {
             return false;
         }

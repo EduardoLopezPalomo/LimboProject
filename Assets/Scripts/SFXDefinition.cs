@@ -10,6 +10,8 @@ public enum SFXType
     Death,
     ChangePhase,
     Resistance,
+    Cooldown,
+    LowHealth,
 }
 
 [CreateAssetMenu(fileName = "SFX", menuName = "SFX/SFX Definition")]
