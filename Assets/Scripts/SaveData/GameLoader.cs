@@ -14,14 +14,14 @@ public class GameLoader : MonoBehaviour
             Debug.LogWarning("Couldn't load save game");
             return;
         }
-        
+
         bool gameDataLoaded = LoadQuestData(gameData.worldData);
         if (!gameDataLoaded)
         {
             OnGameLoadFail?.Invoke("Save loaded with inconsistent quest data.");
             return;
         }
-        LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneIndex, OnLoaded, false);
+        LevelLoader.Instance.LoadLevelAsync(gameData.worldData.sceneName, OnLoaded, false);
 
         void OnLoaded()
         {
@@ -30,7 +30,7 @@ public class GameLoader : MonoBehaviour
             if (!playerDataLoaded)
             {
                 OnGameLoadFail?.Invoke("Save loaded with inconsistent player data.");
-                LevelLoader.Instance.LoadLevelAsync(0);
+                LevelLoader.Instance.LoadLevelAsync("MainMenu");
             }
         }
     }
@@ -41,38 +41,38 @@ public class GameLoader : MonoBehaviour
         if (player == null)
         {
             Debug.LogWarning("Couldn't find player in scene");
-            return false; 
+            return false;
         }
-        
+
         CharacterController cc = player.GetComponent<CharacterController>();
-        
+
         if (cc != null) cc.enabled = false;
-        
+
         player.transform.position = new Vector3(
             playerData.position[0],
             playerData.position[1],
             playerData.position[2]);
-        
+
         if (cc != null) cc.enabled = true;
-        
+
         ApplyHealthEffect(player, playerData);
-        
+
         AbilityHolder abilityHolder = player.GetComponent<AbilityHolder>();
-        
-        if(abilityHolder == null) return false; 
-        
+
+        if (abilityHolder == null) return false;
+
         if (playerData.slot1Id != -1)
         {
-            EquipAbility(abilityHolder, playerData.slot1Id, 1);   
+            EquipAbility(abilityHolder, playerData.slot1Id, 1);
         }
         else
         {
             abilityHolder.UnequipAbility(1);
         }
-        
+
         if (playerData.slot2Id != -1)
         {
-            EquipAbility(abilityHolder, playerData.slot2Id, 2);  
+            EquipAbility(abilityHolder, playerData.slot2Id, 2);
         }
         else
         {
@@ -86,7 +86,7 @@ public class GameLoader : MonoBehaviour
     {
         AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
         GameplayEffectManager effectManager = player.GetComponent<GameplayEffectManager>();
-        
+
         GameplayEffect effect = ScriptableObject.CreateInstance<GameplayEffect>();
         effect.TargetAttribute = "PlayerHealth";
         effect.Value = playerData.health;
@@ -105,9 +105,9 @@ public class GameLoader : MonoBehaviour
     private void EquipAbility(AbilityHolder abilityHolder, int Id, int slot)
     {
         List<GameplayAbility> abilities = abilityHolder.GetAbilityList();
-        
+
         GameplayAbility ability = abilities.Find(x => x.Id == Id);
-        
+
         if (ability != null)
         {
             abilityHolder.EquipAbility(ability, slot);
@@ -128,7 +128,7 @@ public class GameLoader : MonoBehaviour
             return false;
         }
         QuestManager.instance.SetQuestIndex(worldData.questIndex);
-        QuestManager.instance.LoadGoalData(worldData.currentAmount, worldData.requiredAmount,worldData.completed);
+        QuestManager.instance.LoadGoalData(worldData.currentAmount, worldData.requiredAmount, worldData.completed);
 
         return true;
     }

@@ -9,7 +9,7 @@ public class LevelLoader : MonoBehaviour
     public Animator animator;
     public float transitionTime = 1f;
     public float MusicFadeTime = 2f;
-    
+
     public static LevelLoader Instance;
 
     private void Awake()
@@ -23,18 +23,18 @@ public class LevelLoader : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
-    
-    public void LoadLevelAndTeleportAsync(int index, Vector3 point, Quaternion rotation)
-    {
-        StartCoroutine(LoadLevelAndTeleportAsyncCoroutine(index, point, rotation));
-    }
-    
 
-    public void LoadLevelAsync(int index, System.Action onLoaded = null, bool useAttributeCache = true)
+    public void LoadLevelAndTeleportAsync(string name, Vector3 point, Quaternion rotation)
     {
-        StartCoroutine(LoadLevelAsyncCoroutine(index, onLoaded, useAttributeCache));
+        StartCoroutine(LoadLevelAndTeleportAsyncCoroutine(name, point, rotation));
     }
-    
+
+
+    public void LoadLevelAsync(string name, System.Action onLoaded = null, bool useAttributeCache = true)
+    {
+        StartCoroutine(LoadLevelAsyncCoroutine(name, onLoaded, useAttributeCache));
+    }
+
     private PlayerInput GetPlayerInput()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -65,17 +65,17 @@ public class LevelLoader : MonoBehaviour
         if (cc != null) cc.enabled = true;
     }
 
-    IEnumerator LoadLevelAsyncCoroutine(int levelIndex,  System.Action onLoaded, bool useAttributeCache)
+    IEnumerator LoadLevelAsyncCoroutine(string levelName, System.Action onLoaded, bool useAttributeCache)
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
         if (useAttributeCache) SavePlayerAttributes();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
-        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
-        
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, -80f, MusicFadeTime);
+
         yield return new WaitForSecondsRealtime(transitionTime);
-        
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelIndex);
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
 
         while (!asyncLoad.isDone)
         {
@@ -87,17 +87,17 @@ public class LevelLoader : MonoBehaviour
         onLoaded?.Invoke();
         GetPlayerInput()?.ActivateInput();
     }
-    
-    IEnumerator LoadLevelAndTeleportAsyncCoroutine(int levelIndex, Vector3 point, Quaternion rotation)
+
+    IEnumerator LoadLevelAndTeleportAsyncCoroutine(string levelName, Vector3 point, Quaternion rotation)
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
-        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume,-80f, MusicFadeTime);
-        
+        SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, -80f, MusicFadeTime);
+
         yield return new WaitForSecondsRealtime(transitionTime);
-        
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelIndex);
+
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(levelName);
 
         while (!asyncLoad.isDone)
         {

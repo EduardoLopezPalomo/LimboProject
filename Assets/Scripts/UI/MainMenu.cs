@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public GameObject OptionMenu;
-    public int levelToLoad = 1;
+    public string levelToLoad = "Video_scene";
 
     private Canvas canvas;
     private GameLoader gameLoader;
@@ -24,7 +24,7 @@ public class MainMenu : MonoBehaviour
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = true;
     }
-    
+
     public void LoadSaveGame()
     {
         gameLoader.LoadSaveGame();

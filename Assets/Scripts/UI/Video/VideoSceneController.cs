@@ -5,7 +5,7 @@ using UnityEngine.Video;
 public class VideoSceneController : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
-    public int levelToLoad = 2;
+    public string levelToLoad = "FirstForest";
 
     void Start()
     {

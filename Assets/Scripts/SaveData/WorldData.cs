@@ -4,19 +4,19 @@ using UnityEngine.SceneManagement;
 [System.Serializable]
 public class WorldData
 {
-    public int sceneIndex;
+    public string sceneName;
 
     public int questIndex;
     public string[] questId;
     public int[] currentAmount;
     public int[] requiredAmount;
     public bool[] completed;
-    
+
     public WorldData() { }
 
     public WorldData(QuestManager questManager)
     {
-        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        sceneName = SceneManager.GetActiveScene().name;
         questIndex = questManager.GetQuestIndex();
         questId = questManager.GetIdOfQuests();
         currentAmount = questManager.GetCurrentAmountOfQuest();

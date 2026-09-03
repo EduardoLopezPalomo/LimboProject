@@ -22,15 +22,11 @@ public class MinimapIcon : MonoBehaviour
     private bool iconCreated = false;
     private Material minimapMaterial;
 
-    void Start()
-    {
-        minimapMaterial = MinimapMaterial.minimapMaterial;
-        CreateIconIfNeeded();
-    }
+    void Start() => EnsureIcon();
 
     void OnEnable()
     {
-        CreateIconIfNeeded();
+        EnsureIcon();
         if (icon != null) icon.SetActive(true);
     }
 
@@ -42,6 +38,13 @@ public class MinimapIcon : MonoBehaviour
     void OnDestroy()
     {
         if (icon != null) Destroy(icon);
+    }
+
+    private void EnsureIcon()
+    {
+        if (iconCreated) return;
+        if (minimapMaterial == null) minimapMaterial = MinimapMaterial.minimapMaterial;
+        CreateIconIfNeeded();
     }
 
     private void CreateIconIfNeeded()
@@ -112,6 +115,7 @@ public class MinimapIcon : MonoBehaviour
 
     public void SetAsGoal(bool esObjetivo)
     {
+        EnsureIcon();
         clampToMinimapEdge = esObjetivo;
         if (iconMaterial != null)
         {
