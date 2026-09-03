@@ -13,6 +13,7 @@ public enum SFXType
     Cooldown,
     LowHealth,
     Healing,
+    Detection,
 }
 
 [CreateAssetMenu(fileName = "SFX", menuName = "SFX/SFX Definition")]
