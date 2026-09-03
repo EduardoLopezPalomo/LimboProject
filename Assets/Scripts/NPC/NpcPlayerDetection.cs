@@ -6,7 +6,7 @@ public class NpcPlayerDetection : MonoBehaviour , IConversation
 {
     public static bool PossibleInteraction = false;
     
-    public float detectionAngle = 0.6f;
+    public float detectionAngle = -1f;
 
     [SerializeField] private GameObject interactUI;
     [SerializeField] private GameObject npc;
