@@ -17,7 +17,7 @@ public partial class TravelAlongPointsAction : Action
     [SerializeReference] public BlackboardVariable<float> Speed = new(3f);
     [SerializeReference] public BlackboardVariable<float> DistanceThreshold = new(0.2f);
     [SerializeReference] public BlackboardVariable<string> AnimatorSpeedParam = new("Speed");
-    
+
     private NavMeshAgent m_NavMeshAgent;
     private Animator m_Animator;
     [CreateProperty] private Vector3 m_CurrentTarget;
@@ -25,7 +25,7 @@ public partial class TravelAlongPointsAction : Action
     [CreateProperty] private float m_OriginalSpeed = -1f;
     private float m_CurrentSpeed;
     [CreateProperty] private int m_CurrentPatrolPoint = 0;
-    
+
     protected override Status OnStart()
     {
         if (Self.Value == null)
@@ -39,15 +39,15 @@ public partial class TravelAlongPointsAction : Action
             LogFailure("No waypoints to patrol assigned.");
             return Status.Failure;
         }
-        
+
         if (Route.Value.Count < 2)
         {
-            LogFailure("Route needs at least 2 points to travel along.");
+            LogFailure("Route needs at least 2 points to travel along. Npc: " + Self.Value.name);
             return Status.Failure;
         }
 
         Initialize();
-        if(Backwards)
+        if (Backwards)
         {
             MoveToPreviusWaypoint();
         }
@@ -64,14 +64,14 @@ public partial class TravelAlongPointsAction : Action
         {
             return Status.Failure;
         }
-        
+
         float distance = GetDistanceToWaypoint();
         bool destinationReached = distance <= DistanceThreshold;
 
         // Check if we've reached the waypoint (ensuring NavMeshAgent has completed path calculation if available)
         if (destinationReached && (m_NavMeshAgent == null || !m_NavMeshAgent.pathPending))
         {
-            if(Backwards)
+            if (Backwards)
             {
                 if (m_CurrentPatrolPoint <= 0)
                 {
@@ -88,12 +88,12 @@ public partial class TravelAlongPointsAction : Action
                     UpdateAnimatorSpeed(0f);
                     return Status.Success;
                 }
-                    
+
                 MoveToNextWaypoint();
             }
-            
+
         }
-        else if (m_NavMeshAgent == null) 
+        else if (m_NavMeshAgent == null)
         {
             LogFailure("No NavMeshAgent in the agent");
         }
@@ -158,7 +158,7 @@ public partial class TravelAlongPointsAction : Action
 
         UpdateAnimatorSpeed(0f);
 
-        if(Backwards)
+        if (Backwards)
         {
             m_CurrentPatrolPoint = Route.Value.Count - 1;
         }
