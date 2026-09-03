@@ -115,7 +115,7 @@ public class MinimapIcon : MonoBehaviour
         clampToMinimapEdge = esObjetivo;
         if (iconMaterial != null)
         {
-            iconMaterial.color = esObjetivo ? goalColor : iconColor;
+            iconMaterial.SetColor("_BaseColor", esObjetivo ? goalColor : iconColor);
         }
 
         if (icon != null)
