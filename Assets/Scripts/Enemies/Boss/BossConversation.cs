@@ -9,7 +9,9 @@ public class BossConversation : MonoBehaviour, IConversation
     [SerializeField] private NPCDialogueData dataIntro;
     [SerializeField] private NPCDialogueData dataBeaten;
     [SerializeField] private DialogueNPC dialogueNPC;
-    
+    [SerializeField] private Quest actualQuest;
+    [SerializeField] private Goals actualGoal;
+
     private BoxCollider boxCollider;
     private PlayerInput playerInput;
     private BehaviorGraphAgent agent;
@@ -33,6 +35,8 @@ public class BossConversation : MonoBehaviour, IConversation
     }
     private void OnTriggerEnter(Collider other)
     {
+        if (actualQuest == null || QuestManager.instance.GetActualQuest() != actualQuest.questId || actualGoal.completed) return;
+
         if (other.CompareTag("Player"))
         {
             playerInput = other.GetComponent<PlayerInput>();
@@ -43,7 +47,7 @@ public class BossConversation : MonoBehaviour, IConversation
             data.voz = dialogueNPC.VozNPC;
             data.retrato = dialogueNPC.RetratoNPC;
             data.input = playerInput;
-            
+
             IConversation.RaiseDialogueInit(data);
 
             playerInput.SwitchCurrentActionMap("UI");
@@ -54,7 +58,7 @@ public class BossConversation : MonoBehaviour, IConversation
     private void EndDialogue(string NpcId)
     {
         if (NpcId != dataIntro.NpcId) return;
-        
+
         if (!BattleStarted)
         {
             agent.BlackboardReference.SetVariableValue("StartAttack", true);
@@ -64,9 +68,9 @@ public class BossConversation : MonoBehaviour, IConversation
         {
             Destroy(Boss, 0.5f);
         }
-        
+
     }
-    
+
     private void BossDeath(GameObject deathEnemy)
     {
         if (deathEnemy == Boss && playerInput)
@@ -78,7 +82,7 @@ public class BossConversation : MonoBehaviour, IConversation
             data.voz = dialogueNPC.VozNPC;
             data.retrato = dialogueNPC.RetratoNPC;
             data.input = playerInput;
-            
+
             IConversation.RaiseDialogueInit(data);
 
             playerInput.SwitchCurrentActionMap("UI");
