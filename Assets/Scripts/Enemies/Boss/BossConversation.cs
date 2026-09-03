@@ -11,6 +11,7 @@ public class BossConversation : MonoBehaviour, IConversation
     [SerializeField] private DialogueNPC dialogueNPC;
     [SerializeField] private Quest actualQuest;
     [SerializeField] private Goals actualGoal;
+    [SerializeField] private BoxCollider teleportCollider;
 
     private BoxCollider boxCollider;
     private PlayerInput playerInput;
@@ -52,6 +53,7 @@ public class BossConversation : MonoBehaviour, IConversation
 
             playerInput.SwitchCurrentActionMap("UI");
             boxCollider.enabled = false;
+            teleportCollider.enabled = false;
         }
     }
 
@@ -86,6 +88,7 @@ public class BossConversation : MonoBehaviour, IConversation
             IConversation.RaiseDialogueInit(data);
 
             playerInput.SwitchCurrentActionMap("UI");
+            teleportCollider.enabled = true;
         }
     }
 }
