@@ -7,7 +7,7 @@ public class MinimapIcon : MonoBehaviour
     public float iconSize = 1.5f;
     public float HeightOffset = 30f;
     public string minimapLayerName = "MinimapIcon";
-    
+
     [Header("Behavior in edge")]
     public bool clampToMinimapEdge = false;
 
@@ -20,8 +20,13 @@ public class MinimapIcon : MonoBehaviour
     private Renderer[] renderers;
     private Material iconMaterial;
     private bool iconCreated = false;
+    private Material minimapMaterial;
 
-    void Start() => CreateIconIfNeeded();
+    void Start()
+    {
+        minimapMaterial = MinimapMaterial.minimapMaterial;
+        CreateIconIfNeeded();
+    }
 
     void OnEnable()
     {
@@ -41,7 +46,7 @@ public class MinimapIcon : MonoBehaviour
 
     private void CreateIconIfNeeded()
     {
-        if (iconCreated) return;
+        if (iconCreated || minimapMaterial == null) return;
         iconCreated = true;
 
         icon = GameObject.CreatePrimitive(PrimitiveType.Quad);
@@ -52,8 +57,8 @@ public class MinimapIcon : MonoBehaviour
         Destroy(icon.GetComponent<Collider>());
 
         Renderer rend = icon.GetComponent<Renderer>();
-        iconMaterial = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
-        iconMaterial.color = iconColor;
+        iconMaterial = new Material(minimapMaterial);
+        iconMaterial.SetColor("_BaseColor", iconColor);
         rend.material = iconMaterial;
 
         int layer = LayerMask.NameToLayer(minimapLayerName);
@@ -104,7 +109,7 @@ public class MinimapIcon : MonoBehaviour
 
         icon.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
-    
+
     public void SetAsGoal(bool esObjetivo)
     {
         clampToMinimapEdge = esObjetivo;
@@ -112,7 +117,7 @@ public class MinimapIcon : MonoBehaviour
         {
             iconMaterial.color = esObjetivo ? goalColor : iconColor;
         }
-        
+
         if (icon != null)
         {
             float multiplier = esObjetivo ? goalSizeMultiplier : 1f;
