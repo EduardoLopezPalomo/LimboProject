@@ -25,9 +25,7 @@ public class QuestZoneTrigger : MonoBehaviour
     {
         if (ActualGoal == null) return;
 
-        boxCollider.enabled = !ActualGoal.completed;
-
-        if (ActualGoal.completed) minimapIcon.SetAsGoal(false);
+        HandleGoalsChanged(null);
     }
 
     void OnEnable()
@@ -42,8 +40,16 @@ public class QuestZoneTrigger : MonoBehaviour
     {
         bool esObjetivo = QuestManager.IsCurrentGoal(ZoneId);
         minimapIcon.enabled = esObjetivo;
-        if (esObjetivo && !ActualGoal.completed) minimapIcon.SetAsGoal(true);
-
+        if (esObjetivo && !ActualGoal.completed)
+        {
+            minimapIcon.SetAsGoal(true);
+            boxCollider.enabled = true;
+        }
+        else
+        {
+            minimapIcon.SetAsGoal(false);
+            boxCollider.enabled = false;
+        }
     }
 
     private void OnTriggerEnter(Collider other)

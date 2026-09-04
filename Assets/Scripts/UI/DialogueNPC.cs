@@ -18,12 +18,12 @@ public class DialogueNPC : MonoBehaviour
 
     private void Awake()
     {
-        minimapIcon = GetComponent<MinimapIcon>();
+        minimapIcon = GetComponentInChildren<MinimapIcon>();
     }
 
     private void Start()
     {
-        if (dialogueData.ActualGoal != null && dialogueData.ActualGoal.completed) minimapIcon.SetAsGoal(false);
+        RefreshGoalState();
     }
 
     private void OnEnable()
@@ -32,7 +32,7 @@ public class DialogueNPC : MonoBehaviour
             DayNight.OnDayPhaseChanged += OnDayPhaseChanged;
 
         QuestManager.OnGoalChange += HandleGoalsChanged;
-        HandleGoalsChanged(null);
+        RefreshGoalState();
     }
 
     private void OnDisable()
@@ -53,9 +53,7 @@ public class DialogueNPC : MonoBehaviour
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
-        if (minimapIcon == null) return;
-        string npcId = dialogueData.NpcId;
-        minimapIcon.SetAsGoal(QuestManager.IsCurrentGoal(npcId));
+        RefreshGoalState();
     }
 
     public List<string> ObtenerLineasDialogo()
@@ -110,6 +108,17 @@ public class DialogueNPC : MonoBehaviour
         }
 
         return lineas;
+    }
+
+    private void RefreshGoalState()
+    {
+        if (minimapIcon == null) return;
+
+        bool esGoal =
+            (QuestManager.IsCurrentGoal(dialogueData.NpcId) && dialogueData.ActualQuest != null && !dialogueData.ActualQuest.completed)
+            || (completeQuestData != null && QuestManager.IsCurrentGoal(completeQuestData.NpcId) && completeQuestData.ActualQuest != null && !completeQuestData.ActualQuest.completed);
+
+        minimapIcon.SetAsGoal(esGoal);
     }
 
     private bool CheckPrincipalQuest()
