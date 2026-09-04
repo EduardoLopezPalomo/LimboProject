@@ -29,7 +29,7 @@ public class TeleportQuest : MonoBehaviour
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
-        if (quests.Count == 0) return;
+        if (quests.Count == 0 || QuestManager.instance == null) return;
         foreach (var quest in quests)
         {
             if (quest == null) continue;

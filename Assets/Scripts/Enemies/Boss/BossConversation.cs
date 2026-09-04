@@ -36,6 +36,7 @@ public class BossConversation : MonoBehaviour, IConversation
     }
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("actualQuest: " + actualQuest.questId + " actualGoal: " + actualGoal.completed + " QuestManager.instance.GetActualQuest(): " + QuestManager.instance.GetActualQuest());
         if (actualQuest == null || QuestManager.instance.GetActualQuest() != actualQuest.questId || actualGoal.completed) return;
 
         if (other.CompareTag("Player"))
