@@ -48,5 +48,6 @@ public class PlayerHealthResponse : GeneralHealthResponse
         }
 
         VibrationManager.Instance.Vibrate(0.9f, 0.5f, 2f);
+        MusicManager.Instance.StartDeath();
     }
 }

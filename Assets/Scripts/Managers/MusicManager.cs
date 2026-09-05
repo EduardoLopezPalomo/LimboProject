@@ -5,30 +5,35 @@ using UnityEngine;
 [Serializable]
 public enum MusicState
 {
-    Default, 
+    Default,
     Normal,
-    Battle
+    Battle,
+    Death
 }
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance;
-    
+
     [Header("Normal Loop Settings")]
     public float loopStartSeconds = 0f;
     public float loopEndSeconds = 180f;
     public bool loopTillEnd = true;
     public bool startSilence = false;
-    
+
     [Header("Battle Loop Settings")]
     public float battleStartSeconds = 0f;
     public float battleEndSeconds = 180f;
     public bool battleTillEnd = true;
-    
+
     [Header("Battle Music")]
     public AudioClip battleMusic;
     public float musicFadeTime = 1.6f;
-    
+
+    [Header("Death Music")]
+    public AudioClip deathMusic;
+    public float musicDeathFadeTime = 0.5f;
+
     private AudioSource audioSource;
     private AudioClip normalMusic;
     private int normalTimeSample;
@@ -43,9 +48,9 @@ public class MusicManager : MonoBehaviour
         }
         audioSource = GetComponent<AudioSource>();
         normalMusic = audioSource.clip;
-        
+
     }
-    
+
     void Start()
     {
         if (audioSource == null) return;
@@ -61,16 +66,16 @@ public class MusicManager : MonoBehaviour
 
         if (!startSilence)
         {
-            audioSource.Play();   
+            audioSource.Play();
         }
         else
         {
             isSilentState = true;
         }
-        
+
         musicState = MusicState.Normal;
     }
-    
+
     void Update()
     {
         if (musicState == MusicState.Normal)
@@ -80,7 +85,7 @@ public class MusicManager : MonoBehaviour
             {
                 audioSource.Play();
                 audioSource.time = loopStartSeconds;
-            }    
+            }
         }
         else if (musicState == MusicState.Battle)
         {
@@ -88,9 +93,9 @@ public class MusicManager : MonoBehaviour
             {
                 audioSource.Play();
                 audioSource.time = battleStartSeconds;
-            } 
+            }
         }
-        
+
     }
 
     public void StartBattle()
@@ -101,6 +106,12 @@ public class MusicManager : MonoBehaviour
     public void EndBattle()
     {
         StartCoroutine(ChangeToBattle(false));
+    }
+
+    public void StartDeath()
+    {
+        if (deathMusic == null) return;
+        StartCoroutine(ChangeToDeath());
     }
 
     IEnumerator ChangeToBattle(bool start)
@@ -130,7 +141,7 @@ public class MusicManager : MonoBehaviour
             isSilentState = false;
         }
         audioSource.Play();
-        
+
         while (time < maxTimerEach)
         {
             time += Time.deltaTime;
@@ -138,5 +149,29 @@ public class MusicManager : MonoBehaviour
             yield return null;
         }
 
+    }
+
+    IEnumerator ChangeToDeath()
+    {
+        float time = 0f;
+        float maxTimerEach = musicDeathFadeTime * 0.5f;
+
+        while (time < maxTimerEach)
+        {
+            time += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(1, 0, time / maxTimerEach);
+            yield return null;
+        }
+
+        audioSource.clip = deathMusic;
+        musicState = MusicState.Death;
+        audioSource.Play();
+
+        while (time < maxTimerEach)
+        {
+            time += Time.deltaTime;
+            audioSource.volume = Mathf.Lerp(0, 1, time / maxTimerEach);
+            yield return null;
+        }
     }
 }
