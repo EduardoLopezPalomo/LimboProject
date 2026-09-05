@@ -10,17 +10,16 @@ public class EnemyPlayerDetection : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Player has entered the detection area.");
             player = other.gameObject;
             playerDetected = true;
         }
     }
     void Update()
     {
-        if(playerDetected)
+        if (playerDetected)
         {
             float distanceToPlayer = Vector3.Distance(transform.position, player.transform.position);
-            if(distanceToPlayer >= maxDetectionDistance)
+            if (distanceToPlayer >= maxDetectionDistance)
             {
                 ResetDetection();
             }
