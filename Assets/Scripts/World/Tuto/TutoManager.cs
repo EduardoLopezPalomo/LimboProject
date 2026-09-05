@@ -18,7 +18,6 @@ public class TutorialManager : MonoBehaviour
 
     public List<TutorialUI> tutorialUIs;
 
-    private TutorialUI currentTutorialUI;
 
     private void Awake()
     {
@@ -34,21 +33,17 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    // Método para mostrar tutorial por ID
     public void ShowTutorial(string tutorialID, Sprite image, string text)
     {
-        // Ocultar el panel actual si hay
-        if (currentTutorialUI != null)
-            currentTutorialUI.panel.SetActive(false);
+       
 
-        // Buscar el tutorialUI con ese ID
-        currentTutorialUI = tutorialUIs.Find(t => t.tutorialID == tutorialID);
+        TutorialUI tutorialUI = tutorialUIs.Find(t => t.tutorialID == tutorialID);
 
-        if (currentTutorialUI != null)
+        if (tutorialUI != null)
         {
-            currentTutorialUI.panel.SetActive(true);
-            currentTutorialUI.tutorialImage.sprite = image;
-            currentTutorialUI.tutorialText.text = text;
+            tutorialUI.panel.SetActive(true);
+            tutorialUI.tutorialImage.sprite = image;
+            tutorialUI.tutorialText.text = text;
         }
         else
         {
@@ -56,12 +51,14 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
-    public void HideTutorial()
+
+    public void HideTutorial(string tutorialID)
     {
-        if (currentTutorialUI != null)
+        TutorialUI tutorialUI = tutorialUIs.Find(t => t.tutorialID == tutorialID);
+        if (tutorialUI != null)
         {
-            currentTutorialUI.panel.SetActive(false);
-            currentTutorialUI = null;
+            tutorialUI.panel.SetActive(false);
         }
     }
+
 }

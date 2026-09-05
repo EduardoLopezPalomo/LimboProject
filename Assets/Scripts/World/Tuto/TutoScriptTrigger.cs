@@ -17,17 +17,21 @@ public class TutorialTrigger : MonoBehaviour
             foreach (var content in tutorialContents)
             {
                 tutorialManager.ShowTutorial(content.tutorialID, content.tutorialSprite, content.tutorialDescription);
-                // Aquí podrías agregar lógica para mostrar uno tras otro o simultáneamente si el tutorialManager lo permite
             }
         }
     }
+
 
     private void OnTriggerExit(Collider other)
     {
         if (other.gameObject == player)
         {
-            tutorialManager.HideTutorial();
+            foreach (var content in tutorialContents)
+            {
+                tutorialManager.HideTutorial(content.tutorialID);
+            }
         }
     }
+
 }
 
