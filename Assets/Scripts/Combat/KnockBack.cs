@@ -7,13 +7,13 @@ public class KnockBack : MonoBehaviour
     public float KnockBackOffsetTime = 2f;
 
     [HideInInspector] public bool NotMove = false;
-    
+
     private bool CanKnockBack = true;
     private MakeInvincible makeInvincible;
     private AbilityHolder abilityHolder;
     private Animator animator;
     private Vector3 direction;
-    
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -28,13 +28,13 @@ public class KnockBack : MonoBehaviour
         animator.SetTrigger("KnockBack");
         if (abilityHolder.HasAbility("LightAttack"))
         {
-            abilityHolder.CancelAbility("LightAttack");   
+            abilityHolder.CancelAbility("LightAttack");
         }
-        
+
         StartCoroutine(Timer(true));
     }
 
-    
+
     public void StartKnockBack()
     {
         if (!CanKnockBack) return;
@@ -51,17 +51,27 @@ public class KnockBack : MonoBehaviour
         animator.SetTrigger("KnockBack");
         abilityHolder.CancelAllAbility();
     }
-    
-        
+
+
     private IEnumerator Timer(bool counter)
     {
         if (CompareTag("Player") && !counter)
         {
-            makeInvincible.SetInvincible(true);   
+            makeInvincible.SetInvincible(true);
         }
 
         CanKnockBack = false;
         float elapsed = 0f;
+
+        yield return null;
+
+        if (CompareTag("Player"))
+        {
+            if (abilityHolder.IsAbilityActive("Parry"))
+            {
+                abilityHolder.CancelAbility("Parry");
+            }
+        }
 
         while (elapsed < KnockBackOffsetTime)
         {
@@ -76,7 +86,7 @@ public class KnockBack : MonoBehaviour
             {
                 abilityHolder.CancelAbility("Parry");
             }
-            makeInvincible.SetInvincible(false);   
+            makeInvincible.SetInvincible(false);
         }
     }
 }
