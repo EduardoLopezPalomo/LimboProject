@@ -128,7 +128,7 @@ public class HealTargetSpec : GameplayAbilitySpec
         if (finalEffectManager != null && finalAttributeSystem != null)
         {
             finalEffectManager.ApplyEffect(healEffect, finalAttributeSystem);
-            charactersfx.spawnSFX(SFXType.Healing);
+            charactersfx.SpawnSFX(SFXType.Healing);
 
         }
     }
