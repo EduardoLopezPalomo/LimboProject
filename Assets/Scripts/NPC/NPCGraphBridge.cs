@@ -39,7 +39,10 @@ public class NPCGraphBridge : MonoBehaviour
 
     private void HandleDayPhaseChanged(DayPhase newPhase)
     {
-        if (agent == null) return;
+        if (agent == null)
+        {
+            return;
+        }
         switch (newPhase)
         {
             case DayPhase.Dawn:

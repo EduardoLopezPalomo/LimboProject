@@ -21,7 +21,7 @@ public class DayNight : MonoBehaviour
     public float timeOfDay = 0.25f;
 
     public DayPhase ActualPhase = DayPhase.Day;
-    
+
     public bool CanChangePhase = true;
 
     public AnimationCurve SunIntensityCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -69,16 +69,16 @@ public class DayNight : MonoBehaviour
 
     void Update()
     {
-        if(!CanChangePhase) return;
-        
+        if (!CanChangePhase) return;
+
         timeOfDay += Time.deltaTime / DayDuration;
         if (timeOfDay >= 1f)
         {
             timeOfDay -= 1f;
         }
-        
+
         RotateLights();
-        
+
         DayPhase newPhase = GetPhase(timeOfDay);
         ChangePhase(newPhase);
     }
@@ -125,7 +125,7 @@ public class DayNight : MonoBehaviour
 
         RenderSettings.ambientIntensity = Mathf.Lerp(0.35f, 1f, daylight);
     }
-    
+
     void ChangePhase(DayPhase newPhase)
     {
         if (newPhase != lastPhase)
@@ -173,7 +173,7 @@ public class DayNight : MonoBehaviour
         if (t < 0.77f) return DayPhase.Sunset;
         return DayPhase.Night;
     }
-    
+
     public void SetTimeOfDay(float t)
     {
         timeOfDay = Mathf.Clamp01(t);
@@ -181,6 +181,6 @@ public class DayNight : MonoBehaviour
         DayPhase newPhase = GetPhase(timeOfDay);
         lastPhase = DayPhase.Null;
         ChangePhase(newPhase);
-        
+
     }
 }

@@ -14,11 +14,29 @@ public class NPCPool : MonoBehaviour
         graphBridge = GetComponentInChildren<NPCGraphBridge>(true);
     }
 
-    public void WakeUp()
+    private void OnEnable()
     {
-        if (Npc)
+        DayNight.OnDayPhaseChanged += WakeUp;
+        if (DayNight.Instance != null)
+        {
+            WakeUp(DayNight.Instance.ActualPhase);
+        }
+    }
+
+    void OnDisable()
+    {
+        DayNight.OnDayPhaseChanged -= WakeUp;
+    }
+
+    public void WakeUp(DayPhase newPhase)
+    {
+        if (Npc && newPhase == DayPhase.FirstLight)
         {
             Npc.SetActive(true);
+        }
+        else if (Npc && newPhase == DayPhase.Night)
+        {
+            GoToSleep();
         }
     }
 
@@ -38,7 +56,9 @@ public class NPCPool : MonoBehaviour
     private IEnumerator WaitUntilRouteFinishedThenSleep()
     {
         if (graphBridge == null)
+        {
             yield break;
+        }
 
         yield return new WaitUntil(() => graphBridge.GetReachedHome());
 

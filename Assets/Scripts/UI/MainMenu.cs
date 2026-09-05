@@ -22,7 +22,6 @@ public class MainMenu : MonoBehaviour
         QuestManager.instance.ReStart();
         LevelLoader.Instance.LoadLevelAsync(levelToLoad);
         canvas.sortingOrder = -1;
-        DayNight.Instance.CanChangePhase = true;
     }
 
     public void LoadSaveGame()
