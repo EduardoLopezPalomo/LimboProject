@@ -2,43 +2,28 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class NpcPlayerDetection : MonoBehaviour , IConversation
+public class NpcPlayerDetection : MonoBehaviour, IConversation
 {
     public static bool PossibleInteraction = false;
-    
-    public float detectionAngle = -1f;
 
     [SerializeField] private GameObject interactUI;
     [SerializeField] private GameObject npc;
     [SerializeField] private DialogueNPC dialogueNPC;
-    
+
     private GameObject player;
     private PlayerInput playerInput;
     private bool playerDetected = false;
-    private bool mirandoAlNPC = false;
 
     void Update()
     {
         if (playerDetected)
         {
-            Vector3 direction = (npc.transform.position - player.transform.position).normalized;
+            interactUI.SetActive(true);
+            PossibleInteraction = true;
 
-            float dot = Vector3.Dot(player.transform.forward, direction);
-
-            mirandoAlNPC = dot > detectionAngle;
-
-            //Debug.Log("Dot: " + dot + " | Umbral: " + detectionAngle);
-
-            interactUI.SetActive(mirandoAlNPC);
-
-            PossibleInteraction = mirandoAlNPC;
-
-            if (mirandoAlNPC && playerInput.currentActionMap.name != "UI" && playerInput != null)
+            if (playerInput != null && playerInput.currentActionMap.name != "UI")
             {
                 InputAction interactAction = playerInput.currentActionMap.FindAction("Interact");
-
-                //Debug.Log("Mirando al NPC. Action encontrada: " + (interactAction != null ? interactAction.name : "NULL")
-                //+ " | Mapa activo: " + playerInput.currentActionMap.name);
 
                 if (interactAction != null && interactAction.WasPressedThisFrame())
                 {
@@ -57,7 +42,7 @@ public class NpcPlayerDetection : MonoBehaviour , IConversation
         data.voz = dialogueNPC.VozNPC;
         data.retrato = dialogueNPC.RetratoNPC;
         data.input = playerInput;
-        
+
         IConversation.RaiseDialogueInit(data);
 
         playerInput.SwitchCurrentActionMap("UI");
@@ -71,7 +56,6 @@ public class NpcPlayerDetection : MonoBehaviour , IConversation
             playerDetected = true;
             player = other.gameObject;
             playerInput = other.GetComponent<PlayerInput>();
-            //Debug.Log("Player detectado. PlayerInput: " + (playerInput != null ? "OK" : "NULL"));
         }
     }
 
@@ -84,6 +68,4 @@ public class NpcPlayerDetection : MonoBehaviour , IConversation
             PossibleInteraction = false;
         }
     }
-
-    
 }
