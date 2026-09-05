@@ -9,7 +9,7 @@ public class QuestItemInteractable : MonoBehaviour
     public string itemId;
     public Quest actualQuest;
     public Goals actualGoal;
-    
+
     [Header("Referencias")]
     [SerializeField] private GameObject interactUI;
 
@@ -17,26 +17,25 @@ public class QuestItemInteractable : MonoBehaviour
     private PlayerInput playerInput;
     private MinimapIcon minimapIcon;
     private BoxCollider boxCollider;
-    
+
     private void Awake()
     {
         minimapIcon = GetComponent<MinimapIcon>();
-        minimapIcon.enabled = false; 
+        minimapIcon.enabled = false;
         boxCollider = GetComponent<BoxCollider>();
-        boxCollider.enabled = false;
     }
 
     private void Start()
     {
         if (actualGoal == null) return;
-        boxCollider.enabled = !actualGoal.completed;
-        
-        if(actualGoal.completed) minimapIcon.SetAsGoal(false);
+        interactUI.SetActive(false);
+        HandleGoalsChanged(null);
     }
 
     void OnEnable()
     {
         QuestManager.OnGoalChange += HandleGoalsChanged;
+        interactUI.SetActive(false);
         HandleGoalsChanged(null);
     }
 
@@ -52,7 +51,7 @@ public class QuestItemInteractable : MonoBehaviour
             Interact();
         }
     }
-    
+
     private bool CanInteract()
     {
         return actualQuest != null && QuestManager.instance.GetActualQuest() == actualQuest.questId && !actualGoal.completed;
@@ -63,10 +62,10 @@ public class QuestItemInteractable : MonoBehaviour
         OnItemInteracted?.Invoke(itemId);
 
         if (interactUI != null) interactUI.SetActive(false);
-        
+
         gameObject.SetActive(false);
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
@@ -81,14 +80,23 @@ public class QuestItemInteractable : MonoBehaviour
         playerInside = false;
         if (interactUI != null) interactUI.SetActive(false);
     }
-    
+
     private void HandleGoalsChanged(HashSet<string> ids)
     {
         bool esObjetivo = QuestManager.IsCurrentGoal(itemId);
         minimapIcon.enabled = esObjetivo;
-        if (esObjetivo && !actualGoal.completed) minimapIcon.SetAsGoal(true);
+        if (esObjetivo && !actualGoal.completed)
+        {
+            minimapIcon.SetAsGoal(true);
+            boxCollider.enabled = true;
+        }
+        else
+        {
+            minimapIcon.SetAsGoal(false);
+            boxCollider.enabled = false;
+        }
     }
-    
+
     [ContextMenu("Create Id")]
     public void CreateId()
     {
