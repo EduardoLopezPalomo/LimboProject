@@ -162,16 +162,9 @@ public class MusicManager : MonoBehaviour
             audioSource.volume = Mathf.Lerp(1, 0, time / maxTimerEach);
             yield return null;
         }
-
+        audioSource.volume = 1f;
         audioSource.clip = deathMusic;
         musicState = MusicState.Death;
         audioSource.Play();
-
-        while (time < maxTimerEach)
-        {
-            time += Time.deltaTime;
-            audioSource.volume = Mathf.Lerp(0, 1, time / maxTimerEach);
-            yield return null;
-        }
     }
 }
