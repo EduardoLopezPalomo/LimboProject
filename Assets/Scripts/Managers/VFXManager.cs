@@ -7,7 +7,7 @@ public class VFXManager : MonoBehaviour
     public static VFXManager Instance { get; private set; }
 
     private Dictionary<VFXDefinition, Queue<GameObject>> pools = new();
-    
+
     private class ActiveVFX
     {
         public VFXDefinition def;
@@ -16,7 +16,7 @@ public class VFXManager : MonoBehaviour
     }
 
     private Dictionary<GameObject, ActiveVFX> activeVFX = new();
-    
+
     private void Awake()
     {
         if (Instance == null)
@@ -24,21 +24,21 @@ public class VFXManager : MonoBehaviour
             Instance = this;
         }
     }
-    
+
     public GameObject Play(VFXDefinition def, Vector3 position, Quaternion rotation, GameObject target)
     {
         Vector3 finalPosition = position + rotation * def.positionOffset;
-        
+
         Quaternion finalRot = rotation * Quaternion.Euler(def.rotationOffset);
         GameObject vfx = def.useObjectPool ? GetFromPool(def) : Instantiate(def.prefab);
-        
+
         if (def.useObjectPool)
             vfx.transform.SetParent(transform, worldPositionStays: false);
 
         vfx.transform.SetPositionAndRotation(finalPosition, finalRot);
         vfx.transform.localScale = def.scaleOverride;
         vfx.SetActive(true);
-        
+
         var active = new ActiveVFX { def = def };
         activeVFX[vfx] = active;
         if (!def.untilCancel)
@@ -48,7 +48,7 @@ public class VFXManager : MonoBehaviour
                 active.returnCoroutine = StartCoroutine(ReturnToPoolAfter(def, vfx, def.lifetime));
             }
             else
-                Destroy(vfx, def.lifetime);   
+                Destroy(vfx, def.lifetime);
         }
 
         if (def.followTarget)
@@ -58,9 +58,9 @@ public class VFXManager : MonoBehaviour
 
         return vfx;
     }
-    
+
     public GameObject Play(VFXDefinition def, Transform spawnPoint, GameObject target) => Play(def, spawnPoint.position, spawnPoint.rotation, target);
-    
+
     public void Cancel(GameObject vfx)
     {
         if (vfx == null) return;
@@ -85,6 +85,14 @@ public class VFXManager : MonoBehaviour
         else
         {
             Destroy(vfx);
+        }
+    }
+
+    public void CancelAll()
+    {
+        foreach (var vfx in new List<GameObject>(activeVFX.Keys))
+        {
+            Cancel(vfx);
         }
     }
 
@@ -113,11 +121,11 @@ public class VFXManager : MonoBehaviour
         pools[def].Enqueue(obj);
         activeVFX.Remove(obj);
     }
-    
+
     private System.Collections.IEnumerator FollowTarget(GameObject vfx, GameObject target, VFXDefinition def)
     {
         float elapsed = 0f;
-        
+
         while (def.untilCancel || elapsed < def.lifetime)
         {
             if (vfx == null || target == null)
