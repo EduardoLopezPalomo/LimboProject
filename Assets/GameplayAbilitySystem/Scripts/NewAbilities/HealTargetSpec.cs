@@ -8,6 +8,7 @@ public class HealTargetSpec : GameplayAbilitySpec
     private Animator animator;
     private ParticleController particleController;
     private GameplayEffect healEffect;
+    private CharacterSFX charactersfx;
     
     private GameObject healAreaPrefab;
     private float radiusDetection;
@@ -26,6 +27,7 @@ public class HealTargetSpec : GameplayAbilitySpec
         minHealthToStart = minHealtStart;
         this.healEffect = healEffect;
         this.healAreaPrefab = healAreaPrefab;
+        charactersfx = owner.GetComponent<CharacterSFX>();
     }
 
     public override void ActivateAbility()
@@ -126,6 +128,8 @@ public class HealTargetSpec : GameplayAbilitySpec
         if (finalEffectManager != null && finalAttributeSystem != null)
         {
             finalEffectManager.ApplyEffect(healEffect, finalAttributeSystem);
+            charactersfx.SpawnSFX(SFXType.Healing);
+
         }
     }
     public void StopHealParticle()
