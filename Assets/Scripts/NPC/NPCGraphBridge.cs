@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Behavior;
+using UnityEngine.AI;
 
 public class NPCGraphBridge : MonoBehaviour
 {
@@ -9,17 +10,23 @@ public class NPCGraphBridge : MonoBehaviour
     private bool HasReachedHome = false;
 
     private NPCState stateBeforeDialogue = NPCState.Default;
+    private NavMeshAgent agentComponent;
 
     void Awake()
     {
         agent = GetComponent<BehaviorGraphAgent>();
         dialogueNPC = GetComponentInParent<DialogueNPC>();
+        agentComponent = GetComponent<NavMeshAgent>();
     }
     void Start()
     {
         if (DayNight.Instance != null)
         {
             HandleDayPhaseChanged(DayNight.Instance.ActualPhase);
+        }
+        if (agentComponent != null)
+        {
+            agentComponent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
         }
     }
 

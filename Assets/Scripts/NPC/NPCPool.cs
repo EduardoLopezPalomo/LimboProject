@@ -1,17 +1,26 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
+using Unity.Behavior;
 
 public class NPCPool : MonoBehaviour
 {
     public bool RestAtHome = true;
-    [SerializeField] private GameObject Npc;
+    public GameObject Npc;
 
+    private BehaviorGraphAgent behaviorAgent;
+    private NavMeshAgent navAgent;
     private NPCGraphBridge graphBridge;
     private Coroutine sleepRoutine;
+
+    [HideInInspector]
+    public bool IsPoolActive => behaviorAgent != null && behaviorAgent.enabled;
 
     private void Awake()
     {
         graphBridge = GetComponentInChildren<NPCGraphBridge>(true);
+        behaviorAgent = GetComponentInChildren<BehaviorGraphAgent>(true);
+        navAgent = GetComponentInChildren<NavMeshAgent>(true);
     }
 
     private void OnEnable()
@@ -70,6 +79,24 @@ public class NPCPool : MonoBehaviour
         if (Npc && RestAtHome)
         {
             Npc.SetActive(false);
+        }
+    }
+
+    public void Deactivate()
+    {
+        if (behaviorAgent && navAgent)
+        {
+            behaviorAgent.enabled = false;
+            navAgent.enabled = false;
+        }
+    }
+
+    public void Activate()
+    {
+        if (behaviorAgent && navAgent)
+        {
+            behaviorAgent.enabled = true;
+            navAgent.enabled = true;
         }
     }
 
