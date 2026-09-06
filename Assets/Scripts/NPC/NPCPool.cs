@@ -11,6 +11,9 @@ public class NPCPool : MonoBehaviour
     private BehaviorGraphAgent behaviorAgent;
     private NavMeshAgent navAgent;
     private NPCGraphBridge graphBridge;
+
+    private SkinnedMeshRenderer[] renderers;
+    private NpcPlayerDetection playerDetection;
     private Coroutine sleepRoutine;
 
     [HideInInspector]
@@ -21,6 +24,8 @@ public class NPCPool : MonoBehaviour
         graphBridge = GetComponentInChildren<NPCGraphBridge>(true);
         behaviorAgent = GetComponentInChildren<BehaviorGraphAgent>(true);
         navAgent = GetComponentInChildren<NavMeshAgent>(true);
+        renderers = GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        playerDetection = GetComponent<NpcPlayerDetection>();
     }
 
     private void OnEnable()
@@ -84,19 +89,31 @@ public class NPCPool : MonoBehaviour
 
     public void Deactivate()
     {
-        if (behaviorAgent && navAgent)
+        if (behaviorAgent && navAgent && playerDetection)
         {
             behaviorAgent.enabled = false;
             navAgent.enabled = false;
+            playerDetection.enabled = false;
+        }
+
+        foreach (var r in renderers)
+        {
+            r.enabled = false;
         }
     }
 
     public void Activate()
     {
-        if (behaviorAgent && navAgent)
+        if (behaviorAgent && navAgent && playerDetection)
         {
             behaviorAgent.enabled = true;
             navAgent.enabled = true;
+            playerDetection.enabled = true;
+        }
+
+        foreach (var r in renderers)
+        {
+            r.enabled = true;
         }
     }
 

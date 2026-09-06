@@ -11,11 +11,13 @@ public class NPCGraphBridge : MonoBehaviour
 
     private NPCState stateBeforeDialogue = NPCState.Default;
     private NavMeshAgent agentComponent;
+    private Animator animator;
 
     void Awake()
     {
         agent = GetComponent<BehaviorGraphAgent>();
         dialogueNPC = GetComponentInParent<DialogueNPC>();
+        animator = GetComponent<Animator>();
         agentComponent = GetComponent<NavMeshAgent>();
     }
     void Start()
@@ -24,9 +26,10 @@ public class NPCGraphBridge : MonoBehaviour
         {
             HandleDayPhaseChanged(DayNight.Instance.ActualPhase);
         }
-        if (agentComponent != null)
+        if (agentComponent != null && animator != null)
         {
             agentComponent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
+            animator.cullingMode = AnimatorCullingMode.CullCompletely;
         }
     }
 
