@@ -46,6 +46,8 @@ public class MenuNavigation : MonoBehaviour
         VibrationManager.Instance.RevertToSaved();
         InterfaceManager.Instance.RevertToSave();
         DisplayManager.Instance.RevertToSave();
+        if (TutorialManager.Instance != null)
+            TutorialManager.Instance.RevertToSave();
 
         if (LastMenu != null)
         {

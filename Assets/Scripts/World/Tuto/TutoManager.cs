@@ -18,6 +18,8 @@ public class TutorialManager : MonoBehaviour
 
     public List<TutorialUI> tutorialUIs;
 
+    private bool showTutorial = true;
+
 
     private void Awake()
     {
@@ -33,9 +35,27 @@ public class TutorialManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        RevertToSave();
+    }
+
+    public void RevertToSave()
+    {
+        SettingsData data = SaveSystem.LoadSettingsData();
+
+        if (data == null) return;
+
+        InterfaceData interfaceData = data.interfaceData;
+
+        if (interfaceData == null) return;
+
+        showTutorial = interfaceData.showTutorial;
+    }
+
     public void ShowTutorial(string tutorialID, Sprite image, string text)
     {
-       
+        if (!showTutorial) return;
 
         TutorialUI tutorialUI = tutorialUIs.Find(t => t.tutorialID == tutorialID);
 
@@ -47,7 +67,7 @@ public class TutorialManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("No se encontró panel para tutorialID: " + tutorialID);
+            Debug.LogWarning("No se encontrï¿½ panel para tutorialID: " + tutorialID);
         }
     }
 

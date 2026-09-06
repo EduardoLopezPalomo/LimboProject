@@ -10,14 +10,18 @@ public class TutorialTrigger : MonoBehaviour
     public TutorialManager tutorialManager;
     public GameObject player;
 
+
+    private bool alreadyTriggered = false;
     private void OnTriggerEnter(Collider other)
     {
+        if (alreadyTriggered) return;
         if (other.gameObject == player && InterfaceManager.Instance.showTutorial)
         {
             foreach (var content in tutorialContents)
             {
                 tutorialManager.ShowTutorial(content.tutorialID, content.tutorialSprite, content.tutorialDescription);
             }
+            alreadyTriggered = true;
         }
     }
 
