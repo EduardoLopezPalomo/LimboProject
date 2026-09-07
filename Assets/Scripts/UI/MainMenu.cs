@@ -40,6 +40,7 @@ public class MainMenu : MonoBehaviour
     public void Credits()
     {
         Debug.Log("Créditos");
+        LevelLoader.Instance.LoadLevelAsync("CreditsScene");
     }
 
     public void Exit()
