@@ -60,9 +60,11 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("OnTriggerEnter llamado por: " + other.name + " | Tag: " + other.tag);
         if (!other.CompareTag("Player") || dialogoYaDisparado) return;
 
         PlayerInput playerInput = other.GetComponent<PlayerInput>();
+        Debug.Log("PlayerInput encontrado: " + (playerInput != null));
         if (playerInput == null) return;
 
         DialogueInitData data = new DialogueInitData { input = playerInput };
@@ -83,6 +85,8 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
             data.voz = vozDespedida;
             data.retrato = retratoDespedida;
         }
+
+        Debug.Log("Lanzando diálogo con " + data.lineas.Count + " líneas");
 
         dialogoYaDisparado = true;
         IConversation.RaiseDialogueInit(data);
