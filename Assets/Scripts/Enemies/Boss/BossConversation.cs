@@ -2,6 +2,7 @@ using System;
 using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class BossConversation : MonoBehaviour, IConversation
 {
@@ -12,6 +13,11 @@ public class BossConversation : MonoBehaviour, IConversation
     [SerializeField] private Quest actualQuest;
     [SerializeField] private Goals actualGoal;
     [SerializeField] private BoxCollider teleportCollider;
+
+    [Header("Continuará")]
+    [SerializeField] private GameObject continuaraUI; 
+    [SerializeField] private float segundosAntesDeMenu = 3f;
+    [SerializeField] private string escenaMenuPrincipal;
 
     private BoxCollider boxCollider;
     private PlayerInput playerInput;
@@ -69,6 +75,7 @@ public class BossConversation : MonoBehaviour, IConversation
         else
         {
             Destroy(Boss, 0.5f);
+            StartCoroutine(MostrarContinuaraYVolverAlMenu());
         }
 
     }
@@ -90,5 +97,17 @@ public class BossConversation : MonoBehaviour, IConversation
             playerInput.SwitchCurrentActionMap("UI");
             teleportCollider.enabled = true;
         }
+    }
+
+    private IEnumerator MostrarContinuaraYVolverAlMenu()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        if (continuaraUI != null)
+            continuaraUI.SetActive(true);
+
+        yield return new WaitForSeconds(segundosAntesDeMenu);
+
+        LevelLoader.Instance.LoadLevelAsync(escenaMenuPrincipal);
     }
 }
