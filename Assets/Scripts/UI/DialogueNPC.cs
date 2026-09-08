@@ -58,7 +58,6 @@ public class DialogueNPC : MonoBehaviour
 
     public List<string> ObtenerLineasDialogo()
     {
-
         List<string> lineas = new List<string>();
 
         if (esNPCDeFiesta)
