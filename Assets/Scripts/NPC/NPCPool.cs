@@ -16,6 +16,8 @@ public class NPCPool : MonoBehaviour
     private NpcPlayerDetection playerDetection;
     private Coroutine sleepRoutine;
 
+    private bool isSleeping = false;
+
     [HideInInspector]
     public bool IsPoolActive => behaviorAgent != null && behaviorAgent.enabled;
 
@@ -46,6 +48,7 @@ public class NPCPool : MonoBehaviour
     {
         if (Npc && newPhase == DayPhase.FirstLight)
         {
+            isSleeping = false;
             Npc.SetActive(true);
         }
         else if (Npc && newPhase == DayPhase.Night)
@@ -77,6 +80,7 @@ public class NPCPool : MonoBehaviour
         yield return new WaitUntil(() => graphBridge.GetReachedHome());
 
         Npc.SetActive(false);
+        isSleeping = true;
     }
 
     public void ForceSleep()
@@ -104,6 +108,8 @@ public class NPCPool : MonoBehaviour
 
     public void Activate()
     {
+        if (isSleeping) return;
+
         if (behaviorAgent && navAgent && playerDetection)
         {
             behaviorAgent.enabled = true;
