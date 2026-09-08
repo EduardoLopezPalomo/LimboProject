@@ -34,6 +34,30 @@ public class PlayerDamage : MonoBehaviour
         currentEffect = StartCoroutine(DamageEffect());
     }
 
+    public void StartLowHealthEffect()
+    {
+        if (currentEffect != null) StopCoroutine(currentEffect);
+        currentEffect = StartCoroutine(LowHealth());
+    }
+
+    public void StopLowHealthEffect()
+    {
+        if (currentEffect != null)
+        {
+            StopCoroutine(currentEffect);
+            currentEffect = null;
+        }
+
+        SetAlpha(0f);
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        Color color = image.color;
+        color.a = alpha;
+        image.color = color;
+    }
+
     private IEnumerator DamageEffect()
     {
         Color color = image.color;
@@ -56,7 +80,7 @@ public class PlayerDamage : MonoBehaviour
         image.color = color;
     }
 
-    public IEnumerator LowHealth()
+    private IEnumerator LowHealth()
     {
         Color color = image.color;
 
