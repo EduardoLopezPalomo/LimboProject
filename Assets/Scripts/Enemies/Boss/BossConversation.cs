@@ -17,6 +17,7 @@ public class BossConversation : MonoBehaviour, IConversation
     [Header("Continuará")]
     [SerializeField] private GameObject continuaraUI; 
     [SerializeField] private float segundosAntesDeMenu = 3f;
+    [SerializeField] private float segundosAntesContinuara = 3f;
     [SerializeField] private string escenaMenuPrincipal;
 
     private BoxCollider boxCollider;
@@ -101,7 +102,7 @@ public class BossConversation : MonoBehaviour, IConversation
 
     private IEnumerator MostrarContinuaraYVolverAlMenu()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(segundosAntesContinuara);
 
         if (continuaraUI != null)
             continuaraUI.SetActive(true);
