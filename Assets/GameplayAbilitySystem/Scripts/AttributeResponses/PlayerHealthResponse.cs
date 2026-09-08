@@ -19,6 +19,8 @@ public class PlayerHealthResponse : GeneralHealthResponse
             sfx.SpawnRandomSFX(SFXType.Damaged);
         }
 
+        OnPlayerHurt?.Invoke();
+
         if (!CanResponse) return;
 
         KnockBack knockBack = owner.GetComponent<KnockBack>();
@@ -26,7 +28,6 @@ public class PlayerHealthResponse : GeneralHealthResponse
         {
             knockBack.StartKnockBack();
         }
-        OnPlayerHurt?.Invoke();
     }
 
     protected override void DeathBehavior(AttributeSystem owner)

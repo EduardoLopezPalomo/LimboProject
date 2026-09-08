@@ -12,7 +12,6 @@ public class PlayerHealth : MonoBehaviour
 
     private float maxHealth;
     private Coroutine lowHealthSFXCoroutine;
-    private Coroutine lowHealthVFXCoroutine;
 
     private void Start()
     {
@@ -27,9 +26,8 @@ public class PlayerHealth : MonoBehaviour
         if (lowHealthSFXCoroutine != null)
         {
             StopCoroutine(lowHealthSFXCoroutine);
-            StopCoroutine(lowHealthVFXCoroutine);
             lowHealthSFXCoroutine = null;
-            lowHealthVFXCoroutine = null;
+            playerDamage.StopLowHealthEffect();
         }
     }
 
@@ -55,23 +53,21 @@ public class PlayerHealth : MonoBehaviour
         }
         else
         {
-            if (lowHealthSFXCoroutine != null || lowHealthVFXCoroutine != null)
+            if (lowHealthSFXCoroutine != null)
             {
                 StopCoroutine(lowHealthSFXCoroutine);
-                StopCoroutine(lowHealthVFXCoroutine);
+                playerDamage.StopLowHealthEffect();
                 lowHealthSFXCoroutine = null;
-                lowHealthVFXCoroutine = null;
             }
         }
     }
 
     private System.Collections.IEnumerator PlayLowHealthSFX()
     {
-        lowHealthVFXCoroutine = playerDamage.StartCoroutine(playerDamage.LowHealth());
+        playerDamage.StartLowHealthEffect();
         SoundFXManager.instance.PlaySoundRandomPitch(lowHealthSFX.sfx, attributeSystem.transform, lowHealthSFX.volume, lowHealthSFX.minPitch, lowHealthSFX.maxPitch);
         yield return new WaitForSeconds(lowHealthSFX.sfx.length);
 
         lowHealthSFXCoroutine = null;
-        lowHealthVFXCoroutine = null;
     }
 }
