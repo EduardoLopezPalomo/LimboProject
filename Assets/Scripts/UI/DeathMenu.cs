@@ -34,7 +34,7 @@ public class DeathMenu : MonoBehaviour
     public void MainMenu()
     {
         TimeEffectsManager.ResumeGame();
-        LevelLoader.Instance.LoadLevelAsync("Main Menu");
+        LevelLoader.Instance.LoadLevelAsync("Main Menu", null, false);
         canvas.sortingOrder = -1;
         DayNight.Instance.CanChangePhase = false;
     }

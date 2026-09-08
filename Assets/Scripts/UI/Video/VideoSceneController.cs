@@ -60,13 +60,13 @@ public class VideoSceneController : MonoBehaviour
         hasSkipped = true;
 
         DayNight.Instance.CanChangePhase = true;
-        LevelLoader.Instance.LoadLevelAsync(levelToLoad);
+        LevelLoader.Instance.LoadLevelAsync(levelToLoad, null, false);
     }
 
     void OnVideoFinished(VideoPlayer vp)
     {
         DayNight.Instance.CanChangePhase = true;
-        LevelLoader.Instance.LoadLevelAsync(levelToLoad);
+        LevelLoader.Instance.LoadLevelAsync(levelToLoad, null, false);
     }
 }
 

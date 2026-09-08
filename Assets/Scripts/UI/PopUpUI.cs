@@ -32,11 +32,11 @@ public class PopUpUI : MonoBehaviour
     {
         if (PartyOn)
         {
-            LevelLoader.Instance.LoadLevelAndTeleportAsync("Party", pointNewScene, rotationNewScene);
+            LevelLoader.Instance.LoadLevelAndTeleportAsync("Party", pointNewScene, rotationNewScene, true);
         }
         else
         {
-            LevelLoader.Instance.LoadLevelAndTeleportAsync(sceneName, pointNewScene, rotationNewScene);
+            LevelLoader.Instance.LoadLevelAndTeleportAsync(sceneName, pointNewScene, rotationNewScene, true);
         }
         playerInput.SwitchCurrentActionMap("Player");
         TimeEffectsManager.ResumeGame();
