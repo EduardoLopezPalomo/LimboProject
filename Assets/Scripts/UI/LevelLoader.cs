@@ -24,9 +24,9 @@ public class LevelLoader : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void LoadLevelAndTeleportAsync(string name, Vector3 point, Quaternion rotation)
+    public void LoadLevelAndTeleportAsync(string name, Vector3 point, Quaternion rotation, bool useAttributeCache)
     {
-        StartCoroutine(LoadLevelAndTeleportAsyncCoroutine(name, point, rotation));
+        StartCoroutine(LoadLevelAndTeleportAsyncCoroutine(name, point, rotation, useAttributeCache));
     }
 
 
@@ -88,10 +88,11 @@ public class LevelLoader : MonoBehaviour
         GetPlayerInput()?.ActivateInput();
     }
 
-    IEnumerator LoadLevelAndTeleportAsyncCoroutine(string levelName, Vector3 point, Quaternion rotation)
+    IEnumerator LoadLevelAndTeleportAsyncCoroutine(string levelName, Vector3 point, Quaternion rotation, bool useAttributeCache)
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
+        if (useAttributeCache) SavePlayerAttributes();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, -80f, MusicFadeTime);
 
@@ -106,6 +107,7 @@ public class LevelLoader : MonoBehaviour
         TeleportPlayer(point, rotation);
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         animator.SetTrigger("EndLoading");
+        if (useAttributeCache) SetPlayerAttributes();
         GetPlayerInput()?.ActivateInput();
     }
 }

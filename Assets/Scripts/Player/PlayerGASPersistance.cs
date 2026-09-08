@@ -6,6 +6,12 @@ public static class PlayerAttributeCache
 {
     public static Dictionary<string, float> Values;
     public static bool HasData;
+
+    public static void Clear()
+    {
+        Values = null;
+        HasData = false;
+    }
 }
 
 public static class PlayerAbilitiesCache
@@ -13,6 +19,13 @@ public static class PlayerAbilitiesCache
     public static GameplayAbility EquippedAbility1;
     public static GameplayAbility EquippedAbility2;
     public static bool HasData;
+
+    public static void Clear()
+    {
+        EquippedAbility1 = null;
+        EquippedAbility2 = null;
+        HasData = false;
+    }
 }
 
 public class PlayerGASPersistance : MonoBehaviour
@@ -31,7 +44,7 @@ public class PlayerGASPersistance : MonoBehaviour
         SaveAbilities();
         SaveAttributes();
     }
-    
+
     public void RestoreState()
     {
         RestoreAbilities();
@@ -64,7 +77,7 @@ public class PlayerGASPersistance : MonoBehaviour
             {
                 abilityHolder.UnequipAbility(1);
             }
-            
+
             if (PlayerAbilitiesCache.EquippedAbility2 != null)
             {
                 abilityHolder.EquipAbility(PlayerAbilitiesCache.EquippedAbility2, 2);

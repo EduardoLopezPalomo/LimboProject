@@ -19,8 +19,10 @@ public class MainMenu : MonoBehaviour
 
     public void PlayGame()
     {
+        PlayerAttributeCache.Clear();
+        PlayerAbilitiesCache.Clear();
         QuestManager.instance.ReStart();
-        LevelLoader.Instance.LoadLevelAsync(levelToLoad);
+        LevelLoader.Instance.LoadLevelAsync(levelToLoad, null, false);
         canvas.sortingOrder = -1;
     }
 
