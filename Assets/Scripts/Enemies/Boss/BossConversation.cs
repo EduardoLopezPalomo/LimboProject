@@ -17,7 +17,7 @@ public class BossConversation : MonoBehaviour, IConversation
     [Header("Continuará")]
     [SerializeField] private GameObject continuaraUI; 
     [SerializeField] private float segundosAntesDeMenu = 3f;
-    [SerializeField] private string escenaMenuPrincipal;
+    [SerializeField] private string creditsScene;
 
     private BoxCollider boxCollider;
     private PlayerInput playerInput;
@@ -108,6 +108,6 @@ public class BossConversation : MonoBehaviour, IConversation
 
         yield return new WaitForSeconds(segundosAntesDeMenu);
 
-        LevelLoader.Instance.LoadLevelAsync(escenaMenuPrincipal);
+        LevelLoader.Instance.LoadLevelAsync(creditsScene);
     }
 }
