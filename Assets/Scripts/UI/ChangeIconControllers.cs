@@ -13,13 +13,19 @@ public class InputIconSwitcher : MonoBehaviour
 
     private void OnEnable()
     {
-        instanciasActivas.Add(this);
+        if (!instanciasActivas.Contains(this))
+            instanciasActivas.Add(this);
 
         PlayerInput playerInput = BuscarPlayerInput();
         OnControlsChanged(playerInput);
     }
 
     private void OnDisable()
+    {
+        instanciasActivas.Remove(this);
+    }
+
+    private void OnDestroy()
     {
         instanciasActivas.Remove(this);
     }
@@ -33,9 +39,9 @@ public class InputIconSwitcher : MonoBehaviour
     // NUEVO: método estático al que llama el "notifier" del jugador
     public static void NotificarCambioEsquema(PlayerInput input)
     {
-        foreach (var instancia in instanciasActivas)
+        for (int i = instanciasActivas.Count - 1; i >= 0; i--)
         {
-            instancia.OnControlsChanged(input);
+            instanciasActivas[i].OnControlsChanged(input);
         }
     }
 
