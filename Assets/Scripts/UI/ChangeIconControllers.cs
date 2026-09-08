@@ -9,27 +9,34 @@ public class InputIconSwitcher : MonoBehaviour
     [SerializeField] private List<Sprite> gamepadSprites;
     [SerializeField] private List<Sprite> keyboardSprites;
 
-    private PlayerInput playerInput;
-
-    private void Awake()
-    {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-            playerInput = player.GetComponent<PlayerInput>();
-    }
+    private static readonly List<InputIconSwitcher> instanciasActivas = new List<InputIconSwitcher>();
 
     private void OnEnable()
     {
-        if (playerInput != null)
-            playerInput.onControlsChanged += OnControlsChanged;
+        instanciasActivas.Add(this);
 
+        PlayerInput playerInput = BuscarPlayerInput();
         OnControlsChanged(playerInput);
     }
 
     private void OnDisable()
     {
-        if (playerInput != null)
-            playerInput.onControlsChanged -= OnControlsChanged;
+        instanciasActivas.Remove(this);
+    }
+
+    private PlayerInput BuscarPlayerInput()
+    {
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        return player != null ? player.GetComponent<PlayerInput>() : null;
+    }
+
+    // NUEVO: método estático al que llama el "notifier" del jugador
+    public static void NotificarCambioEsquema(PlayerInput input)
+    {
+        foreach (var instancia in instanciasActivas)
+        {
+            instancia.OnControlsChanged(input);
+        }
     }
 
     private void OnControlsChanged(PlayerInput input)
