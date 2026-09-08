@@ -58,7 +58,8 @@ public class DialogueNPC : MonoBehaviour
 
     public List<string> ObtenerLineasDialogo()
     {
-        List<string> lineas = new List<string>();
+        Debug.Log("Hablando con: " + gameObject.name + " | Usando dialogueData: " + dialogueData.name, this);
+        List<string> lineas = new List<string>();    
 
         if (esNPCDeFiesta)
         {
