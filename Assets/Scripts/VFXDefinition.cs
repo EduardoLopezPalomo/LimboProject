@@ -12,6 +12,10 @@ public enum VFXType
     Damaged,
     SpellAura,
     Teleport,
+    Slash5,
+    Slash6,
+    Slash7,
+    Slash8,
 }
 
 [CreateAssetMenu(fileName = "VFX", menuName = "VFX/VFX Definition")]
