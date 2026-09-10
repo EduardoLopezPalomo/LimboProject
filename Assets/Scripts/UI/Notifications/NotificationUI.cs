@@ -9,12 +9,11 @@ public class NotificationUI : MonoBehaviour
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private TMP_Text notificationTypeText;
     [SerializeField] private TMP_Text titleText;
-    [SerializeField] private SFXDefinition notificationSound;
     [SerializeField] private float fadeDuration = 0.3f;
 
     [Header("Config por tipo (opcional)")]
     [SerializeField] private List<NotificationTypeConfig> configuracionesPorTipo;
-    [SerializeField] private float duracionVisiblePorDefecto = 3f; 
+    [SerializeField] private float duracionVisiblePorDefecto = 3f;
 
     private void Start()
     {
@@ -48,7 +47,7 @@ public class NotificationUI : MonoBehaviour
     {
         var config = configuracionesPorTipo.Find(c => c.type == tipo);
         if (config != null && config.sonido != null) return config.sonido;
-        return notificationSound;
+        return null;
     }
 
     private IEnumerator Fade(float from, float to)
@@ -73,6 +72,8 @@ public class NotificationUI : MonoBehaviour
                 return "Mision completed";
             case NotificationType.NewQuest:
                 return "New quest";
+            case NotificationType.AbilityUnlocked:
+                return "Ability unlocked";
         }
 
         return "";
