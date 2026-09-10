@@ -5,6 +5,7 @@ public enum NotificationType
     GoalCompleted,
     QuestCompleted,
     NewQuest,
+    AbilityUnlocked
 }
 
 public class NotificationData
@@ -17,5 +18,5 @@ public class NotificationData
         notificationType = type;
         title = titleText;
     }
-   
+
 }

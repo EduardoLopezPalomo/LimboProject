@@ -41,13 +41,13 @@ public class LevelLoader : MonoBehaviour
         return player != null ? player.GetComponent<PlayerInput>() : null;
     }
 
-    private void SavePlayerAttributes()
+    private void SavePlayerGASState()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         player?.GetComponent<PlayerGASPersistance>()?.SaveState();
     }
 
-    private void SetPlayerAttributes()
+    private void RestorePlayerGASState()
     {
         GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
         newPlayer?.GetComponent<PlayerGASPersistance>()?.RestoreState();
@@ -69,7 +69,7 @@ public class LevelLoader : MonoBehaviour
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
-        if (useAttributeCache) SavePlayerAttributes();
+        if (useAttributeCache) SavePlayerGASState();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, -80f, MusicFadeTime);
 
@@ -83,7 +83,7 @@ public class LevelLoader : MonoBehaviour
         }
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         animator.SetTrigger("EndLoading");
-        if (useAttributeCache) SetPlayerAttributes();
+        if (useAttributeCache) RestorePlayerGASState();
         onLoaded?.Invoke();
         GetPlayerInput()?.ActivateInput();
     }
@@ -92,7 +92,7 @@ public class LevelLoader : MonoBehaviour
     {
         animator.SetTrigger("StartLoading");
         GetPlayerInput()?.DeactivateInput();
-        if (useAttributeCache) SavePlayerAttributes();
+        if (useAttributeCache) SavePlayerGASState();
         float MaxVolume = SoundMixerManager.instance.GetMasterVolume();
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, -80f, MusicFadeTime);
 
@@ -107,7 +107,7 @@ public class LevelLoader : MonoBehaviour
         TeleportPlayer(point, rotation);
         SoundMixerManager.instance.ParallelFadeVolume(MixerNames.masterVolume, MaxVolume, MusicFadeTime);
         animator.SetTrigger("EndLoading");
-        if (useAttributeCache) SetPlayerAttributes();
+        if (useAttributeCache) RestorePlayerGASState();
         GetPlayerInput()?.ActivateInput();
     }
 }
