@@ -86,6 +86,13 @@ public class LevelLoader : MonoBehaviour
         if (useAttributeCache) RestorePlayerGASState();
         onLoaded?.Invoke();
         GetPlayerInput()?.ActivateInput();
+
+        if ("FirstForest" == levelName)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+                SaveSystem.SaveGame(player, false);
+        }
     }
 
     IEnumerator LoadLevelAndTeleportAsyncCoroutine(string levelName, Vector3 point, Quaternion rotation, bool useAttributeCache)

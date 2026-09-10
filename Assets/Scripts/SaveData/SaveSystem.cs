@@ -55,7 +55,7 @@ public static class SaveSystem
 
     #region Game
 
-    public static void SaveGame(GameObject player)
+    public static void SaveGame(GameObject player, bool notification = true)
     {
         GameData data = new GameData(player);
         string json = JsonUtility.ToJson(data, true);
@@ -63,7 +63,8 @@ public static class SaveSystem
         try
         {
             File.WriteAllText(GamePath, json);
-            OnSaveGame?.Invoke("Game Saved");
+            if (notification)
+                OnSaveGame?.Invoke("Game Saved");
         }
         catch (System.Exception e)
         {
