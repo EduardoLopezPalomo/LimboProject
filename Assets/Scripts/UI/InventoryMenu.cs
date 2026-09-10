@@ -15,7 +15,7 @@ public class InventoryMenu : MonoBehaviour
     [SerializeField] private List<AbilitySlotInventory> PasiveSlots;
     [SerializeField] private GameObject SlotAbiity1;
     [SerializeField] private GameObject SlotAbiity2;
-
+    
     private Dictionary<AbilitySlotInventory, GameplayAbility> dictionary = new Dictionary<AbilitySlotInventory, GameplayAbility>();
     private Button LastButton;
     private AbilitySlotInventory WantToEquipSlot;
@@ -24,11 +24,11 @@ public class InventoryMenu : MonoBehaviour
     {
         playerAbilityHolder.OnUnequipAbility += UnequipAbility;
         playerAbilityHolder.OnEquipAbility += RefreshEquippedSlot;
-
+        
         List<GameplayAbility> abilities = playerAbilityHolder.GetAbilityList();
         int activeIndex = 0;
         int passiveIndex = 0;
-
+        
         foreach (var slot in Slots)
             slot.AbilityImage.gameObject.SetActive(false);
 
@@ -39,7 +39,7 @@ public class InventoryMenu : MonoBehaviour
         {
             if (ability == null)
             {
-                Debug.LogWarning("Ability is null");
+                Debug.LogWarning("Ability " + ability.name + " is null");
                 continue;
             }
 
@@ -47,7 +47,7 @@ public class InventoryMenu : MonoBehaviour
             {
                 if (passiveIndex >= PasiveSlots.Count)
                     continue;
-
+                
                 var slot = PasiveSlots[passiveIndex++];
                 slot.AbilityImage.gameObject.SetActive(true);
                 dictionary[slot] = ability;
@@ -64,7 +64,7 @@ public class InventoryMenu : MonoBehaviour
                 slot.ChangeSprite(ability.icon);
             }
         }
-
+        
         RefreshEquippedSlot(1);
         RefreshEquippedSlot(2);
     }
@@ -77,8 +77,8 @@ public class InventoryMenu : MonoBehaviour
 
     public void WantToEquipAbility(AbilitySlotInventory Slot)
     {
-        if (!dictionary.ContainsKey(Slot) || !dictionary[Slot].equipable) return;
-
+        if(!dictionary.ContainsKey(Slot) || !dictionary[Slot].equipable) return;
+        
         SelectButton(EquipAbilityButton);
         LastButton = Slot.Button;
         WantToEquipSlot = Slot;
@@ -90,9 +90,9 @@ public class InventoryMenu : MonoBehaviour
         {
             Debug.LogWarning("no se han inicializado bien el boton para volver o el slot");
         }
-
+        
         GameplayAbility ability = dictionary[WantToEquipSlot];
-
+        
         if (SlotAbility == SlotAbiity1)
         {
             playerAbilityHolder.EquipAbility(ability, 1);
@@ -106,10 +106,10 @@ public class InventoryMenu : MonoBehaviour
             Debug.LogWarning("El boton " + SlotAbility.name + " no coincide con el  Slot1 o Slot2 ");
         }
 
-        AbilitySlotInventory inv = SlotAbility.GetComponent<AbilitySlotInventory>();
+        AbilitySlotInventory inv =  SlotAbility.GetComponent<AbilitySlotInventory>();
         if (inv != null)
         {
-            inv.ChangeSprite(ability.icon);
+            inv.ChangeSprite(ability.icon);     
         }
         SelectButton(LastButton);
         LastButton = null;
@@ -120,18 +120,18 @@ public class InventoryMenu : MonoBehaviour
     {
         if (slot == 1)
         {
-            AbilitySlotInventory inv = SlotAbiity1.GetComponent<AbilitySlotInventory>();
+            AbilitySlotInventory inv =  SlotAbiity1.GetComponent<AbilitySlotInventory>();
             if (inv != null)
             {
-                inv.DefaultSprite();
+                inv.DefaultSprite();     
             }
         }
         else if (slot == 2)
         {
-            AbilitySlotInventory inv = SlotAbiity2.GetComponent<AbilitySlotInventory>();
+            AbilitySlotInventory inv =  SlotAbiity2.GetComponent<AbilitySlotInventory>();
             if (inv != null)
             {
-                inv.DefaultSprite();
+                inv.DefaultSprite();    
             }
         }
         else
@@ -148,18 +148,18 @@ public class InventoryMenu : MonoBehaviour
             DescriptionText.text = "";
             return;
         }
-
+            
         TittleText.text = dictionary[Slot].Name;
         DescriptionText.text = dictionary[Slot].Description;
     }
 
     private void SelectButton(Button button)
     {
-        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(null); 
         ButtonSoundManager.IgnoreNextSelection = true;
         EventSystem.current.SetSelectedGameObject(button.gameObject);
     }
-
+    
     private void RefreshEquippedSlot(int slot)
     {
         GameplayAbility ability = playerAbilityHolder.GetEquippedAbility(slot);

@@ -18,15 +18,12 @@ public static class PlayerAbilitiesCache
 {
     public static GameplayAbility EquippedAbility1;
     public static GameplayAbility EquippedAbility2;
-
-    public static List<GameplayAbility> AllAbilities;
     public static bool HasData;
 
     public static void Clear()
     {
         EquippedAbility1 = null;
         EquippedAbility2 = null;
-        AllAbilities = null;
         HasData = false;
     }
 }
@@ -72,15 +69,6 @@ public class PlayerGASPersistance : MonoBehaviour
     {
         if (PlayerAbilitiesCache.HasData)
         {
-            foreach (var ability in PlayerAbilitiesCache.AllAbilities)
-            {
-                if (!abilityHolder.HasAbility(ability.Id))
-                {
-                    abilityHolder.AddAbility(ability);
-                }
-            }
-
-
             if (PlayerAbilitiesCache.EquippedAbility1 != null)
             {
                 abilityHolder.EquipAbility(PlayerAbilitiesCache.EquippedAbility1, 1);
@@ -106,6 +94,5 @@ public class PlayerGASPersistance : MonoBehaviour
         PlayerAbilitiesCache.EquippedAbility1 = abilityHolder.GetEquippedAbility(1);
         PlayerAbilitiesCache.EquippedAbility2 = abilityHolder.GetEquippedAbility(2);
         PlayerAbilitiesCache.HasData = true;
-        PlayerAbilitiesCache.AllAbilities = abilityHolder.GetAbilityList();
     }
 }

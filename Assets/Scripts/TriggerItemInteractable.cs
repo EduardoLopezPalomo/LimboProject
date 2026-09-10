@@ -10,14 +10,11 @@ public class QuestItemInteractable : MonoBehaviour
     public Quest actualQuest;
     public Goals actualGoal;
 
-    public GameplayAbility abilityToUnlock;
-
     [Header("Referencias")]
     [SerializeField] private GameObject interactUI;
 
     private bool playerInside = false;
     private PlayerInput playerInput;
-    private AbilityHolder abilityHolder;
     private MinimapIcon minimapIcon;
     private BoxCollider boxCollider;
 
@@ -66,12 +63,6 @@ public class QuestItemInteractable : MonoBehaviour
 
         if (interactUI != null) interactUI.SetActive(false);
 
-        if (abilityToUnlock != null && abilityHolder != null)
-        {
-            abilityHolder.AddAbility(abilityToUnlock);
-            NotificationManager.Instance.Enqueue(new NotificationData(NotificationType.AbilityUnlocked, abilityToUnlock.Name));
-        }
-
         gameObject.SetActive(false);
     }
 
@@ -80,7 +71,6 @@ public class QuestItemInteractable : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         playerInside = true;
         playerInput = other.GetComponent<PlayerInput>();
-        abilityHolder = other.GetComponent<AbilityHolder>();
         if (interactUI != null && CanInteract()) interactUI.SetActive(true);
     }
 
