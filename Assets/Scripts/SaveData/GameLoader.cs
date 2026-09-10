@@ -61,6 +61,17 @@ public class GameLoader : MonoBehaviour
 
         if (abilityHolder == null) return false;
 
+        foreach (int abilityId in playerData.AllAbilitiesIds)
+        {
+            if (abilityHolder.HasAbility(abilityId)) continue;
+
+            GameplayAbility ability = PlayerAbilitiesManager.Instance.abilityDatabase.GetById(abilityId);
+            if (ability != null)
+            {
+                abilityHolder.AddAbility(ability);
+            }
+        }
+
         if (playerData.slot1Id != -1)
         {
             EquipAbility(abilityHolder, playerData.slot1Id, 1);

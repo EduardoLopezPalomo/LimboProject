@@ -7,6 +7,9 @@ public class PlayerHealthResponse : GeneralHealthResponse
 {
     public static event Action OnPlayerHurt;
 
+    [SerializeField] private float deathCooldown = 3f;
+    private float lastDeathTime = -Mathf.Infinity;
+
     protected override void HurtBehavior(AttributeSystem owner, bool CanResponse)
     {
 
@@ -32,6 +35,9 @@ public class PlayerHealthResponse : GeneralHealthResponse
 
     protected override void DeathBehavior(AttributeSystem owner)
     {
+        if (Time.time - lastDeathTime < deathCooldown) return;
+        lastDeathTime = Time.time;
+
         Animator animator = owner.GetComponent<Animator>();
         ThirdPersonController personController = owner.GetComponent<ThirdPersonController>();
         LockOn lockOn = owner.GetComponent<LockOn>();
