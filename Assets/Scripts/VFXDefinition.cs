@@ -16,6 +16,7 @@ public enum VFXType
     Slash6,
     Slash7,
     Slash8,
+    GroundImpact,
 }
 
 [CreateAssetMenu(fileName = "VFX", menuName = "VFX/VFX Definition")]
