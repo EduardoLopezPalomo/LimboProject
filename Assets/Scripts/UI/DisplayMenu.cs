@@ -15,6 +15,14 @@ public class DisplayMenu : MonoBehaviour
 
     private List<Resolution> filteredResolutions = new List<Resolution>();
 
+    private static readonly (int width, int height, string label)[] targetResolutions = new[]
+    {
+        (3840, 2160, "4K (3840x2160)"),
+        (2560, 1440, "2K (2560x1440)"),
+        (1920, 1080, "1080p (1920x1080)"),
+        (1280, 720,  "720p (1280x720)"),
+    };
+
     void OnEnable()
     {
         SetUpMaxFPS();
@@ -61,27 +69,40 @@ public class DisplayMenu : MonoBehaviour
     void SetUpResolutions()
     {
         resolutions.ClearOptions();
+
         if (filteredResolutions.Count == 0)
         {
             Resolution[] allResolutions = Screen.resolutions;
 
-            filteredResolutions = allResolutions
-                .GroupBy(r => new { r.width, r.height })
-                .Select(g => g.First())
+            Resolution maxRes = allResolutions
+                .OrderByDescending(r => r.width * r.height)
+                .FirstOrDefault();
+
+            int maxWidth = maxRes.width > 0 ? maxRes.width : Screen.currentResolution.width;
+            int maxHeight = maxRes.height > 0 ? maxRes.height : Screen.currentResolution.height;
+
+            filteredResolutions = targetResolutions
+                .Where(t => t.width <= maxWidth && t.height <= maxHeight)
+                .Select(t => new Resolution { width = t.width, height = t.height })
                 .OrderBy(r => r.width)
                 .ToList();
         }
 
         List<string> options = new List<string>();
         int currentIndex = 0;
+        int bestDiff = int.MaxValue;
 
         for (int i = 0; i < filteredResolutions.Count; i++)
         {
             Resolution res = filteredResolutions[i];
-            options.Add($"{res.width} X {res.height}");
+            options.Add(GetLabel(res.width, res.height));
 
-            if (res.width == Screen.currentResolution.width && res.height == Screen.currentResolution.height)
+            int diff = Mathf.Abs(res.width - Screen.currentResolution.width) +
+                       Mathf.Abs(res.height - Screen.currentResolution.height);
+
+            if (diff < bestDiff)
             {
+                bestDiff = diff;
                 currentIndex = i;
             }
         }
@@ -89,6 +110,16 @@ public class DisplayMenu : MonoBehaviour
         resolutions.AddOptions(options);
         resolutions.value = currentIndex;
         resolutions.RefreshShownValue();
+    }
+
+    private string GetLabel(int width, int height)
+    {
+        foreach (var t in targetResolutions)
+        {
+            if (t.width == width && t.height == height)
+                return t.label;
+        }
+        return $"{width} x {height}";
     }
 
     public void OnQualityChange(int index)
