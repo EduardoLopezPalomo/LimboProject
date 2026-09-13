@@ -6,7 +6,6 @@ public class DisplayData
     public int maxFPS;
     public int[] resolution;
     public int indexQualityLevel;
-    public bool vsync;
 
     public DisplayData() { }
 
@@ -15,6 +14,5 @@ public class DisplayData
         maxFPS = displayManager.maxFPS;
         resolution = displayManager.resolution;
         indexQualityLevel = displayManager.indexQualityLevel;
-        vsync = displayManager.vsync;
     }
 }

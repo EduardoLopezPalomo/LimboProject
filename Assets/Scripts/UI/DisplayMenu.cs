@@ -11,7 +11,6 @@ public class DisplayMenu : MonoBehaviour
     public TMP_Dropdown maxFPS;
     public TMP_Dropdown resolutions;
     public TMP_Dropdown qualityLevel;
-    public Toggle vsync;
 
     private List<Resolution> filteredResolutions = new List<Resolution>();
 
@@ -28,7 +27,6 @@ public class DisplayMenu : MonoBehaviour
         SetUpMaxFPS();
         SetUpQualityOptions();
         SetUpResolutions();
-        vsync.isOn = DisplayManager.Instance.vsync;
     }
 
     void SetUpMaxFPS()
@@ -72,14 +70,8 @@ public class DisplayMenu : MonoBehaviour
 
         if (filteredResolutions.Count == 0)
         {
-            Resolution[] allResolutions = Screen.resolutions;
-
-            Resolution maxRes = allResolutions
-                .OrderByDescending(r => r.width * r.height)
-                .FirstOrDefault();
-
-            int maxWidth = maxRes.width > 0 ? maxRes.width : Screen.currentResolution.width;
-            int maxHeight = maxRes.height > 0 ? maxRes.height : Screen.currentResolution.height;
+            int maxWidth = Display.main.systemWidth;
+            int maxHeight = Display.main.systemHeight;
 
             filteredResolutions = targetResolutions
                 .Where(t => t.width <= maxWidth && t.height <= maxHeight)
@@ -92,13 +84,16 @@ public class DisplayMenu : MonoBehaviour
         int currentIndex = 0;
         int bestDiff = int.MaxValue;
 
+        int currentWidth = DisplayManager.Instance.resolution[0];
+        int currentHeight = DisplayManager.Instance.resolution[1];
+
         for (int i = 0; i < filteredResolutions.Count; i++)
         {
             Resolution res = filteredResolutions[i];
             options.Add(GetLabel(res.width, res.height));
 
-            int diff = Mathf.Abs(res.width - Screen.currentResolution.width) +
-                       Mathf.Abs(res.height - Screen.currentResolution.height);
+            int diff = Mathf.Abs(res.width - currentWidth) +
+                       Mathf.Abs(res.height - currentHeight);
 
             if (diff < bestDiff)
             {
@@ -153,10 +148,5 @@ public class DisplayMenu : MonoBehaviour
     {
         Resolution res = filteredResolutions[index];
         DisplayManager.Instance.SetResolution(res.width, res.height);
-    }
-
-    public void OnVsyncChange(bool value)
-    {
-        DisplayManager.Instance.SetVsync(value);
     }
 }

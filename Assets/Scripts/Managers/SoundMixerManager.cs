@@ -109,7 +109,11 @@ public class SoundMixerManager : MonoBehaviour
     public void LoadAudioSettings()
     {
         SettingsData settings = SaveSystem.LoadSettingsData();
-        if (settings == null) return;
+        if (settings == null)
+        {
+            StartCoroutine(ApplyAudioSettingsFrame1(1, 1, 1, 1));
+            return;
+        }
         
         AudioData cachedData = settings.audioData;
         

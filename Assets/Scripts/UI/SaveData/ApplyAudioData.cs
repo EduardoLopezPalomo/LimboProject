@@ -12,7 +12,14 @@ public class ApplyAudioData : MonoBehaviour
     private void OnEnable()
     {
         SettingsData settingsData = SaveSystem.LoadSettingsData();
-        if (settingsData == null) return;
+        if (settingsData == null)
+        {
+            masterVolumeSlider.SetValueWithoutNotify(1);
+            musicVolumeSlider.SetValueWithoutNotify(1);
+            SfxVolumeSlider.SetValueWithoutNotify(1);
+            AmbienceVolumeSlider.SetValueWithoutNotify(1);
+            return;
+        }
         
         AudioData data = settingsData.audioData;
         if (data != null)
