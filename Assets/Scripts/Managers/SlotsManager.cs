@@ -1,4 +1,5 @@
 using System;
+using UnityEngine.AI;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,6 +25,7 @@ public class SlotsManager : MonoBehaviour
 
     private bool InBattle = false;
     private Vector3 LastPosition;
+    private const float NavMeshCheckRadius = 1.0f;
     
     private float closeRingAngle = 0f;
     private float midRingAngle = 0f;
@@ -151,15 +153,18 @@ public class SlotsManager : MonoBehaviour
         
         foreach (Slot slot in slots)
         {
-            if (slot.IsAvailable())
-            {
-                float distance = Vector3.Distance(requester.transform.position, slot.position);
+            if (!slot.IsAvailable())
+                continue;
+            
+            if (!IsSlotOnNavMesh(slot))
+                continue;
+
+            float distance = Vector3.Distance(requester.transform.position, slot.position);
                 if (distance < bestDistance)
                 {
                     bestDistance = distance;
                     bestSlot = slot;
                 }
-            }
         }
         
         if (bestSlot != null)
@@ -209,10 +214,15 @@ public class SlotsManager : MonoBehaviour
         
         foreach (int index in indexes)
         {
-            if (slots[index].IsAvailable())
-            {
-                return slots[index];
-            }
+            Slot slot = slots[index];
+
+            if (!slot.IsAvailable())
+                continue;
+
+            if (!IsSlotOnNavMesh(slot))
+                continue; 
+
+            return slot;
         }
 
         return null;
@@ -230,6 +240,12 @@ public class SlotsManager : MonoBehaviour
     {
         InBattle = isInBattle;
     }
+    
+    private bool IsSlotOnNavMesh(Slot slot)
+    {
+        return NavMesh.SamplePosition(slot.position, out NavMeshHit hit, NavMeshCheckRadius, NavMesh.AllAreas);
+    }
+    
     /*Function only for debug*/
     void OnDrawGizmos()
     {

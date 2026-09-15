@@ -31,9 +31,10 @@ public class DisplayManager : MonoBehaviour
         int nativeWidth = Display.main.systemWidth;
         int nativeHeight = Display.main.systemHeight;
         
-        Debug.Log($"[DisplayManager] ANTES - currentResolution: {nativeWidth}x{nativeHeight}, " +
+        /* Debug.Log($"[DisplayManager] ANTES - currentResolution: {nativeWidth}x{nativeHeight}, " +
                   $"Screen.width/height: {Screen.width}x{Screen.height}, " +
                   $"fullScreenMode: {Screen.fullScreenMode}");
+        */
 
         bool alreadyCorrectMode = Screen.fullScreenMode == FullScreenMode.FullScreenWindow;
         bool alreadyCorrectRes = Screen.width == nativeWidth && Screen.height == nativeHeight;
@@ -41,15 +42,16 @@ public class DisplayManager : MonoBehaviour
         if (!alreadyCorrectMode || !alreadyCorrectRes)
         {
             Screen.SetResolution(nativeWidth, nativeHeight, FullScreenMode.FullScreenWindow);
-            Debug.Log("[DisplayManager] Se forzó cambio de modo/resolución");
+            //Debug.Log("[DisplayManager] Se forzó cambio de modo/resolución");
         }
         
         RevertToSave();
-        
+        /*
         var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
         Debug.Log($"[DisplayManager] DESPUES - resolution guardada: {resolution[0]}x{resolution[1]}, " +
                   $"renderScale aplicado: {(urpAsset != null ? urpAsset.renderScale.ToString() : "null asset")}, " +
                   $"Screen.currentResolution ahora: {Screen.currentResolution.width}x{Screen.currentResolution.height}");
+        */
     }
     
     void OnEnable()
@@ -117,7 +119,7 @@ public class DisplayManager : MonoBehaviour
 
         renderScale = Mathf.Clamp(renderScale, 0.25f, 2f); 
         
-        Debug.Log($"[ApplyRenderScale] target: {targetWidth}x{targetHeight}, nativeRes usado: {nativeRes.width}x{nativeRes.height}, renderScale resultante: {renderScale}");
+        //Debug.Log($"[ApplyRenderScale] target: {targetWidth}x{targetHeight}, nativeRes usado: {nativeRes.width}x{nativeRes.height}, renderScale resultante: {renderScale}");
         
         var urpAsset = GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset;
         if (urpAsset != null)
@@ -126,7 +128,7 @@ public class DisplayManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[ApplyRenderScale] urpAsset es null — no se aplicó renderScale");
+            //Debug.LogWarning("[ApplyRenderScale] urpAsset es null — no se aplicó renderScale");
         }
     }
 

@@ -24,7 +24,7 @@ public class KarmaManager : MonoBehaviour
         KarmaPoints = Mathf.Clamp(KarmaPoints + points, -100, 100);
         Debug.Log("Karma Points: " + KarmaPoints);
     }
-
+    /*
     float deltaTime = 0.0f;
 
     void Update()
@@ -40,4 +40,5 @@ public class KarmaManager : MonoBehaviour
         style.normal.textColor = Color.white;
         GUI.Label(new Rect(10, 10, 200, 40), $"{fps:0.} FPS", style);
     }
+    */
 }
