@@ -42,6 +42,8 @@ public class PlayerWeaponDamage : MonoBehaviour
     
     [HideInInspector] public ParentConstraint parentConstraint;
     
+    public float counterAttackChance = 0.5f;
+
     private GameplayEffectManager effectManager;
     private AttributeSystem attributeSystem;
     
@@ -122,7 +124,7 @@ public class PlayerWeaponDamage : MonoBehaviour
         agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
         RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponentInParent<RotateAlongPlayer>();
 
-        if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking)
+        if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking && UnityEngine.Random.Range(0f, 1f) < counterAttackChance)
         {
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
