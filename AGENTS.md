@@ -22,3 +22,6 @@ This a Unity project
 
 It is extremely important. keep it up to date with any advancements done. Once you finish a task add it to the "Done Tasks" with a brieve description
 
+## aboit GIT
+
+Do NOT commit changes on your own. Leave things to be committed by the user.
