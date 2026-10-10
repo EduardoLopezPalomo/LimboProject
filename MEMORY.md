@@ -84,7 +84,7 @@
 
 ### Enemy Scripts
 
-6. **EnemyGraphBridge.cs** - Enemy AI state bridge and event handling
+6. **EnemyGraphBridge.cs** - Enemy AI state bridge and event handling (Hurt, Vulnerable, Trap, Detection, Death states)
 7. **EnemiesGroupContoller.cs** - Group management, token system (max 2), battle detection, music control
 8. **EnemyWeaponController.cs** - Enemy weapon controller extending base weapon controller
 9. **EnemyWeaponDamage.cs** - Enemy weapon damage with combo effects, parry detection, hit detection, counter-attack effects
