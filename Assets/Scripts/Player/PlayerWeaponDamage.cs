@@ -6,6 +6,10 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Events;
 
+/// <summary>
+/// CameraShakeState enumerates different types of camera shake effects.
+/// Used to control camera feedback for different combat events.
+/// </summary>
 [Serializable]
 public enum CameraShakeState
 {
@@ -17,6 +21,10 @@ public enum CameraShakeState
     gotBlocked
 }
 
+/// <summary>
+/// CameraShakeEntry holds camera shake configuration data.
+/// Maps a shake state to its actual shake parameters.
+/// </summary>
 [Serializable]
 public class CameraShakeEntry
 {
@@ -24,24 +32,74 @@ public class CameraShakeEntry
     public CameraShakeData Data;
 }
 
+/// <summary>
+/// PlayerWeaponDamage handles all damage-related logic for player weapons.
+/// Features:
+/// - Combo-based damage effects (5 steps)
+/// - Sweep attack collision detection
+/// - Camera shake effects
+/// - Counter-attack mechanics
+/// - Invincibility checks
+/// - Visual and haptic feedback
+/// </summary>
 public class PlayerWeaponDamage : MonoBehaviour
 {
+    /// <summary>
+    /// UnityEvent triggered when the enemy performs a counter-attack.
+    /// Called when player is hit while enemy is attacking.
+    /// </summary>
     public UnityEvent EnemyCounter;
 
+    /// <summary>
+    /// GameplayEffect applied when enemy performs a counter-attack.
+    /// Typically applies debuff or damage reduction.
+    /// </summary>
     public GameplayEffect CounterEffect;
+    
+    /// <summary>
+    /// GameObject that owns this weapon damage component.
+    /// Used for reference and finding related components.
+    /// </summary>
     public GameObject owner;
     
+    /// <summary>
+    /// Number of sweep steps for sweep attacks.
+    /// Controls how many positions are checked during a sweep.
+    /// Default: 5 positions
+    /// </summary>
     public int sweepSteps = 5;
+    
+    /// <summary>
+    /// Flag for drawing Gizmos in editor.
+    /// Shows weapon hitbox visualization.
+    /// Default: true
+    /// </summary>
     public bool drawGizmos = true;
 
     [Header("Combo effects")]
+    /// <summary>
+    /// List of gameplay effects applied based on combo number.
+    /// Index 0 = first hit, index 4 = fifth hit (max combo).
+    /// </summary>
     [SerializeField] private List<GameplayEffect> gameplayEffects;
 
     [Header("Camera shakes")]
+    /// <summary>
+    /// List of camera shake configurations.
+    /// Each entry defines a shake state and its parameters.
+    /// </summary>
     [SerializeField] private List<CameraShakeEntry> cameraShakes;
     
+    /// <summary>
+    /// Reference to the parent constraint on the weapon.
+    /// Used for weapon attachment logic.
+    /// </summary>
     [HideInInspector] public ParentConstraint parentConstraint;
     
+    /// <summary>
+    /// Chance of landing a counter-attack (0.0 to 1.0).
+    /// Used in counter-attack logic.
+    /// </summary>
     public float counterAttackChance = 0.5f;
 
     private GameplayEffectManager effectManager;
@@ -91,6 +149,7 @@ public class PlayerWeaponDamage : MonoBehaviour
         }
         else
         {
+            // Check overlap at interpolated positions between last and current frame
             for (int i = 1; i <= sweepSteps; i++)
             {
                 float t = i / (float)sweepSteps;
@@ -107,6 +166,7 @@ public class PlayerWeaponDamage : MonoBehaviour
 
     void CheckOverlap(Vector3 center, Vector3 halfExtents, Quaternion rotation)
     {
+        // Find all enemy colliders within the weapon hitbox
         Collider[] hits = Physics.OverlapBox(center, halfExtents, rotation, enemyLayerMask, QueryTriggerInteraction.Collide);
         foreach (var hit in hits)
         {
@@ -124,6 +184,7 @@ public class PlayerWeaponDamage : MonoBehaviour
         agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
         RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponentInParent<RotateAlongPlayer>();
 
+        // Check for counter-attack opportunity
         if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking && UnityEngine.Random.Range(0f, 1f) < counterAttackChance)
         {
             EnemyCounter.Invoke();
@@ -142,6 +203,7 @@ public class PlayerWeaponDamage : MonoBehaviour
             return;
         }
         
+        // Check for invincibility
         MakeInvincible invincible = other.gameObject.GetComponentInParent<MakeInvincible>();
         if (invincible && invincible.IsInvincible())
         {
@@ -151,6 +213,7 @@ public class PlayerWeaponDamage : MonoBehaviour
         GameplayEffectManager effectmanager = other.gameObject.GetComponentInParent<GameplayEffectManager>();
         AttributeSystem AS = other.gameObject.GetComponentInParent<AttributeSystem>();
 
+        // Validate combo number
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
         {
             Debug.LogWarning("the combo is " + ComboNumber + "But the list doent have that number");
@@ -188,11 +251,20 @@ public class PlayerWeaponDamage : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the current combo number.
+    /// Called by PlayerWeaponController during attacks.
+    /// </summary>
+    /// <param name="value">Current combo count</param>
     public void SetComboNumber(int value)
     {
         ComboNumber = value;
     }
     
+    /// <summary>
+    /// Activates the weapon hitbox for collision detection.
+    /// Starts the sweep attack detection.
+    /// </summary>
     public void ActivateHitbox()
     {
         isActive = true;
@@ -200,6 +272,10 @@ public class PlayerWeaponDamage : MonoBehaviour
         hasLastFrame = false;
     }
 
+    /// <summary>
+    /// Deactivates the weapon hitbox.
+    /// Stops collision detection.
+    /// </summary>
     public void DeactivateHitbox()
     {
         isActive = false;

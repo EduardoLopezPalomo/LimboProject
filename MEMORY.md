@@ -63,6 +63,17 @@
 
 ## New Documentation
 
+### Player Scripts (Updated)
+
+1. **InputController.cs** - Manages input enable/disable for player, acts as bridge between game input system and ThirdPersonController
+2. **LockOn.cs** - Auto-aim system with radius detection, target switching, visual FX, smooth target transitions
+3. **MakeInvincible.cs** - Simple invincibility state management component
+4. **PlayerGASPersistance.cs** - Saves/restores player attributes and abilities for persistence across scene changes
+5. **PlayerWeaponController.cs** - Extends WeaponController with counter-attack mechanics, combo integration
+6. **PlayerWeaponDamage.cs** - Handles combo damage (5 steps), sweep attacks, camera shake, counter-attacks, VFX, haptics
+
+## New Documentation
+
 ### Player Scripts
 
 1. **InputController.cs** - Manages input enable/disable for player, acts as bridge between game input system and ThirdPersonController

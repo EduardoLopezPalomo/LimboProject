@@ -2,9 +2,18 @@ using UnityEngine;
 using Unity.Behavior;
 using UnityEngine.AI;
 
+/// <summary>
+/// EnemyGraphBridge provides a bridge between the enemy's Behavior Graph AI system and other game components.
+/// This component allows external systems to control the enemy's state and behavior.
+/// </summary>
 public class EnemyGraphBridge : MonoBehaviour
 {
+    /// <summary>
+    /// Static event fired when an enemy dies.
+    /// Used by other systems (LockOn, combat, etc.) to react to enemy deaths.
+    /// </summary>
     public static event System.Action<GameObject> OnDeath;
+    
     private BehaviorGraphAgent agent;
 
     void Awake()
@@ -12,6 +21,10 @@ public class EnemyGraphBridge : MonoBehaviour
         agent = GetComponent<BehaviorGraphAgent>();
     }
 
+    /// <summary>
+    /// Sets the enemy's state to Hurt.
+    /// Used when the enemy has taken damage.
+    /// </summary>
     public void SetHurt()
     {
         agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 
@@ -21,6 +34,10 @@ public class EnemyGraphBridge : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the enemy's state to Vulnerable.
+    /// Used when the enemy is in a state where it can be attacked.
+    /// </summary>
     public void SetVulnerable()
     {
         agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 
@@ -30,11 +47,18 @@ public class EnemyGraphBridge : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Sets the change phase flag.
+    /// Used to trigger boss phase transitions.
+    /// </summary>
     public void SetChangePhase()
     {
         agent.BlackboardReference.SetVariableValue("ChangePhase", true);
     }
 
+    /// <summary>
+    /// Sets the enemy's state to Trap (using shield/trap ability).
+    /// </summary>
     public void SetTrap()
     {
         agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 
@@ -44,6 +68,10 @@ public class EnemyGraphBridge : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Sets the enemy's detection state and marks it as alerted.
+    /// Used when the enemy detects the player.
+    /// </summary>
     public void SetDetection()
     {
         agent.BlackboardReference.GetVariableValue("ActualState", out BarbarianState state); 
@@ -54,6 +82,9 @@ public class EnemyGraphBridge : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Sets the enemy to death state and disables all functionality.
+    /// </summary>
     public void SetDeath()
     {
         if (agent != null)
@@ -65,6 +96,15 @@ public class EnemyGraphBridge : MonoBehaviour
         DisableAllExceptRenderer();
     }
     
+    /// <summary>
+    /// Disables all enemy functionality except renderer (for death animation).
+    /// - Disables NavMeshAgent (AI movement)
+    /// - Disables CharacterController (movement)
+    /// - Disables all MonoBehaviors
+    /// - Enables Animator for death animation
+    /// - Cancels death VFX
+    /// - Enables SkinnedMeshRenderer for visual appearance
+    /// </summary>
     void DisableAllExceptRenderer()
     {
         var navMesh = GetComponent<NavMeshAgent>();
