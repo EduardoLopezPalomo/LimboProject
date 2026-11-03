@@ -521,6 +521,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: ca1cac744eec60c4f8cf6c5ba545a7db, type: 3}
+--- !u!1 &5498961 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1820833413335593264, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
+  m_PrefabInstance: {fileID: 864593531}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7629906
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -51921,6 +51926,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1486925682089588203, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
+      propertyPath: dialogueNPC
+      value: 
+      objectReference: {fileID: 864593534}
     - target: {fileID: 1820833413335593264, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
       propertyPath: m_Name
       value: Guard_fem2
@@ -51956,13 +51965,49 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1820833413335593264, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 864593535}
+    - targetCorrespondingSourceObject: {fileID: 1820833413335593264, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 864593534}
   m_SourcePrefab: {fileID: 100100000, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
 --- !u!4 &864593532 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 838580167401905624, guid: d7c6ddd55dec5214c9d254303b0c7f39, type: 3}
   m_PrefabInstance: {fileID: 864593531}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &864593534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5498961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e2a3a10781012d4886050d4e100fd42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueNPC
+  dialogueData: {fileID: 11400000, guid: ebd87ae7e786a7f48b8ddd7ee6d61420, type: 2}
+  completeQuestData: {fileID: 0}
+  esNPCDeFiesta: 1
+--- !u!114 &864593535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5498961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34fd8f5bcba1fad48831a2b4a4cffd53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NpcPlayerDetection
+  interactUI: {fileID: 0}
+  npc: {fileID: 5498961}
+  dialogueNPC: {fileID: 864593534}
 --- !u!1001 &865206968
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -87720,7 +87765,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4033412786151888122, guid: 49057b33ea71fbb4da4e8f02a8db9f28, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.94
+      value: 0.061
       objectReference: {fileID: 0}
     - target: {fileID: 4033412786151888122, guid: 49057b33ea71fbb4da4e8f02a8db9f28, type: 3}
       propertyPath: m_LocalPosition.y
@@ -87728,7 +87773,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4033412786151888122, guid: 49057b33ea71fbb4da4e8f02a8db9f28, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.77
+      value: -0.976
       objectReference: {fileID: 0}
     - target: {fileID: 4033412786151888122, guid: 49057b33ea71fbb4da4e8f02a8db9f28, type: 3}
       propertyPath: m_LocalRotation.w
@@ -126561,7 +126606,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 434767888796528388, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.67
+      value: 1.62
       objectReference: {fileID: 0}
     - target: {fileID: 434767888796528388, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
       propertyPath: m_LocalPosition.z
