@@ -15,7 +15,7 @@ public class NPCDialogueData : ScriptableObject
 {
     public string NpcName;
     public TipoVoz tipoVoz = TipoVoz.Masculina;
-    public Sprite retrato;
+    public RetratoNPC retrato;
 
     [Header("Dia")]
     [TextArea] public List<string> dayGreeting;   

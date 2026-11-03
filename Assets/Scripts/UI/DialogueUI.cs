@@ -13,7 +13,7 @@ public struct DialogueInitData
     public string npcId;
     public string nombre;
     public TipoVoz voz;
-    public Sprite retrato;
+    public RetratoNPC retrato;
     public PlayerInput input;
 }
 
@@ -24,7 +24,7 @@ public class DialogueUI : MonoBehaviour
     [SerializeField] private GameObject panelDialogo;
     [SerializeField] private TMP_Text textoDialogo;
     [SerializeField] private TMP_Text nombreNPC;
-    [SerializeField] private Image retratoNPC;
+    [SerializeField] private NPCBlinkAnimation avatar;
 
     [Header("Efecto de escritura")]
     [SerializeField] private float velocidadEscritura = 0.03f;
@@ -56,6 +56,7 @@ public class DialogueUI : MonoBehaviour
 
     private void Update()
     {
+        avatar.SetTalking(LastAudioSource != null && LastAudioSource.isPlaying);
         if (!InDialogue || playerInputActual == null) return;
 
         InputAction interactAction = playerInputActual.currentActionMap.FindAction("Interact");
@@ -79,7 +80,7 @@ public class DialogueUI : MonoBehaviour
     }
 
 
-    private void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, Sprite retrato, PlayerInput input = null)
+    private void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, RetratoNPC retrato, PlayerInput input = null)
     {
 
         colaLineas = new Queue<string>(lineas);
@@ -87,8 +88,9 @@ public class DialogueUI : MonoBehaviour
         nombreNPC.text = nombre;
         vozActual = voz;
         actualNpcId = npcId;
-        if (retratoNPC != null)
-            retratoNPC.sprite = retrato;
+        //if (retratoNPC != null)
+          //  retratoNPC.sprite = retrato;
+        avatar.SetRetrato(retrato);
 
         panelDialogo.SetActive(true);
         MostrarSiguienteLinea();

@@ -19,7 +19,7 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
     [SerializeField] private bool desaparecerAlLiberar = true; // true = más simple, se esfuma del todo
     [SerializeField] private List<string> lineasDespedida;     // solo se usa si desaparecerAlLiberar = false
     [SerializeField] private string nombreDespedida;
-    [SerializeField] private Sprite retratoDespedida;
+    [SerializeField] private RetratoNPC retratoDespedida;
     [SerializeField] private TipoVoz vozDespedida;
 
     private bool yaLiberado = false;
@@ -73,7 +73,7 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
             data.npcId = dialogueNPC.NpcId;
             data.nombre = dialogueNPC.NpcName;
             data.voz = dialogueNPC.VozNPC;
-            data.retrato = dialogueNPC.RetratoNPC;
+            data.retrato = dialogueNPC.NPCRetrato;
         }
         else // solo llega aquí si desaparecerAlLiberar = false
         {

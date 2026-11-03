@@ -40,7 +40,7 @@ public class NpcPlayerDetection : MonoBehaviour, IConversation
         data.npcId = dialogueNPC.NpcId;
         data.nombre = dialogueNPC.NpcName;
         data.voz = dialogueNPC.VozNPC;
-        data.retrato = dialogueNPC.RetratoNPC;
+        data.retrato = dialogueNPC.NPCRetrato;
         data.input = playerInput;
 
         IConversation.RaiseDialogueInit(data);

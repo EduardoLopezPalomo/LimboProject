@@ -10,7 +10,7 @@ public class InternalDialogueTrigger : MonoBehaviour, IConversation
 
     [Header("Apariencia (protagonista)")]
     [SerializeField] private string nombreProtagonista = "Tú";
-    [SerializeField] private Sprite retratoProtagonista;
+    [SerializeField] private RetratoNPC retratoProtagonista;
     [SerializeField] private TipoVoz vozProtagonista = TipoVoz.Masculina;
 
     [Header("Comportamiento")]
