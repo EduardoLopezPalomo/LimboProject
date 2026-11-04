@@ -19,9 +19,32 @@ Plan's verdict: architecture is good and above average — **targeted polish, no
   - Purely additive error handling (no gameplay-logic change). Read back the edited
     regions and confirmed correctness. Not compiled via the Unity editor (no Unity CLI /
     headless run available here) — validate in-editor Play per the plan's DoD.
+- **Milestone B (Make content safe — P1.1): DONE ✅**
+  - **P1.1** (centralized ability-name registry + uniqueness validation in
+    `AbilityHolder.Awake`). The GAS identifies abilities by `Name` hashed via
+    `Animator.StringToHash(Name)` into `Id`; every caller references the **string** name
+    (player specs `"Dash"`/`"Parry"`, AI `ActivateAbilityAction`/`ExecuteAttackSequenceAction`
+    blackboard vars, and boss `AttackDefinition.ability`). Renaming an ability therefore
+    silently broke every reference (hash no longer matched) → the attack did nothing with
+    only a warning.
+    - **New file** `GameplayAbilitySystem/Scripts/BaseAbility/AbilityIds.cs`: a
+      static registry with `const string` for all **24 runtime Names** (extracted from the
+      ability `.asset` `Name:` fields, not the filenames — they differ, e.g.
+      `HealPlayer.asset` → `"Heal"`, `MageCounterAttack.asset` → `"CounterAttack"`).
+    - **Edited `AbilityHolder.Awake()`**: new validation pass that logs a loud
+      `Debug.LogError` on a **null** entry or two abilities that share an **Id** (i.e. share a
+      Name) — previously silently dropped by the `!specs.ContainsKey(ability.Id)` guard.
+    - **Edited `AbilityHolder.ActivateAbility(int, owner)`**: the "not found" path is now a
+      `Debug.LogError` naming the owner + a hint that a renamed/deleted ability is to blame.
+  - Purely additive. **Discovered/confirmed a latent data issue** (not fixed by this plan,
+    see NOTES.md §P1.1-notes): the runtime Names `CounterAttack`, `FireAttack`, `ElectroAttack`,
+    and `Teleport` are each reused by more than one asset (e.g. Barbarian + Mage counters), so
+    they collide on Id — but only across **different** AbilityHolders, which is the only safe
+    arrangement. Putting two shared-named abilities in one holder now errors loudly.
+  - Public string API kept backward-compatible (registry is additive; call sites not yet
+    migrated — that's P1.1's higher-effort follow-up). Not compiled via Unity (no CLI /
+    headless run here) — validate in-editor Play per the plan's DoD.
 - **Remaining (in order):**
-  - **B — Make content safe:** P1.1 (centralized ability-name registry + uniqueness
-    validation in `AbilityHolder.Awake`).
   - **C — Unify the hot path:** P1.2 (shared `DamageResolver`, keep player/enemy as thin
     adapters). Highest effort/risk.
   - **D — Loose the coupling:** P1.3 (singleton decoupling, one manager at a time) +
@@ -30,6 +53,9 @@ Plan's verdict: architecture is good and above average — **targeted polish, no
     hide mutable state), P2.4 (move tunables out of constructors).
   - **F — Housekeeping:** P3.1 (refactor-rename typos), P3.2 (balance data + versioning),
     P3.3 (behavior-graph hygiene).
+  - **P1.1 follow-up (after B):** migrate the magic-string call sites (player specs + AI
+    Action nodes + boss data) to `AbilityIds.*` and, later, make the inspector `Name` derive
+    from the registry (compile-time Ids) so renames can no longer silently break.
 
 ### Notes for future agents
 - Plan lives in `SYSTEMS_REVIEW_PLAN.md`. **Do NOT commit** (see `AGENTS.md`).

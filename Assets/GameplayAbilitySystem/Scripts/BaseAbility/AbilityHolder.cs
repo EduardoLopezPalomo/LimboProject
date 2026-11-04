@@ -41,6 +41,30 @@ public class AbilityHolder : MonoBehaviour
                 }
             }
         }
+
+        // ---- Content-safety validation (SYSTEMS_REVIEW_PLAN.md, Milestone B / P1.1) ----
+        // The loop above silently drops a duplicate (same Id => same Name) and a null.
+        // Those are silent footguns: a dropped ability means its attack simply does
+        // nothing. Surface them loudly here so they can't hide in the editor.
+        var seenIds = new Dictionary<int, string>();
+        foreach (var ability in abilities)
+        {
+            if (ability == null)
+            {
+                Debug.LogError($"AbilityHolder: null ability entry in '{gameObject.name}'. Fix the serialized 'abilities' list.");
+                continue;
+            }
+            if (seenIds.TryGetValue(ability.Id, out var firstDefinedByName))
+            {
+                Debug.LogError($"AbilityHolder: duplicate ability Id {ability.Id} (Name '{ability.Name}') in '{gameObject.name}'. " +
+                    "First defined as '{firstDefinedByName}'. The duplicate is dropped and its abilities will never activate. " +
+                    "Give it a unique Name or remove it from the list.");
+            }
+            else
+            {
+                seenIds.Add(ability.Id, ability.Name);
+            }
+        }
     }
     /*It add the ability to the dictionary*/
     public void AddAbility(GameplayAbility ability)
@@ -84,7 +108,8 @@ public class AbilityHolder : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"AbilityHolder: Ability {abilityId} not found");
+            Debug.LogError($"AbilityHolder: Ability id {abilityId} not found on '{owner?.name}'. " +
+                "If this was called by name, a renamed/deleted ability no longer resolves through AbilityHolder (see AbilityIds).");
         }
 
         return null;

@@ -1,9 +1,11 @@
 # COMBAT SYSTEM COMPLETE ANALYSIS REPORT
 
 > **Remediation plan:** `SYSTEMS_REVIEW_PLAN.md` (11/4/2026) — issues graded P0–P3,
-> executed in milestones A–F. **Milestone A (P0.1 + P0.2) is DONE** (loud `Debug.LogError`
-> in `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`). Execution status
-> also tracked in `MEMORY.md`. **Do not commit** (see `AGENTS.md`).
+> executed in milestones A–F. **DONE:** Milestone A (P0.1 + P0.2) — loud `Debug.LogError`
+> in `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`; and Milestone B
+> (P1.1) — centralized ability-name registry `AbilityIds.cs` + loud uniqueness validation in
+> `AbilityHolder.Awake` (kills the silent-rename footgun). Execution status also tracked in
+> `MEMORY.md`. **Do not commit** (see `AGENTS.md`).
 
 ## TABLE OF CONTENTS
 1. [Overview](#1-overview)
@@ -221,6 +223,38 @@ AttributeResponse (abstract) └── GeneralHealthResponse (base health logic)
 - **Hurt:** AI state change to "Hurt", knockback, VFX/SFX, health bar update
 - **Death:** Death animation, remove from group, Karma change
 - **Over Health:** Health bar update
+
+---
+
+### P1.1-notes: latent shared-Names data issue (found during Milestone B)
+
+The GAS identifies an ability by its `Name`, hashed via `Animator.StringToHash(Name)` into `Id`
+(seen in `GameplayAbility.Id` and `OnValidate`). All 24 runtime Names (the registry in
+`AbilityIds.cs`) are accounted for. However, **some runtime Names are genuinely reused** by
+more than one ability asset:
+
+| Shared runtime Name | Assets that use it |
+|---------------------|--------------------|
+| `CounterAttack`     | `CounterAttackBarb.asset`, `MageCounterAttack.asset`, `CounterSpaceGod.asset` |
+| `FireAttack`        | `FireAttack.asset`, `FireAttackBoss.asset` |
+| `ElectroAttack`     | `ElectroAttack.asset`, `ElectroAttackBoss.asset` |
+| `Teleport`          | `Teleport.asset`, `TeleportChangePhase.asset` |
+
+**Why this is OK today:** abilities with the same Name share an `Id`, so they work as long as
+each lives in a **different `AbilityHolder`** (which is how the game already uses them — a
+Barbarian holder never coexists with a Mage holder). The shared-name warnings in `AbilityIds.cs`
+flag this on purpose.
+
+**Why this is the core risk for P1.1:** because identity = the string `Name`/`Id`, **renaming**
+any of these assets silently breaks every string reference (the old hash no longer matches the
+new Id). Milestone B doesn't fix that yet — it only makes *existing* collisions and *null*
+entries **fail loudly instead of silently** (see `AbilityHolder.Awake` + `ActivateAbility`).
+
+**Follow-up (not done yet):** (a) migrate the remaining magic-string call sites
+(player specs in `LightAttack.cs`, AI `AttackDefinition`/Action nodes, boss data) to
+`AbilityIds.*`; (b) eventually make the inspector `Name` derive from the registry (compile-time
+Id) so renames can no longer silently break — this is P1.1's higher-effort follow-up in
+`SYSTEMS_REVIEW_PLAN.md`.
 
 ---
 
