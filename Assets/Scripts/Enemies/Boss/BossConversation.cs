@@ -52,7 +52,7 @@ public class BossConversation : MonoBehaviour, IConversation
             data.npcId = dialogueNPC.NpcId;
             data.nombre = dataIntro.NpcName;
             data.voz = dialogueNPC.VozNPC;
-            data.retrato = dialogueNPC.RetratoNPC;
+            data.retrato = dialogueNPC.NPCRetrato;
             data.input = playerInput;
 
             IConversation.RaiseDialogueInit(data);
@@ -89,7 +89,7 @@ public class BossConversation : MonoBehaviour, IConversation
             data.npcId = dialogueNPC.NpcId;
             data.nombre = dataBeaten.NpcName;
             data.voz = dialogueNPC.VozNPC;
-            data.retrato = dialogueNPC.RetratoNPC;
+            data.retrato = dialogueNPC.NPCRetrato;
             data.input = playerInput;
 
             IConversation.RaiseDialogueInit(data);

@@ -12,7 +12,7 @@ public class DialogueNPC : MonoBehaviour
     public string NpcId => dialogueData.NpcId;
     public string NpcName => dialogueData.NpcName;
     public TipoVoz VozNPC => dialogueData.tipoVoz;
-    public Sprite RetratoNPC => dialogueData.retrato;
+    public RetratoNPC NPCRetrato => dialogueData.retrato;
 
     private MinimapIcon minimapIcon;
 

@@ -72,7 +72,10 @@ public class NPCGraphBridge : MonoBehaviour
 
     public void SetTalking(DialogueInitData data)
     {
-        if (agent != null && data.npcId == dialogueNPC.NpcId)
+
+        if (agent == null || dialogueNPC == null) return;
+
+        else if (agent != null && data.npcId == dialogueNPC.NpcId)
         {
             agent.BlackboardReference.GetVariableValue<NPCState>("NPCState", out stateBeforeDialogue);
             agent.BlackboardReference.SetVariableValue("NPCState", NPCState.Talking);
@@ -81,7 +84,8 @@ public class NPCGraphBridge : MonoBehaviour
 
     public void HandleEndDialogue(string npcId)
     {
-        if (agent != null && npcId == dialogueNPC.NpcId)
+        if (dialogueNPC == null) return;
+        else if (agent != null && npcId == dialogueNPC.NpcId)
         {
             agent.BlackboardReference.SetVariableValue("NPCState", stateBeforeDialogue);
         }
