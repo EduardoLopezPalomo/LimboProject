@@ -1,5 +1,10 @@
 # COMBAT SYSTEM COMPLETE ANALYSIS REPORT
 
+> **Remediation plan:** `SYSTEMS_REVIEW_PLAN.md` (11/4/2026) — issues graded P0–P3,
+> executed in milestones A–F. **Milestone A (P0.1 + P0.2) is DONE** (loud `Debug.LogError`
+> in `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`). Execution status
+> also tracked in `MEMORY.md`. **Do not commit** (see `AGENTS.md`).
+
 ## TABLE OF CONTENTS
 1. [Overview](#1-overview)
 2. [Architecture Overview](#2-architecture-overview)

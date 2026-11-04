@@ -1,5 +1,45 @@
 # MEMORY.md
 
+## Combat & Enemy System Review — Remediation Plan (11/4/2026)
+
+A source-rooted review & remediation plan was authored in `SYSTEMS_REVIEW_PLAN.md`.
+It grades issues P0–P3 and orders them into milestones A–F (cheapest / highest-safety first).
+Plan's verdict: architecture is good and above average — **targeted polish, not a rewrite**.
+
+### Execution status
+- **Milestone A (Stabilize — P0.1 + P0.2): DONE ✅**
+  - **P0.1** (out-of-range combo silently skips damage): the silent
+    `Debug.LogWarning` + `return` was replaced with a loud `Debug.LogError` that names the
+    owner, the combo index, and both list sizes. Applied in
+    `Enemies/Combat/EnemyWeaponDamage.cs` (`NotParried`) and
+    `Player/PlayerWeaponDamage.cs` (`DamageEnemy`).
+  - **P0.2** (null components logged as a bare `Debug.Log` inside the hit path): replaced
+    with a categorized `Debug.LogError` naming owner + target + which component is missing,
+    in `Enemies/Combat/EnemyWeaponDamage.cs` (`NotParried`).
+  - Purely additive error handling (no gameplay-logic change). Read back the edited
+    regions and confirmed correctness. Not compiled via the Unity editor (no Unity CLI /
+    headless run available here) — validate in-editor Play per the plan's DoD.
+- **Remaining (in order):**
+  - **B — Make content safe:** P1.1 (centralized ability-name registry + uniqueness
+    validation in `AbilityHolder.Awake`).
+  - **C — Unify the hot path:** P1.2 (shared `DamageResolver`, keep player/enemy as thin
+    adapters). Highest effort/risk.
+  - **D — Loose the coupling:** P1.3 (singleton decoupling, one manager at a time) +
+    P2.1 (centralized layer-name resolution).
+  - **E — Polish:** P2.2 (time-scale-independent cooldowns), P2.3 (`[SerializeField]` /
+    hide mutable state), P2.4 (move tunables out of constructors).
+  - **F — Housekeeping:** P3.1 (refactor-rename typos), P3.2 (balance data + versioning),
+    P3.3 (behavior-graph hygiene).
+
+### Notes for future agents
+- Plan lives in `SYSTEMS_REVIEW_PLAN.md`. **Do NOT commit** (see `AGENTS.md`).
+- New logs use C# interpolated strings (`$"..."`) — Unity/Roslyn supported, no extra using.
+- DoD (from plan §6): Unity compiles clean in-editor; Play-mode verify every scenario; no
+  new hot-path noise; keep public API backward-compatible; update MEMORY/NOTES; leave
+  uncommitted.
+
+---
+
 ## Combat System Analysis (11/3/2026)
 A complete analysis of the combat system has been performed. The full report is in `NOTES.md`.
 

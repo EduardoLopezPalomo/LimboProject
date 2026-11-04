@@ -216,7 +216,7 @@ public class PlayerWeaponDamage : MonoBehaviour
         // Validate combo number
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
         {
-            Debug.LogWarning("the combo is " + ComboNumber + "But the list doent have that number");
+            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Out-of-range combo index {ComboNumber}: gameplayEffects.Count={gameplayEffects.Count}. The attack is being DROPPED until the effects list is corrected.");
             return;
         }
 

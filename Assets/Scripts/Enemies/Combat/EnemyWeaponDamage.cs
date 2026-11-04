@@ -83,7 +83,7 @@ public class EnemyWeaponDamage : MonoBehaviour
         AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
         if (effectManager == null || attributeSystem == null)
         {
-            Debug.Log("effectmanager, attributesystem or makeInvincible is null");
+            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Cannot apply enemy combo to '{player?.name}': target is missing required components. GameplayEffectManager={(effectManager != null)}, AttributeSystem={(attributeSystem != null)}.");
             return;
         }
         CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
@@ -96,7 +96,7 @@ public class EnemyWeaponDamage : MonoBehaviour
 
         if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count || ComboNumber >= gameplayEffectsBlock.Count)
         {
-            Debug.LogWarning("the combo is " + ComboNumber + " But one of the list doent have that number");
+            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Out-of-range combo index {ComboNumber}: gameplayEffects.Count={gameplayEffects.Count}, gameplayEffectsBlock.Count={gameplayEffectsBlock.Count}. The attack is being DROPPED until the effects list is corrected.");
             return;
         }
 
