@@ -2,10 +2,12 @@
 
 > **Remediation plan:** `SYSTEMS_REVIEW_PLAN.md` (11/4/2026) — issues graded P0–P3,
 > executed in milestones A–F. **DONE:** Milestone A (P0.1 + P0.2) — loud `Debug.LogError`
-> in `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`; and Milestone B
+> in `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`; Milestone B
 > (P1.1) — centralized ability-name registry `AbilityIds.cs` + loud uniqueness validation in
-> `AbilityHolder.Awake` (kills the silent-rename footgun). Execution status also tracked in
-> `MEMORY.md`. **Do not commit** (see `AGENTS.md`).
+> `AbilityHolder.Awake` (kills the silent-rename footgun); and Milestone C (P1.2) — both weapon
+> damage classes now delegate the hit pipeline to the new shared `Assets/Scripts/Combat/
+> DamageResolver.cs`. Execution status also tracked in `MEMORY.md`. **Do not commit** (see
+> `AGENTS.md`).
 
 ## TABLE OF CONTENTS
 1. [Overview](#1-overview)
@@ -239,6 +241,7 @@ more than one ability asset:
 | `FireAttack`        | `FireAttack.asset`, `FireAttackBoss.asset` |
 | `ElectroAttack`     | `ElectroAttack.asset`, `ElectroAttackBoss.asset` |
 | `Teleport`          | `Teleport.asset`, `TeleportChangePhase.asset` |
+| `Dash`              | `Dash.asset` (player), `ArcherDash.asset` (all archer variants) |
 
 **Why this is OK today:** abilities with the same Name share an `Id`, so they work as long as
 each lives in a **different `AbilityHolder`** (which is how the game already uses them — a
@@ -255,6 +258,71 @@ entries **fail loudly instead of silently** (see `AbilityHolder.Awake` + `Activa
 `AbilityIds.*`; (b) eventually make the inspector `Name` derive from the registry (compile-time
 Id) so renames can no longer silently break — this is P1.1's higher-effort follow-up in
 `SYSTEMS_REVIEW_PLAN.md`.
+
+> **Audit note (11/8/2026):** the table above was re-verified against the live `AssetDatabase`
+> (`t:GameplayAbility`): **30 ability assets → 24 distinct Names**, and all 5 shared Names above
+> are the only collisions. All **38** prefabs holding an `AbilityHolder` were scanned: none puts
+> two same-Id abilities in one holder and none has a null entry — so the new `Awake` validation
+> is silent on shipped content (no false positives).
+
+---
+
+### P1.2-notes: the shared `DamageResolver` hot path (Milestone C, 11/8/2026)
+
+**File:** `Assets/Scripts/Combat/DamageResolver.cs` — stateless `static class`, no MonoBehaviour,
+no state, nothing to place in a scene.
+
+**API surface**
+
+| Member | Purpose |
+|---|---|
+| `enum Outcome` | `Applied`, `MissingTargetComponents`, `InvalidComboIndex`, `NullEffect` |
+| `struct Defender` | `GameplayEffectManager Effects` + `AttributeSystem Attributes`, with `IsValid` so a half-resolved defender can't be passed on |
+| `struct Rumble` | `LowFrequency` / `HighFrequency` / `Duration` — maps 1:1 onto `VibrationManager.Vibrate(...)` |
+| `class ComboHit` | parameter object: `Attacker`, `Target`, `ComboIndex`, `NormalEffects`, `BlockedEffects`, `UseBlockedEffects`, `OnBlocked`, `SearchTargetInParent`, `Shake`, `ImpulseSource`, `Haptics` |
+| `TryResolveDefender(target, searchInParent, attacker, out Defender)` | the P0.2 guard, in one place |
+| `TrySelectEffect(ComboHit, out GameplayEffect, out Outcome)` | the P0.1 guard (normal **and** block list) + null-slot guard |
+| `PlayShake(CameraShakeData?, CinemachineImpulseSource)` / `PlayRumble(Rumble?)` | null-safe feedback |
+| `ApplyHit(ComboHit)` / `ApplyResolved(ComboHit, Defender)` | full pipeline / entry point when the caller already resolved the defender |
+
+**Two gotchas that cost time — remember these:**
+1. `CameraShakeData` is a `[Serializable] struct`, **not** a ScriptableObject. "No shake" must be
+   `CameraShakeData?` (null), never `== null`, and it has no `.name`.
+2. A nested type and a method cannot share a name in one class, hence `struct Rumble` +
+   `PlayRumble(...)` (not `Rumble(...)`), and `PlayShake` rather than `Shake`.
+
+**Intentional behaviour delta (the only one) — flag to the designer:**
+previously the player's combo camera shake fired *before* the null-effect check, so a combo step
+with an unassigned effect slot still shook the camera while dealing no damage. `ApplyResolved`
+now plays shake/rumble only when the hit will actually apply. On correctly configured data this
+is identical; it only changes the misconfigured case. `EnemyWeaponDamage` is untouched here — it
+still shakes first, before its counter branch, exactly as before.
+
+**Pre-existing asymmetries deliberately PRESERVED** (unifying them is a game-feel decision, not a
+refactor — raise with the designer rather than "fixing" them silently):
+- The enemy applies **no** controller rumble on a landed hit; the player applies
+  `(0.6, 0.6, 0.2)`. Player counter-attack rumble is `(0.3, 1.0, 0.2)`.
+- The player's counter branch calls `effectManager.ApplyEffect(CounterEffect, attributeSystem)`
+  using the **player's own** components (resolved from `owner` in `Awake`), i.e. the counter
+  effect lands on the player, while the enemy's counter effect lands on the target. Suspicious
+  but left as-is.
+- Enemy shakes with a single `CameraShakeData` for all combo steps; the player maps
+  combo 0–3 → `attack1`–`attack4` and has no shake on step 5.
+- Component lookup depth differs: enemy hits the player capsule directly (`GetComponent`), the
+  player hits a child collider (`GetComponentInParent`) — now the `SearchTargetInParent` flag.
+- Only the enemy has a block-effect list + `BlockHit` animator trigger (passed in as the
+  `OnBlocked` callback so it still fires *after* the index guard, exactly where it used to).
+
+**Verification harness** (re-runnable via the Unity MCP `execute_code`, edit mode, no Play needed):
+loads 6 real `GameplayEffect` assets, builds synthetic attacker/defender `GameObject`s and
+asserts 15 cases — valid index, `-1`, `== Count`, the P0.1 cross-list case (normal list 5 / block
+list 3 at index 4 must report `InvalidComboIndex`), null slot, null list, a BLOCKED hit with no
+blocked-effects list (must drop with `InvalidComboIndex` instead of NRE), `OnBlocked` firing only
+when blocked and never on an invalid index, `PlayShake(null)`/`PlayRumble(null)` not throwing,
+`ApplyHit(null)` / `ApplyHit(unresolvable)` returning `MissingTargetComponents`, and `Label(null)`.
+All 15 green on 11/8/2026 with a 0-error / 0-warning compile. **The player and enemy weapon paths
+still need a manual Play-mode pass** (real combos, block, parry, counter) — that part cannot be
+automated here.
 
 ---
 

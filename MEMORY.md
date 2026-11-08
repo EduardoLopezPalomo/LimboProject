@@ -38,15 +38,50 @@ Plan's verdict: architecture is good and above average — **targeted polish, no
       `Debug.LogError` naming the owner + a hint that a renamed/deleted ability is to blame.
   - Purely additive. **Discovered/confirmed a latent data issue** (not fixed by this plan,
     see NOTES.md §P1.1-notes): the runtime Names `CounterAttack`, `FireAttack`, `ElectroAttack`,
-    and `Teleport` are each reused by more than one asset (e.g. Barbarian + Mage counters), so
-    they collide on Id — but only across **different** AbilityHolders, which is the only safe
-    arrangement. Putting two shared-named abilities in one holder now errors loudly.
+    `Teleport` **and `Dash`** are each reused by more than one asset (e.g. Barbarian + Mage
+    counters; `Dash.asset` player vs `ArcherDash.asset` archers), so they collide on Id — but
+    only across **different** AbilityHolders, which is the only safe arrangement. Putting two
+    shared-named abilities in one holder now errors loudly.
   - Public string API kept backward-compatible (registry is additive; call sites not yet
-    migrated — that's P1.1's higher-effort follow-up). Not compiled via Unity (no CLI /
-    headless run here) — validate in-editor Play per the plan's DoD.
+    migrated — that's P1.1's higher-effort follow-up).
+  - **VERIFIED IN-EDITOR 11/8/2026** (Unity MCP, so the "not compiled" caveat from the previous
+    agent no longer applies): project compiles with **0 errors / 0 warnings**; the registry was
+    cross-checked against the live `AssetDatabase` (`t:GameplayAbility` → 30 assets → **24
+    distinct Names**, exactly the 24 consts); all **38** prefabs carrying an `AbilityHolder` were
+    scanned and contain **no duplicate Id and no null entry**, so the new `Awake` validation
+    produces **zero false positives** on shipped content.
+  - **Review fixes applied this session** (3 defects in the P1.1 code):
+    1. `AbilityHolder` duplicate-Id message: the 2nd/3rd concatenated literals were missing the
+       `$` prefix, so it printed the literal text `{firstDefinedByName}` — fixed.
+    2. `Dash` was missing from the shared-Name documentation in `AbilityIds.cs` — added, plus a
+       "VERIFIED" block recording the audit above.
+    3. `AbilityHolder.Awake()` threw a bare `NullReferenceException` when the serialized
+       `abilities` list is unassigned — now a clear `Debug.LogError` (and `specs` stays
+       initialised so `Update()` cannot NRE).
+- **Milestone C (Unify the hot path — P1.2): DONE ✅**
+  - **New file** `Assets/Scripts/Combat/DamageResolver.cs` — a stateless `static class` that owns
+    the duplicated hit pipeline once: `TryResolveDefender` (finds the defender's
+    `GameplayEffectManager` + `AttributeSystem`, self or parent, loud error when missing),
+    `TrySelectEffect` (combo-index guard across the normal **and** block lists + null-slot guard),
+    `PlayShake` / `PlayRumble` (null-safe feedback), and `ApplyHit` / `ApplyResolved` returning a
+    `DamageResolver.Outcome` enum (`Applied`, `MissingTargetComponents`, `InvalidComboIndex`,
+    `NullEffect`). A `DamageResolver.ComboHit` parameter object carries the per-attacker flavour.
+  - **Both weapon classes are now thin adapters** (public API untouched — `SetComboNumber`,
+    `ActivateHitbox`, `DeactivateHitbox`, `GetHasHitPlayer`, `SetHasHitPlayer`, `IsCounterAttack`,
+    `GetParried` all unchanged): `EnemyWeaponDamage.NotParried` and `PlayerWeaponDamage.DamageEnemy`
+    now describe the hit and hand it to the resolver. `PlayerWeaponDamage.MakeComboCameraShake`
+    became `GetShake(...)` (returns the data instead of firing it, and uses `TryGetValue` so a
+    missing shake entry can no longer throw `KeyNotFoundException`).
+  - This also **closes the P0.2 gap on the player side**: `PlayerWeaponDamage` used to call
+    `effectmanager.ApplyEffect(...)` with **no** null check at all (latent NRE); it now goes
+    through `TryResolveDefender`.
+  - **Verified**: compiles 0 errors / 0 warnings, and a 15-case in-editor logic harness ran green
+    over the guards (valid index, -1, ==count, the exact P0.1 cross-list case where the block list
+    is shorter than the normal list, null slot, null list, a blocked hit with no block list,
+    `OnBlocked` firing only when blocked and never on an invalid index, null-safe feedback helpers,
+    unresolvable defender). See NOTES.md
+    §P1.2-notes for the harness and the one intentional behaviour delta.
 - **Remaining (in order):**
-  - **C — Unify the hot path:** P1.2 (shared `DamageResolver`, keep player/enemy as thin
-    adapters). Highest effort/risk.
   - **D — Loose the coupling:** P1.3 (singleton decoupling, one manager at a time) +
     P2.1 (centralized layer-name resolution).
   - **E — Polish:** P2.2 (time-scale-independent cooldowns), P2.3 (`[SerializeField]` /

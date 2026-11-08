@@ -110,6 +110,26 @@ public class PlayerWeaponDamage : MonoBehaviour
     private int enemyLayerMask;
     private CinemachineImpulseSource impulseSource;
     private Dictionary<CameraShakeState, CameraShakeData> cameraShakeDict;
+
+    /// <summary>
+    /// Rumble played when a combo hit lands (low 0.6 / high 0.6 / 0.2s).
+    /// </summary>
+    private static readonly DamageResolver.Rumble HitRumble = new DamageResolver.Rumble
+    {
+        LowFrequency = 0.6f,
+        HighFrequency = 0.6f,
+        Duration = 0.2f
+    };
+
+    /// <summary>
+    /// Rumble played when the enemy counters the player (low 0.3 / high 1.0 / 0.2s).
+    /// </summary>
+    private static readonly DamageResolver.Rumble CounterRumble = new DamageResolver.Rumble
+    {
+        LowFrequency = 0.3f,
+        HighFrequency = 1f,
+        Duration = 0.2f
+    };
     
     private bool isActive = false;
     private HashSet<Collider> alreadyHit = new HashSet<Collider>();
@@ -189,8 +209,8 @@ public class PlayerWeaponDamage : MonoBehaviour
         {
             EnemyCounter.Invoke();
             agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
-            CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.gotBlocked], impulseSource);
-            
+            DamageResolver.PlayShake(GetShake(CameraShakeState.gotBlocked), impulseSource);
+
             CharacterVFX vfx = other.gameObject.GetComponentInParent<CharacterVFX>();
             CharacterSFX sfx = other.gameObject.GetComponentInParent<CharacterSFX>();
             if (vfx != null && sfx != null)
@@ -199,10 +219,10 @@ public class PlayerWeaponDamage : MonoBehaviour
                 sfx.SpawnSFX(SFXType.Counter);
             }
             effectManager.ApplyEffect(CounterEffect, attributeSystem);
-            VibrationManager.Instance.Vibrate(0.3f, 1f, 0.2f);
+            DamageResolver.PlayRumble(CounterRumble);
             return;
         }
-        
+
         // Check for invincibility
         MakeInvincible invincible = other.gameObject.GetComponentInParent<MakeInvincible>();
         if (invincible && invincible.IsInvincible())
@@ -210,44 +230,44 @@ public class PlayerWeaponDamage : MonoBehaviour
             return;
         }
 
-        GameplayEffectManager effectmanager = other.gameObject.GetComponentInParent<GameplayEffectManager>();
-        AttributeSystem AS = other.gameObject.GetComponentInParent<AttributeSystem>();
-
-        // Validate combo number
-        if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count)
+        DamageResolver.ApplyHit(new DamageResolver.ComboHit
         {
-            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Out-of-range combo index {ComboNumber}: gameplayEffects.Count={gameplayEffects.Count}. The attack is being DROPPED until the effects list is corrected.");
-            return;
-        }
-
-        GameplayEffect effect = gameplayEffects[ComboNumber];
-        MakeComboCameraShake(ComboNumber);
-
-        if (effect == null)
-        {
-            Debug.LogWarning("the combo number has no effect on the player weapon");
-            return;
-        }
-        VibrationManager.Instance.Vibrate(0.6f, 0.6f, 0.2f);
-        effectmanager.ApplyEffect(effect, AS);
+            Attacker = owner,
+            Target = other.gameObject,
+            ComboIndex = ComboNumber,
+            NormalEffects = gameplayEffects,
+            SearchTargetInParent = true,
+            Shake = GetShake(ComboNumber),
+            ImpulseSource = impulseSource,
+            Haptics = HitRumble
+        });
     }
 
-    private void MakeComboCameraShake(int combo)
+    /// <summary>
+    /// Maps a combo step to its camera shake. Returns null when the step has no shake configured
+    /// (combo 5 and above intentionally have none).
+    /// </summary>
+    private CameraShakeData? GetShake(CameraShakeState state)
+    {
+        if (cameraShakeDict != null && cameraShakeDict.TryGetValue(state, out CameraShakeData data))
+        {
+            return data;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Maps a combo number to the camera shake configured for it.
+    /// </summary>
+    private CameraShakeData? GetShake(int combo)
     {
         switch (combo)
         {
-            case 0:
-                CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack1], impulseSource);
-                return;
-            case 1:
-                CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack2], impulseSource);
-                return;
-            case 2:
-                CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack3], impulseSource);
-                return;
-            case 3:
-                CameraShakeManager.instance.CameraShake(cameraShakeDict[CameraShakeState.attack4], impulseSource);
-                return;
+            case 0: return GetShake(CameraShakeState.attack1);
+            case 1: return GetShake(CameraShakeState.attack2);
+            case 2: return GetShake(CameraShakeState.attack3);
+            case 3: return GetShake(CameraShakeState.attack4);
+            default: return null;
         }
     }
 

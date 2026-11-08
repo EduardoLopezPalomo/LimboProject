@@ -25,6 +25,14 @@ public class AbilityHolder : MonoBehaviour
     {
         ActiveSpecs = new List<GameplayAbilitySpec>();
         specs = new Dictionary<int, GameplayAbilitySpec>();
+
+        if (abilities == null)
+        {
+            Debug.LogError($"AbilityHolder: the serialized 'abilities' list is unassigned on '{gameObject.name}'. " +
+                "No abilities will be available for this character.");
+            return;
+        }
+
         int aux = 1;
         foreach (var ability in abilities)
         {
@@ -57,8 +65,8 @@ public class AbilityHolder : MonoBehaviour
             if (seenIds.TryGetValue(ability.Id, out var firstDefinedByName))
             {
                 Debug.LogError($"AbilityHolder: duplicate ability Id {ability.Id} (Name '{ability.Name}') in '{gameObject.name}'. " +
-                    "First defined as '{firstDefinedByName}'. The duplicate is dropped and its abilities will never activate. " +
-                    "Give it a unique Name or remove it from the list.");
+                    $"First defined as '{firstDefinedByName}'. The duplicate is dropped and will never activate. " +
+                    $"Give it a unique Name or remove it from the list (see AbilityIds).");
             }
             else
             {

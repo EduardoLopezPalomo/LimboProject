@@ -35,7 +35,7 @@ public static class AbilityIds
 {
     // ---- Player ----
     public const string LightAttack     = "LightAttack";
-    public const string Dash            = "Dash";
+    public const string Dash            = "Dash";           // *** SHARED: Dash.asset (player) + ArcherDash.asset (archers)
     public const string Parry           = "Parry";
     public const string LightAura       = "LightAura";
     public const string Heal            = "Heal";
@@ -71,4 +71,12 @@ public static class AbilityIds
     public const string ElectroAttack   = "ElectroAttack";// ElectroAttack.asset + ElectroAttackBoss.asset
     public const string Teleport        = "Teleport";     // Teleport.asset + TeleportChangePhase.asset
     // "CounterAttack" above is shared by CounterAttackBarb.asset + MageCounterAttack.asset + CounterSpaceGod.asset
+    // "Dash" above is shared by Dash.asset (player) + ArcherDash.asset (archers)
+
+    /*
+     * VERIFIED 11/8/2026 against the actual assets (AssetDatabase, t:GameplayAbility):
+     *   30 ability assets -> 24 distinct Names, and the 24 consts above cover exactly those 24.
+     *   The 5 shared Names above are the ONLY collisions, and every AbilityHolder in the project
+     *   (38 prefabs) holds at most one asset per Name, so none of them collide in practice today.
+     */
 }

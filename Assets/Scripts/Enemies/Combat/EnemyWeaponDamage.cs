@@ -79,46 +79,30 @@ public class EnemyWeaponDamage : MonoBehaviour
 
     private void NotParried(GameObject player, bool isBlocked)
     {
-        GameplayEffectManager effectManager = player.GetComponent<GameplayEffectManager>();
-        AttributeSystem attributeSystem = player.GetComponent<AttributeSystem>();
-        if (effectManager == null || attributeSystem == null)
+        if (!DamageResolver.TryResolveDefender(player, false, owner, out DamageResolver.Defender defender))
         {
-            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Cannot apply enemy combo to '{player?.name}': target is missing required components. GameplayEffectManager={(effectManager != null)}, AttributeSystem={(attributeSystem != null)}.");
             return;
         }
+
         CameraShakeManager.instance.CameraShake(CameraShakeData, impulseSource);
+
         if (isCounter)
         {
-            effectManager.ApplyEffect(counterEffect, attributeSystem);
+            defender.Effects.ApplyEffect(counterEffect, defender.Attributes);
             isCounter = false;
             return;
         }
 
-        if (ComboNumber < 0 || ComboNumber >= gameplayEffects.Count || ComboNumber >= gameplayEffectsBlock.Count)
+        DamageResolver.ApplyResolved(new DamageResolver.ComboHit
         {
-            Debug.LogError($"[WeaponDamage:{owner?.name ?? "Unknown"}] Out-of-range combo index {ComboNumber}: gameplayEffects.Count={gameplayEffects.Count}, gameplayEffectsBlock.Count={gameplayEffectsBlock.Count}. The attack is being DROPPED until the effects list is corrected.");
-            return;
-        }
-
-        GameplayEffect effect;
-        if (isBlocked)
-        {
-            Animator animator = player.GetComponent<Animator>();
-            animator.SetTrigger("BlockHit");
-            effect = gameplayEffectsBlock[ComboNumber];
-        }
-        else
-        {
-            effect = gameplayEffects[ComboNumber];
-        }
-
-        if (effect == null)
-        {
-            Debug.LogWarning("the combo number has no effect on the player weapon");
-            return;
-        }
-       
-        effectManager.ApplyEffect(effect, attributeSystem);
+            Attacker = owner,
+            Target = player,
+            ComboIndex = ComboNumber,
+            NormalEffects = gameplayEffects,
+            BlockedEffects = gameplayEffectsBlock,
+            UseBlockedEffects = isBlocked,
+            OnBlocked = () => player.GetComponent<Animator>()?.SetTrigger("BlockHit"),
+        }, defender);
     }
 
     public void SetComboNumber(int value)
