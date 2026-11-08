@@ -44,7 +44,7 @@ public class DashSpec : GameplayAbilitySpec
             return false;
          
         }
-        if (abilityHolder.HasAnyActiveAbility(this) || abilityHolder.IsAbilityActive("Dash"))
+        if (abilityHolder.HasAnyActiveAbility(this) || abilityHolder.IsAbilityActive(AbilityIds.Dash))
         {
             return false;
         }

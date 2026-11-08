@@ -57,7 +57,7 @@ public class LightAttackSpec : GameplayAbilitySpec
     
     public override bool CanActivateAbility()
     {
-        if (abilityHolder.IsAbilityActive("Dash") || abilityHolder.IsAbilityActive("Parry"))
+        if (abilityHolder.IsAbilityActive(AbilityIds.Dash) || abilityHolder.IsAbilityActive(AbilityIds.Parry))
         {
             return false;
         }

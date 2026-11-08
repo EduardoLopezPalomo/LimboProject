@@ -911,3 +911,73 @@ ExecuteAttackSequences.cs - Run attack sequences
 ComboControllerAction.cs - Combo control
 WeaponControlAction.cs - Weapon control
 Various action/condition scripts for Behavior Graph AI
+
+---
+
+## Ability-Name Drift Guard — low-level notes (11/8/2026)
+
+Everything an agent needs to keep `Assets/GameplayAbilitySystem/Scripts/Editor/AbilityReferenceValidator.cs`
+working. These facts were each confirmed by reading the serialized assets / running code in-editor.
+
+### Running the validator
+- Menu: `Tools/Ciro/Validate Ability References`.
+- Headless (Unity MCP `execute_code`): `AbilityReferenceValidator.Validate();` — returns
+  `problems + warnings` as an int and logs each finding plus one summary line.
+- Auto-runs once per Editor session (`SessionState` key `Ciro.AbilityReferenceValidator.ranThisSession`),
+  skipped while entering play mode. Cold ≈15s, warm ≈1.5s.
+- Excluded from every scan: `Assets/DownloadPackages/`, `Assets/Synty/`, `Assets/_Recovery/`.
+
+### Behavior-graph (.asset) parsing gotchas — this is where the first implementation broke
+- `.asset` files are Unity YAML with a `%TAG !u! tag:unity3d.com,2011:` header and objects keyed by
+  fileID (`--- !u!<classId> &<fileID>`).
+- The graph type is **`Unity.Behavior.BehaviorAuthoringGraph`** (NOT `BehaviorGraphAsset`), and the
+  serialized graph payload lives in `m_Values`.
+- A string blackboard variable record has the class name
+  `` `BlackboardVariable`1[[System.String, mscorlib]] `` — **quoted**, because the generic argument
+  contains a comma. `yaml_dot_net`-style shortening or splitting the class string at the first comma
+  destroys it; the parser then silently matched **0 of the 34** `Ability` fields. Keep the full class
+  string and unquote (`Unquote`) only the *value*.
+- A blackboard variable is owned by a node through **child rids** (`m_Children` / `m_Rids`) that can
+  appear on **any** record — not only on the node model's own field rids. Resolve ownership by
+  scanning every record's child list (`GraphRecord.ChildRids`), which is what lets a message name the
+  owning node (e.g. `ActivateAbilityAction`).
+- Current inventory: 12 graphs, 34 `Ability` string fields, all resolving to registered names.
+
+### UnityEvent bindings in prefabs / scenes
+- Look for `m_MethodName: ActivateAbility` / `m_MethodName: CancelAbility` inside `m_PersistentCalls`.
+- **`m_Mode: 5` means the string overload** — the ability name is in `m_StringArgument`.
+- On other modes (Object / Int / None) `m_StringArgument` can still contain **stale text left behind
+  by the editor** after the mode was switched. Those are dead values and must be ignored, otherwise
+  you get false "unknown ability" errors. The validator counts them
+  ("N non-string bindings ignored") so a future regression is visible.
+- Current result: 4 string bindings in `Player.prefab`-side content, all valid.
+
+### Why duplicates are only warnings
+`GameplayAbility.Id = Animator.StringToHash(Name)` and abilities are looked up per `AbilityHolder`,
+so two assets named `Dash` are fine while they belong to different holders (player vs archers), and
+only a *single* holder holding both is a real bug (that case is a hard `Debug.LogError` in
+`AbilityHolder.Awake()`). Renaming is therefore a **data migration** (Ids may already be persisted),
+never an informal find/replace.
+
+### Editor-scan hazards learned the hard way
+- **Never call `AssetDatabase.LoadAllAssetsAtPath()` on a `.unity` scene file.** It logs
+  `Do not use ReadObjectThreaded on scene objects!` once per scene. It is fine on **prefabs**
+  (that is how the `AbilityHolder` audit walks holders). For scene contents, either text-scan the
+  `.unity` file (the validator's event-binding scan does exactly that) or open the scene additively
+  with `EditorSceneManager.OpenScene(..., OpenSceneMode.Additive)` and close it afterwards.
+- `AbilityHolder` audit recipe (prefabs only, no false alarms): `FindAssets("t:Prefab")` →
+  `LoadAllAssetsAtPath` → take every `AbilityHolder` → `new SerializedObject(holder)` →
+  `FindProperty("abilities")` → compare `GameplayAbility.Name` per holder. Same-name assets in
+  *different* holders are legal; only a repeat **inside one holder** is a bug.
+
+### Expected startup warnings (not drift, not a bug)
+`Save file not found in .../AppData/LocalLow/DefaultCompany/LimbosProject\settingsData.json`
+appears **4×** at Editor startup / first play — `SaveSystem.LoadSettingsData()`
+(`Assets/Scripts/SaveData/SaveSystem.cs:37`) warns once for *each* caller that asks for settings in
+`Awake()`: `InterfaceManager`, `DisplayManager`, `VibrationManager`, `SoundMixerManager`. It simply
+means settings were never saved on this machine (`PlayerSettings` has
+`companyName: DefaultCompany`, `productName: LimbosProject`, and that folder does not exist yet).
+Changing any option in the settings menu creates the file and the warnings stop. Unrelated to the
+ability-registry work. If it ever needs silencing, do it once inside `LoadSettingsData()` (log-once
+/ first-run message) rather than muting the four callers.
+

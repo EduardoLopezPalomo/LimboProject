@@ -233,3 +233,58 @@ talk to the combat / GAS systems.
 
 See `NOTES.md` §5 (Enemy Combat), §8 (Boss), §9 (Enemy Group) for the detailed diagrams.
 
+
+---
+
+## Ability-Name Drift Guard (11/8/2026)
+
+`AbilityIds` is now the **single source of truth** for ability names, and an Editor validator
+watches every place a name can be written by hand so drift can't ship silently.
+
+### Registry API (additive — no const was touched)
+`GameplayAbilitySystem/Scripts/BaseAbility/AbilityIds.cs`
+- `AbilityIds.All` — `IReadOnlyList<string>` of all 24 registered names.
+- `AbilityIds.IsKnownName(string)` — ordinal, ignore case.
+- `AbilityIds.IsKnownId(int)` — compares against `Animator.StringToHash(name)`.
+- Verified by reflection: **24 consts ↔ 24 `All` entries, 1:1, no duplicates**; every registered
+  name has a `GameplayAbility` asset and every asset `Name` is registered.
+
+### New validator
+`GameplayAbilitySystem/Scripts/Editor/AbilityReferenceValidator.cs`
+- Menu: **Tools/Ciro/Validate Ability References**; also runs automatically **once per Editor
+  session** (cold pass ~15s from asset loading, warm pass ~1.5s — hence the session gate, not
+  every reload). Silent when clean, so it cannot spam the console.
+- Checks: registry ↔ `GameplayAbility` assets, `AttackDefinition.ability`, behavior-graph
+  `Ability` blackboard strings, `ActivateAbility`/`CancelAbility` **UnityEvent string bindings** in
+  prefabs/scenes, raw string literals passed to the ability APIs in `.cs`, unused registry entries,
+  and duplicate asset names.
+- **Last run (11/8/2026): 0 problems / 5 warnings** over 30 ability assets, 24 names, 8 attack
+  definitions, 12 behavior graphs (34 `Ability` fields, **0 skipped**), 428 prefab/scene files
+  (4 event bindings, 0 non-string bindings ignored).
+
+### Call-site migration (Phase 2)
+- `Scripts/Combat/KnockBack.cs` (6 uses), `NewAbilities/DashSpec.cs` (1),
+  `NewAbilities/LightAttackSpec.cs` (1) now reference `AbilityIds.*`.
+- Grep across our code (excluding `DownloadPackages`, `Synty`, `_Recovery`) for
+  `HasAbility(" / IsAbilityActive(" / ActivateAbility(" / CancelAbility("` → **0 raw literals left**.
+
+### Duplicate-name policy (important)
+Same `Name` in more than one asset is **legal** as long as the assets live in **different
+`AbilityHolder`s** — the runtime resolves per holder. So duplicates are a **warning**, not an error.
+`AbilityHolder.Awake()` still hard-errors if a *single* holder holds two abilities with the same Id.
+The 5 known shared names (all across different holders): `Dash`, `CounterAttack`, `ElectroAttack`,
+`FireAttack`, `Teleport`.
+- **Audited 11/8/2026**: walked every prefab/scene (excluding the third-party folders above), found
+  **37 `AbilityHolder` components** — **no holder contains the same ability name twice**. Each shared
+  name sits in exactly one slot per holder (e.g. `Space_time_god` holds `ElectroAttackBoss`, the
+  magicians hold `ElectroAttack`). So all 5 warnings are currently **safe**, not drift.
+
+### Hazard to remember
+`Id = Animator.StringToHash(Name)` and that Id can end up in saved data. Renaming an ability is a
+**migration**, not a find/replace: the validator tells you every place to update, but old saves and
+external references need an explicit decision. See `NOTES.md` §Ability-Name Drift Guard for the
+YAML parsing details that the validator depends on.
+
+Temp helper scripts from this work (`_apply_p1.ps1`, `_apply_p1b.ps1`, `_vfy.ps1`) were deleted.
+Nothing was committed — commit is left to the user.
+

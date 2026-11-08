@@ -30,6 +30,18 @@
  * This registry is the single source of truth for the NAMES used to reference
  * them from code. Making the inspector Names derive from this (compile-time Ids)
  * is the planned follow-up in SYSTEMS_REVIEW_PLAN.md (P1.1, higher effort).
+ *
+ * ENFORCEMENT (both directions): the menu Tools/Ciro/Validate Ability References
+ * (and an automatic pass after every script reload) checks that every ability name
+ * used by DATA - GameplayAbility asset Name, AttackDefinition.ability, behavior
+ * graph "Ability" fields, prefab/scene UnityEvent string arguments - exists in this
+ * registry, and that every const below is still referenced by at least one asset.
+ * It logs errors, it never edits or blocks anything. See
+ * Assets/GameplayAbilitySystem/Scripts/Editor/AbilityReferenceValidator.cs.
+ *
+ * NEVER rename a value below on its own: id = Animator.StringToHash(Name) and saved
+ * player data stores those hashes, so a renamed value silently invalidates saves.
+ * Value changes only ship with a save migration (P3.1).
  */
 public static class AbilityIds
 {
@@ -79,4 +91,34 @@ public static class AbilityIds
      *   The 5 shared Names above are the ONLY collisions, and every AbilityHolder in the project
      *   (38 prefabs) holds at most one asset per Name, so none of them collide in practice today.
      */
+
+    // -------------------------------------------------------------------
+    //  REGISTRY API
+    //  Used by AbilityReferenceValidator (editor only) to cross-check every ability
+    //  name that data references against the consts above. Built once at class load;
+    //  IsKnownName does a single hash-set lookup and allocates nothing.
+    //  Runtime code should keep using the consts, never this list.
+    // -------------------------------------------------------------------
+
+    /// <summary>Every registered ability runtime Name, exactly as the assets spell it.</summary>
+    public static readonly System.Collections.Generic.IReadOnlyList<string> All = new string[]
+    {
+        LightAttack, Dash, Parry, LightAura, Heal, HealTarget, BowAttack,
+        DamageProyectile, SleepProyectile, AreaRayAttack, CounterAttack,
+        BarbarianAttack, ShielderAttack, TrapBubble,
+        Combo1, Combo2, HighAttack, RotateToPlayer, SlamAttack, TeleportCombo, TeleportCounter,
+        FireAttack, ElectroAttack, Teleport,
+    };
+
+    static readonly System.Collections.Generic.HashSet<string> AllSet =
+        new System.Collections.Generic.HashSet<string>(All, System.StringComparer.Ordinal);
+
+    /// <summary>
+    /// True when name is exactly one of the registered ability runtime Names
+    /// (ordinal / case-sensitive, like the Animator.StringToHash lookups).
+    /// </summary>
+    public static bool IsKnownName(string name)
+    {
+        return !string.IsNullOrEmpty(name) && AllSet.Contains(name);
+    }
 }

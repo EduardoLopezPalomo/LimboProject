@@ -26,9 +26,9 @@ public class KnockBack : MonoBehaviour
         if (!CanKnockBack) return;
         NotMove = false;
         animator.SetTrigger("KnockBack");
-        if (abilityHolder.HasAbility("LightAttack"))
+        if (abilityHolder.HasAbility(AbilityIds.LightAttack))
         {
-            abilityHolder.CancelAbility("LightAttack");
+            abilityHolder.CancelAbility(AbilityIds.LightAttack);
         }
 
         StartCoroutine(Timer(true));
@@ -67,9 +67,9 @@ public class KnockBack : MonoBehaviour
 
         if (CompareTag("Player"))
         {
-            if (abilityHolder.IsAbilityActive("Parry"))
+            if (abilityHolder.IsAbilityActive(AbilityIds.Parry))
             {
-                abilityHolder.CancelAbility("Parry");
+                abilityHolder.CancelAbility(AbilityIds.Parry);
             }
         }
 
@@ -82,9 +82,9 @@ public class KnockBack : MonoBehaviour
         CanKnockBack = true;
         if (CompareTag("Player"))
         {
-            if (abilityHolder.IsAbilityActive("Parry"))
+            if (abilityHolder.IsAbilityActive(AbilityIds.Parry))
             {
-                abilityHolder.CancelAbility("Parry");
+                abilityHolder.CancelAbility(AbilityIds.Parry);
             }
             makeInvincible.SetInvincible(false);
         }
