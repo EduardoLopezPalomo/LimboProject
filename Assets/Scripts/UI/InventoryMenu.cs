@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 public class InventoryMenu : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class InventoryMenu : MonoBehaviour
     public TextMeshProUGUI DescriptionText;
     [SerializeField] private AbilityHolder playerAbilityHolder;
     [SerializeField] private List<AbilitySlotInventory> Slots;
-    [SerializeField] private List<AbilitySlotInventory> PasiveSlots;
+    [FormerlySerializedAs("PasiveSlots")]
+    [SerializeField] private List<AbilitySlotInventory> PassiveSlots;
     [SerializeField] private GameObject SlotAbiity1;
     [SerializeField] private GameObject SlotAbiity2;
 
@@ -32,7 +34,7 @@ public class InventoryMenu : MonoBehaviour
         foreach (var slot in Slots)
             slot.AbilityImage.gameObject.SetActive(false);
 
-        foreach (var slot in PasiveSlots)
+        foreach (var slot in PassiveSlots)
             slot.AbilityImage.gameObject.SetActive(false);
 
         foreach (GameplayAbility ability in abilities)
@@ -43,12 +45,12 @@ public class InventoryMenu : MonoBehaviour
                 continue;
             }
 
-            if (ability.isPasive)
+            if (ability.isPassive)
             {
-                if (passiveIndex >= PasiveSlots.Count)
+                if (passiveIndex >= PassiveSlots.Count)
                     continue;
 
-                var slot = PasiveSlots[passiveIndex++];
+                var slot = PassiveSlots[passiveIndex++];
                 slot.AbilityImage.gameObject.SetActive(true);
                 dictionary[slot] = ability;
                 slot.ChangeSprite(ability.icon);

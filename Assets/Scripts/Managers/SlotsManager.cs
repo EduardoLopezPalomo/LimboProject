@@ -51,12 +51,12 @@ public class SlotsManager : MonoBehaviour
 
     private void OnEnable()
     {
-        EnemiesGroupContoller.OnBattleStateChanged += HandleBattleStateChanged;
+        EnemiesGroupController.OnBattleStateChanged += HandleBattleStateChanged;
     }
     
     private void OnDisable()
     {
-        EnemiesGroupContoller.OnBattleStateChanged -= HandleBattleStateChanged;
+        EnemiesGroupController.OnBattleStateChanged -= HandleBattleStateChanged;
     }
 
     public void SetPlayer(Transform playerTransform)

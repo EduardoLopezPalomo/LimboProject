@@ -2,7 +2,7 @@ using System.Collections;
 using StarterAssets;
 using UnityEngine;
 
-public class DamageProyectileSpec : GameplayAbilitySpec
+public class DamageProjectileSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private CharacterController charactercontroller;
@@ -16,14 +16,14 @@ public class DamageProyectileSpec : GameplayAbilitySpec
     private float DistanceOffset;
     private float backDashDistance;
     private float dashTime;
-    private VFXDefinition proyectile;
+    private VFXDefinition projectile;
     private GameObject player;
 
     private Coroutine safetyCoroutine;
     private bool dashEnded;
     private float resistanceNeeded;
 
-    public DamageProyectileSpec(GameplayAbility ability, GameObject owner, VFXDefinition proyectileObject, float throwAngle, float offset, float distance, float time, float resistance) : base(ability, owner)
+    public DamageProjectileSpec(GameplayAbility ability, GameObject owner, VFXDefinition projectileObject, float throwAngle, float offset, float distance, float time, float resistance) : base(ability, owner)
     {
         animator = owner.GetComponent<Animator>();
         charactercontroller = owner.GetComponent<CharacterController>();
@@ -34,7 +34,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         characterSFX = owner.GetComponent<CharacterSFX>();
 
         player = owner;
-        proyectile = proyectileObject;
+        projectile = projectileObject;
         angle = throwAngle;
         resistanceNeeded = resistance;
         DistanceOffset = offset;
@@ -85,7 +85,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         EndDash();
     }
 
-    private void ThrowProyectiles()
+    private void ThrowProjectiles()
     {
         Vector3 initialPosition = player.transform.position + new Vector3(0f, 1f, 0f);
         initialPosition += player.transform.forward * DistanceOffset;
@@ -98,19 +98,19 @@ public class DamageProyectileSpec : GameplayAbilitySpec
         Vector3 direction1 = Quaternion.Euler(0f, angle, 0f) * player.transform.forward;
         Vector3 direction2 = Quaternion.Euler(0f, -angle, 0f) * player.transform.forward;
 
-        CreateProyectile(initialPosition, player.transform.rotation);
-        CreateProyectile(position1, Quaternion.LookRotation(direction1));
-        CreateProyectile(position2, Quaternion.LookRotation(direction2));
+        CreateProjectile(initialPosition, player.transform.rotation);
+        CreateProjectile(position1, Quaternion.LookRotation(direction1));
+        CreateProjectile(position2, Quaternion.LookRotation(direction2));
         VibrationManager.Instance.Vibrate(0.3f, 0.8f, 0.15f);
     }
 
-    private void CreateProyectile(Vector3 position, Quaternion direction)
+    private void CreateProjectile(Vector3 position, Quaternion direction)
     {
-        GameObject projectile = VFXManager.Instance.Play(proyectile, position, direction, player);
+        GameObject spawned = VFXManager.Instance.Play(projectile, position, direction, player);
 
         // The projectile is the player's: whoever guards or parries it has to know who to answer to
         // (see IHasInstigator). Assigned after Play, which is what activates the pooled object.
-        HazardInstigator.Assign(projectile, player);
+        HazardInstigator.Assign(spawned, player);
     }
 
     private IEnumerator SafetyTimeout()
@@ -141,7 +141,7 @@ public class DamageProyectileSpec : GameplayAbilitySpec
 
     public void StartDash()
     {
-        ThrowProyectiles();
+        ThrowProjectiles();
         abilityHolder.StartCoroutine(waitTillEndFrame());
     }
 

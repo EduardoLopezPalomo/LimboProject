@@ -71,7 +71,7 @@ public static class PlayerAbilitiesCache
 }
 
 /// <summary>
-/// PlayerGASPersistance handles persistence of the Gameplay Ability System (GAS) and attributes.
+/// PlayerGASPersistence handles persistence of the Gameplay Ability System (GAS) and attributes.
 /// This component saves and restores:
 /// - Player attributes (strength, agility, etc.)
 /// - Equipped abilities
@@ -79,7 +79,7 @@ public static class PlayerAbilitiesCache
 /// 
 /// Used when saving/loading player progress (scene changes, quit game, etc.)
 /// </summary>
-public class PlayerGASPersistance : MonoBehaviour
+public class PlayerGASPersistence : MonoBehaviour
 {
     private AttributeSystem attributeSystem;
     private AbilityHolder abilityHolder;

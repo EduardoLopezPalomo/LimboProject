@@ -7,7 +7,7 @@ using UnityEngine;
 /// <see cref="DamageResolver.ApplySingle"/>, which owns defender resolution, camera shake, rumble and
 /// the ApplyEffect call for every damage path in the game.
 /// </summary>
-public class LightingDamage : MonoBehaviour, IHasInstigator
+public class LightningDamage : MonoBehaviour, IHasInstigator
 {
     public CameraShakeData CameraShakeData;
 

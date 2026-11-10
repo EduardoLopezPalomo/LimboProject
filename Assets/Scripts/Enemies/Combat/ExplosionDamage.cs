@@ -60,10 +60,10 @@ public class ExplosionDamage : MonoBehaviour, IHasInstigator
 
     private CinemachineImpulseSource impulseSource;
 
-    /// <summary>See <see cref="LightingDamage"/>'s instigator: the character that spawned this hazard, or null.</summary>
+    /// <summary>See <see cref="LightningDamage"/>'s instigator: the character that spawned this hazard, or null.</summary>
     private GameObject instigator;
 
-    /// <summary>See <see cref="LightingDamage"/>'s isUnusable: an undefined ObjectToDamage disables the ticking.</summary>
+    /// <summary>See <see cref="LightningDamage"/>'s isUnusable: an undefined ObjectToDamage disables the ticking.</summary>
     private bool isUnusable = false;
 
     private void Awake()

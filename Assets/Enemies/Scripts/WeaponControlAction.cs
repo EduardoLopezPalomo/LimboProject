@@ -5,8 +5,8 @@ using Action = Unity.Behavior.Action;
 using Unity.Properties;
 
 [Serializable, GeneratePropertyBag]
-[NodeDescription(name: "WeaponControll", story: "Use [WeaponControl] to equp [true]", category: "Action", id: "fc97f6bd04f62d1933a7c06805030092")]
-public partial class WeaponControllAction : Action
+[NodeDescription(name: "WeaponControl", story: "Use [WeaponControl] to equip [true]", category: "Action", id: "fc97f6bd04f62d1933a7c06805030092")]
+public partial class WeaponControlAction : Action
 {
     [SerializeReference] public BlackboardVariable<EnemyWeaponController> WeaponControl;
     [SerializeReference] public BlackboardVariable<bool> True;

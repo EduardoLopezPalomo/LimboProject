@@ -8,7 +8,7 @@ using Unity.Properties;
 [NodeDescription(name: "RequestToken", story: "Request Token from [controller] and write [token]", category: "Action", id: "3e0cc0dde4a03281f8e5aa7e2733026c")]
 public partial class RequestTokenAction : Action
 {
-    [SerializeReference] public BlackboardVariable<EnemiesGroupContoller> Controller;
+    [SerializeReference] public BlackboardVariable<EnemiesGroupController> Controller;
     [SerializeReference] public BlackboardVariable<bool> Token;
 
     protected override Status OnStart()

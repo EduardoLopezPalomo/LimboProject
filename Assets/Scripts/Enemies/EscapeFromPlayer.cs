@@ -6,7 +6,7 @@ public class EscapeFromPlayer : MonoBehaviour
     public float randomAngleRange = 30f;
     [SerializeField] private Transform player;
 
-    public Vector3 GetScapePosition()
+    public Vector3 GetEscapePosition()
     {
         Vector3 direction = (transform.position - player.position).normalized;
         

@@ -249,7 +249,7 @@ public class AbilityAnimationBridge : MonoBehaviour
         }
     }
     /*
-     * Notifies of DamageProyectile
+     * Notifies of DamageProjectile
      *
      */
 
@@ -257,7 +257,7 @@ public class AbilityAnimationBridge : MonoBehaviour
     {
         foreach (var spec in currentSpec.ToList())
         {
-            if (spec is DamageProyectileSpec Spec)
+            if (spec is DamageProjectileSpec Spec)
             {
                 Spec.StartDash();
             }

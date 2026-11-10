@@ -2,17 +2,17 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
-public class SleepProyectileSpec : GameplayAbilitySpec
+public class SleepProjectileSpec : GameplayAbilitySpec
 {
 
-    private GameObject proyectile;
+    private GameObject projectile;
 
     private GameObject player;
 
-    public SleepProyectileSpec(GameplayAbility ability, GameObject owner, GameObject proyectileObject) : base(ability, owner)
+    public SleepProjectileSpec(GameplayAbility ability, GameObject owner, GameObject projectileObject) : base(ability, owner)
     {
         player = owner;
-        proyectile = proyectileObject;
+        projectile = projectileObject;
 
     }
 
@@ -26,7 +26,7 @@ public class SleepProyectileSpec : GameplayAbilitySpec
         base.ActivateAbility();
         Vector3 initialPosition = player.transform.position + new Vector3(0f, 1f, 0f);
         initialPosition += player.transform.forward * 1f;
-        Object obj = Object.Instantiate(proyectile, initialPosition, player.transform.rotation);
+        Object obj = Object.Instantiate(projectile, initialPosition, player.transform.rotation);
         EndAbility();
     }
 

@@ -59,7 +59,7 @@ public class SoundMixerManager : MonoBehaviour
         return audioMixer.GetFloat(MixerNames.musicVolume, out float volume) ? volume : 0f;
     }
     
-    public float GetSFXVVolume()
+    public float GetSFXVolume()
     {
         return audioMixer.GetFloat(MixerNames.sfxVolume, out float volume) ? volume : 0f;
     }

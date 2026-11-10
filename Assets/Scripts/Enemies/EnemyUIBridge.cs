@@ -8,12 +8,12 @@ public class EnemyUIbridge : MonoBehaviour
 
     void OnEnable()
     {
-        EnemiesGroupContoller.OnHideEnemyHud += HideHud;
+        EnemiesGroupController.OnHideEnemyHud += HideHud;
     }
 
     void OnDisable()
     {
-        EnemiesGroupContoller.OnHideEnemyHud -= HideHud;
+        EnemiesGroupController.OnHideEnemyHud -= HideHud;
     }
     
     public void ShowHealth()

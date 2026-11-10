@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ArrowTrayectory : MonoBehaviour
+public class ArrowTrajectory : MonoBehaviour
 {
     [SerializeField] private LineRenderer lineRenderer;
     [SerializeField] private Animator colorAnimator;
@@ -32,11 +32,11 @@ public class ArrowTrayectory : MonoBehaviour
         lineRenderer.positionCount = resolution;
         if (special)
         {
-            colorAnimator.SetTrigger("SpecialShowTrayectory");  
+            colorAnimator.SetTrigger("SpecialShowTrajectory");  
         }
         else
         {
-            colorAnimator.SetTrigger("ShowTrayectory");   
+            colorAnimator.SetTrigger("ShowTrajectory");   
         }
     }
 

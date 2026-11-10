@@ -1,7 +1,7 @@
 using System.Buffers;
 using UnityEngine;
 
-public class MoveSleepProyectile : MonoBehaviour
+public class MoveSleepProjectile : MonoBehaviour
 {
     public float velocity = 8f;
     public float lifeTime = 3f;

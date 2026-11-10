@@ -41,7 +41,7 @@ public class AbilityHolder : MonoBehaviour
                 GameplayAbilitySpec spec = ability.CreateSpec(gameObject);
                 spec.OnAbilityEnded += RemoveFromSpec;
                 specs.Add(ability.Id, spec);
-                ActivePasiveAbilities(spec);
+                ActivatePassiveAbilities(spec);
                 if (ability.equipable && aux <= 2)
                 {
                     EquipAbility(ability, aux);
@@ -83,7 +83,7 @@ public class AbilityHolder : MonoBehaviour
         abilities.Add(ability);
         specs.Add(ability.Id, spec);
 
-        ActivePasiveAbilities(spec);
+        ActivatePassiveAbilities(spec);
     }
     /*It removes the ability in the dictionary*/
     public void RemoveAbility(GameplayAbility ability)
@@ -271,9 +271,9 @@ public class AbilityHolder : MonoBehaviour
         }
     }
 
-    private void ActivePasiveAbilities(GameplayAbilitySpec spec)
+    private void ActivatePassiveAbilities(GameplayAbilitySpec spec)
     {
-        if (spec.ability.isPasive)
+        if (spec.ability.isPassive)
         {
             ActiveSpecs.Add(spec);
         }

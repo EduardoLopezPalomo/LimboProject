@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 /*
  *   Is the father class of gameplay abilities
  *   Its posible to override activate ability and end ability for especific logic 
@@ -15,7 +16,8 @@ public abstract class GameplayAbility : ScriptableObject
     public Sprite icon;
     public float Cooldown;
     public float ActiveTime;
-    public bool isPasive = false;
+    [FormerlySerializedAs("isPasive")]
+    public bool isPassive = false;
     public bool equipable = true;
     public List<GameplayEffect> EffectsToSelf;
     public string Description;

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FirstFocusButotn : MonoBehaviour
+public class FirstFocusButton : MonoBehaviour
 {
     public Button firstButton;
 

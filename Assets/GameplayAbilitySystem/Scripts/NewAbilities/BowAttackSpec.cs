@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using StarterAssets;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -16,7 +16,7 @@ public class BowAttackSpec : GameplayAbilitySpec
     private CharacterSFX characterSFX;
     private GameObject arrow;
     private GameObject SpecialArrow;
-    private ArrowTrayectory arrowPath;
+    private ArrowTrajectory arrowPath;
     private GameplayEffect SpecialEffect;
     private VFXDefinition ChargeArrowVfx;
     
@@ -40,7 +40,7 @@ public class BowAttackSpec : GameplayAbilitySpec
         ChargeArrowVfx = charge;
         this.arrow = arrow;
         SpecialArrow = specialArrow;
-        arrowPath = owner.GetComponentInChildren<ArrowTrayectory>();
+        arrowPath = owner.GetComponentInChildren<ArrowTrajectory>();
         
         SpecialEffect = effect;
         probSpecialAttack = probSpecial;

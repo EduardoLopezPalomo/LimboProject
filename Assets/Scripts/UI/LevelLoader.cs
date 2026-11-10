@@ -44,13 +44,13 @@ public class LevelLoader : MonoBehaviour
     private void SavePlayerGASState()
     {
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        player?.GetComponent<PlayerGASPersistance>()?.SaveState();
+        player?.GetComponent<PlayerGASPersistence>()?.SaveState();
     }
 
     private void RestorePlayerGASState()
     {
         GameObject newPlayer = GameObject.FindGameObjectWithTag("Player");
-        newPlayer?.GetComponent<PlayerGASPersistance>()?.RestoreState();
+        newPlayer?.GetComponent<PlayerGASPersistence>()?.RestoreState();
     }
 
     private void TeleportPlayer(Vector3 point, Quaternion rotation)

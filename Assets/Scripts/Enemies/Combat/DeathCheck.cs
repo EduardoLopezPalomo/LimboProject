@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DeathCheck : MonoBehaviour
 {
-    [SerializeField]private EnemiesGroupContoller controller;
+    [SerializeField]private EnemiesGroupController controller;
     private bool IsDeath = false;
 
     public void SetIsDeath(bool value)

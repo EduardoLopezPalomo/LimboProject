@@ -3,7 +3,7 @@ using System;
 using Unity.Behavior;
 using UnityEngine;
 
-public class EnemiesGroupContoller : MonoBehaviour
+public class EnemiesGroupController : MonoBehaviour
 {
     public static event Action<List<GameObject>> OnHideEnemyHud;
     public static event Action<bool> OnBattleStateChanged;

@@ -14,7 +14,7 @@ public class AudioData
     {
         masterVolume = soundMixerManager.GetMasterVolume();
         musicVolume = soundMixerManager.GetMusicVolume();
-        sfxVolume = soundMixerManager.GetSFXVVolume();
+        sfxVolume = soundMixerManager.GetSFXVolume();
         ambienceVolume = soundMixerManager.GetAmbienceVolume();
     }
 }

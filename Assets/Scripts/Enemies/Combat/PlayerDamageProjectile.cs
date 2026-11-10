@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Behavior;
 
 /// <summary>
-/// Damage of the thrown projectile (the ProyectileThrown VFXDefinition, spawned by DamageProyectileSpec
+/// Damage of the thrown projectile (the ProyectileThrown VFXDefinition, spawned by DamageProjectileSpec
 /// through the pooled VFXManager).
 ///
 /// The class only decides *which* effect this contact is worth. The hit itself is executed by
@@ -15,7 +15,7 @@ using Unity.Behavior;
 /// that carries a DefenseState instead (a player-guard style defender, if the prefab is ever reused the
 /// other way round) is evaluated through the shared guard API so blocking and perfect parrying work too.
 /// </summary>
-public class PlayerDamageProyectile : MonoBehaviour, IHasInstigator
+public class PlayerDamageProjectile : MonoBehaviour, IHasInstigator
 {
     [SerializeField] private GameplayEffect DamageEffect;
     [SerializeField] private GameplayEffect BlockedEffect;

@@ -8,7 +8,7 @@ using Unity.Properties;
 [NodeDescription(name: "NotifyEndBattle", story: "[GroupController] is notify that is calm", category: "Action", id: "2df2a095e6074a5a921e06d95b3fccea")]
 public partial class NotifyEndBattleAction : Action
 {
-    [SerializeReference] public BlackboardVariable<EnemiesGroupContoller> GroupController;
+    [SerializeReference] public BlackboardVariable<EnemiesGroupController> GroupController;
 
     protected override Status OnStart()
     {

@@ -24,7 +24,7 @@ public interface IHasInstigator
 
 /// <summary>
 /// One-line way for spawners to hand their GameObject to every damage component of what they just
-/// created, without knowing which of them (LightingDamage, ExplosionDamage, ...) the prefab carries.
+/// created, without knowing which of them (LightningDamage, ExplosionDamage, ...) the prefab carries.
 /// </summary>
 public static class HazardInstigator
 {
