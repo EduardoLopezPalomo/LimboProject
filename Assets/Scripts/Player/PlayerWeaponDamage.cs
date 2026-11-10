@@ -102,8 +102,6 @@ public class PlayerWeaponDamage : MonoBehaviour
     /// </summary>
     public float counterAttackChance = 0.5f;
 
-    private GameplayEffectManager effectManager;
-    private AttributeSystem attributeSystem;
     
     private BoxCollider weaponCollider;
     private int ComboNumber = 0;
@@ -132,6 +130,13 @@ public class PlayerWeaponDamage : MonoBehaviour
     };
     
     private bool isActive = false;
+
+    /// <summary>
+    /// True when this weapon could not be wired to the player at Awake time (no owner assigned and
+    /// nothing usable above it) or when the EnemyLayer is missing. Sweeping is then refused instead
+    /// of throwing from the middle of a swing.
+    /// </summary>
+    private bool isUnusable = false;
     private HashSet<Collider> alreadyHit = new HashSet<Collider>();
 
     private Vector3 lastCenter;
@@ -143,21 +148,72 @@ public class PlayerWeaponDamage : MonoBehaviour
         impulseSource = GetComponent<CinemachineImpulseSource>();
         weaponCollider = GetComponent<BoxCollider>();
         parentConstraint = GetComponent<ParentConstraint>();
-        enemyLayerMask = 1 << LayerMask.NameToLayer("EnemyLayer");
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
 
-        effectManager = owner.GetComponent<GameplayEffectManager>();
-        attributeSystem = owner.GetComponent<AttributeSystem>();
+        int enemyLayer = LayerMask.NameToLayer("EnemyLayer");
+        if (enemyLayer < 0)
+        {
+            Debug.LogError(DamageResolver.Label(gameObject) + " The 'EnemyLayer' layer does not exist in " +
+                "Project Settings, so the sweep cannot filter anything. The weapon is DISABLED.");
+            isUnusable = true;
+            return;
+        }
+        enemyLayerMask = 1 << enemyLayer;
+
+        if (owner == null)
+        {
+            owner = FindOwnerInParents();
+        }
+
+        if (owner == null)
+        {
+            Debug.LogError(DamageResolver.Label(gameObject) + " 'owner' is not assigned and no parent " +
+                "carries both a GameplayEffectManager and an AttributeSystem. The weapon is DISABLED " +
+                "until the owner reference is set.");
+            isUnusable = true;
+            return;
+        }
+
+        GameplayEffectManager ownEffects = owner.GetComponent<GameplayEffectManager>();
+        AttributeSystem ownAttributes = owner.GetComponent<AttributeSystem>();
+
+        if (ownEffects == null || ownAttributes == null)
+        {
+            Debug.LogError(DamageResolver.Label(gameObject) + $" Owner '{owner.name}' is missing required " +
+                $"components. GameplayEffectManager={(ownEffects != null)}, " +
+                $"AttributeSystem={(ownAttributes != null)}. The weapon is DISABLED.");
+            isUnusable = true;
+            return;
+        }
 
         foreach (var entry in cameraShakes)
         {
             cameraShakeDict[entry.State] = entry.Data;
         }
     }
+
+    /// <summary>
+    /// Recovers a missing owner reference by walking up the hierarchy for the GameObject that owns
+    /// both halves of the GameplayAbility system - the object the weapon prefab is supposed to point
+    /// at. Still warns, so the asset itself gets repaired instead of relying on this.
+    /// </summary>
+    private GameObject FindOwnerInParents()
+    {
+        GameplayEffectManager effects = GetComponentInParent<GameplayEffectManager>();
+        AttributeSystem attributes = GetComponentInParent<AttributeSystem>();
+
+        if (effects == null || attributes == null || effects.gameObject != attributes.gameObject) return null;
+
+        Debug.LogWarning(DamageResolver.Label(gameObject) + $" 'owner' was not assigned; recovered " +
+            $"'{effects.gameObject.name}' from the parent hierarchy. Assign it on the prefab to " +
+            "remove this warning.");
+        return effects.gameObject;
+    }
+
     
     void FixedUpdate()
     {
-        if (!isActive) return;
+                if (!isActive || isUnusable) return;
 
         Vector3 currentCenter = weaponCollider.transform.TransformPoint(weaponCollider.center);
         Quaternion currentRotation = weaponCollider.transform.rotation;
@@ -201,26 +257,20 @@ public class PlayerWeaponDamage : MonoBehaviour
     private void DamageEnemy(Collider other)
     {
         BehaviorGraphAgent agent = other.gameObject.GetComponentInParent<BehaviorGraphAgent>();
-        agent.BlackboardReference.GetVariableValue("AttackingState", out AttackingState state);
         RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponentInParent<RotateAlongPlayer>();
 
-        // Check for counter-attack opportunity
-        if (state == AttackingState.Defend && rotateAlongPlayer.isBlocking && UnityEngine.Random.Range(0f, 1f) < counterAttackChance)
+        // An enemy without its AI wiring used to throw here, which also aborted the sweep for every
+        // remaining enemy in the same step. It can still be damaged, it just cannot offer a counter.
+        if (agent != null && rotateAlongPlayer != null && CanCounter(rotateAlongPlayer, agent))
         {
-            EnemyCounter.Invoke();
-            agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
-            DamageResolver.PlayShake(GetShake(CameraShakeState.gotBlocked), impulseSource);
-
-            CharacterVFX vfx = other.gameObject.GetComponentInParent<CharacterVFX>();
-            CharacterSFX sfx = other.gameObject.GetComponentInParent<CharacterSFX>();
-            if (vfx != null && sfx != null)
-            {
-                vfx.SpawnVFX(VFXType.Counter);
-                sfx.SpawnSFX(SFXType.Counter);
-            }
-            effectManager.ApplyEffect(CounterEffect, attributeSystem);
-            DamageResolver.PlayRumble(CounterRumble);
+            Counter(other, agent);
             return;
+        }
+        else if (agent == null || rotateAlongPlayer == null)
+        {
+            Debug.LogWarning(DamageResolver.Label(owner) + $" '{other.gameObject.name}' was hit without its " +
+                $"AI wiring (BehaviorGraphAgent={(agent != null)}, " +
+                $"RotateAlongPlayer={(rotateAlongPlayer != null)}). The counter check is skipped.");
         }
 
         // Check for invincibility
@@ -240,6 +290,49 @@ public class PlayerWeaponDamage : MonoBehaviour
             Shake = GetShake(ComboNumber),
             ImpulseSource = impulseSource,
             Haptics = HitRumble
+        });
+    }
+
+    /// <summary>
+    /// True when this enemy is guarding and the roll says the attack gets countered. The blackboard
+    /// lookup result is honoured: a missing AttackingState variable no longer reads as a real state.
+    /// </summary>
+    private bool CanCounter(RotateAlongPlayer rotateAlongPlayer, BehaviorGraphAgent agent)
+    {
+        if (!rotateAlongPlayer.isBlocking) return false;
+        if (agent.BlackboardReference == null) return false;
+
+        AttackingState state = default(AttackingState);
+        if (!agent.BlackboardReference.GetVariableValue("AttackingState", out state)) return false;
+
+        return state == AttackingState.Defend && UnityEngine.Random.Range(0f, 1f) < counterAttackChance;
+    }
+
+    /// <summary>
+    /// The enemy caught the player mid-swing: tell the AI, hand the player its counter effect and
+    /// play the counter feedback through the shared resolver.
+    /// </summary>
+    private void Counter(Collider other, BehaviorGraphAgent agent)
+    {
+        EnemyCounter.Invoke();
+        agent.BlackboardReference.SetVariableValue("AttackingState", AttackingState.CounterAttack);
+        DamageResolver.PlayShake(GetShake(CameraShakeState.gotBlocked), impulseSource);
+
+        CharacterVFX vfx = other.gameObject.GetComponentInParent<CharacterVFX>();
+        CharacterSFX sfx = other.gameObject.GetComponentInParent<CharacterSFX>();
+        if (vfx != null && sfx != null)
+        {
+            vfx.SpawnVFX(VFXType.Counter);
+            sfx.SpawnSFX(SFXType.Counter);
+        }
+
+        // The counter debuff lands on the attacking player, so the resolver is pointed at the owner.
+        DamageResolver.ApplySingle(new DamageResolver.SingleHit
+        {
+            Attacker = owner,
+            Target = owner,
+            Effect = CounterEffect,
+            Haptics = CounterRumble
         });
     }
 

@@ -13,6 +13,13 @@ public class WeaponController : MonoBehaviour
 
     protected virtual void Awake()
     {
+        if (weapon == null)
+        {
+            Debug.LogError($"[WeaponController:{name}] 'weapon' is not assigned. Equipping and " +
+                "collision toggles will be refused until it is set on the prefab.");
+            return;
+        }
+
         weaponCollider = weapon.GetComponent<BoxCollider>();
         sphereCollider = weapon.GetComponent<SphereCollider>();
     }
@@ -47,6 +54,19 @@ public class WeaponController : MonoBehaviour
     {
         if (equipped) return;
 
+        if (weapon == null)
+        {
+            Debug.LogError($"[WeaponController:{name}] EquipWeapon was called with no weapon assigned.");
+            return;
+        }
+
+        if (RightHandSlot == null)
+        {
+            Debug.LogError($"[WeaponController:{name}] 'RightHandSlot' is not assigned, so " +
+                $"'{weapon.name}' cannot be equipped.");
+            return;
+        }
+
         equipped = true;
         weapon.transform.SetParent(RightHandSlot.transform);
         weapon.transform.localPosition = Vector3.zero;
@@ -56,6 +76,19 @@ public class WeaponController : MonoBehaviour
     public virtual void UnequipWeapon()
     {
         if (!equipped) return;
+
+        if (weapon == null)
+        {
+            Debug.LogError($"[WeaponController:{name}] UnequipWeapon was called with no weapon assigned.");
+            return;
+        }
+
+        if (HipSlot == null)
+        {
+            Debug.LogError($"[WeaponController:{name}] 'HipSlot' is not assigned, so " +
+                $"'{weapon.name}' cannot be holstered.");
+            return;
+        }
 
         equipped = false;
         DisableCollision();

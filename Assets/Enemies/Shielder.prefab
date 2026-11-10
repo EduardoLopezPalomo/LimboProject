@@ -1564,6 +1564,7 @@ MonoBehaviour:
   Speed: 150
   player: {fileID: 0}
   hasPlayerRotate: 0
+  IsShooting: 0
 --- !u!114 &5655987160920270496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1591,6 +1592,7 @@ MonoBehaviour:
   HipSlot: {fileID: 2479402438971486193}
   RightHandSlot: {fileID: 4297782984481322938}
   weapon: {fileID: 596298262240192635}
+  WeaponDamage: {fileID: 0}
 --- !u!114 &6375694686120058918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1606,6 +1608,7 @@ MonoBehaviour:
   HipSlot: {fileID: 1324312917596812408}
   RightHandSlot: {fileID: 5491618724696515589}
   weapon: {fileID: 7795392909464289201}
+  WeaponDamage: {fileID: 0}
 --- !u!114 &7479449777399800649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1631,8 +1634,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
   player: {fileID: 0}
-  rotationSpeedALongPlayer: 10
+  rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
+  speed: 1.5
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
 --- !u!114 &6794550173913149181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1647,6 +1656,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
   cooldownTimeMin: 3
   cooldownTimeMax: 6
+  controller: {fileID: 0}
 --- !u!114 &-2779277033343087984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3155,6 +3165,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4199162523376871148, guid: 212ff90a34dee23449e8d98b86424e51, type: 3}
+      propertyPath: owner
+      value: 
+      objectReference: {fileID: 4416926081852918481}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

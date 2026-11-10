@@ -6,8 +6,121 @@
 > (P1.1) — centralized ability-name registry `AbilityIds.cs` + loud uniqueness validation in
 > `AbilityHolder.Awake` (kills the silent-rename footgun); and Milestone C (P1.2) — both weapon
 > damage classes now delegate the hit pipeline to the new shared `Assets/Scripts/Combat/
-> DamageResolver.cs`. Execution status also tracked in `MEMORY.md`. **Do not commit** (see
-> `AGENTS.md`).
+> DamageResolver.cs`. **P1.2 is finished 11/8/2026**: the two hazard classes
+> (`Enemies/Combat/LightingDamage.cs`, `Enemies/Combat/ExplosionDamage.cs`) and the player's own
+> `Enemies/Combat/PlayerDamageProyectile.cs` now route every hit through the resolver too, so there is no
+> raw `ApplyEffect`/`CameraShakeManager` damage path left in combat code. Execution status also tracked in
+> `MEMORY.md`. **Do not commit** (see `AGENTS.md`).
+
+## 0. HANDOFF — 11/8/2026 combat-hardening pass (read before touching combat code)
+
+**Verified state (updated 11/8/2026, hazards pass):** compiles with **0 errors**;
+`AbilityReferenceValidator.Validate()` = **0 problems / 5 warnings** (the 5 pre-existing
+duplicate-ability-Name notices). Nothing is committed. **All four damage sources now go through
+`DamageResolver.ApplySingle`/`ApplyHit`**: player weapon, enemy weapon, `LightingDamage` (single-hit
+hazards), `ExplosionDamage` (DoT hazards) and `PlayerDamageProyectile` (the player's own projectile).
+Grep proof: `CameraShakeManager.` no longer appears anywhere in `Assets/Scripts` except
+`Combat/DamageResolver.cs` and `Camera/RegisterListener.cs`; `.ApplyEffect(` survives only in
+`SaveData/GameLoader.cs:111` (save restore, not combat); `VibrationManager.` only in Settings/UI/SaveData.
+`SoundFXManager.` remains in the non-combat audio long tail (`CharacterSFX`, `DialogueUI`, `PlayerHealth`,
+`NotificationUI`, UI button sounds) — out of scope, deliberately left.
+
+**Landmines that are easy to get wrong:**
+- **`MakeInvincible` is NOT player-only.** `DashSpec` + `DamageProyectileSpec` (player) **and
+  `ArcherDashSpec` (the archer's dodge i-frames)**, plus `KnockBack`, all write it through
+  `owner.GetComponent<MakeInvincible>()`. Every one of them can leak the flag when its coroutine is
+  killed by a disable; `MakeInvincible.OnEnable`/`OnDisable` now self-clears so it cannot stick. The
+  matching **input lock** (`personcontroller.SetInputAviable(false)`, restored in `EndDash()`) is
+  still leaky — open item, belongs to `PersonController` / the ability layer.
+- **Hit-consumption order**: test invincibility **before** setting any per-swing flag
+  (`AlreadyHitPlayer` / `HasHitPlayer`), otherwise an i-frame touch silently burns the whole attack.
+- **No duplicate-file trap** (corrected 11/8): `ExplosionDamage` / `LightingDamage` exist **once** each,
+  and both are the live combat files under `Assets/Scripts/Enemies/Combat/`. An earlier version of this
+  note told agents to avoid phantom "VFX-only" copies — see §"Duplicate script names: FALSE ALARM".
+- **`CompareTag` throws a Unity error when the tag does not exist in Project Settings**, which aborted
+  `OnTriggerEnter` before any damage — the hazard looked alive and never hit anything. Both hazard classes
+  and `PlayerDamageProyectile` now validate `ObjectToDamage` once in `Awake` via
+  `DamageResolver.TagExists(tag, comp)` (built-in tags such as `Player` count; `Enemy` **is** defined in
+  this project's `TagManager`) and disable themselves with one clear `LogError` instead of throwing.
+- **Prefab components are bound by script GUID, not class name.** `LightingDamage.cs` is the renamed
+  `FireBallDamage.cs` (same `.meta` guid `af39d1…`, and the prefabs still print the stale
+  `m_EditorClassIdentifier: Assembly-CSharp::FireBallDamage`), which is why those prefabs kept working:
+  the field names (`DamageEffect`, `BlockedEffect`, `ObjectToDamage`, `def`, `CameraShakeData`) were never
+  renamed. A rename that keeps the `.meta` but drops/renames serialized fields silently zeroes the data —
+  `Assets/Prefabs/Combat/DamageProyectile.prefab` is exactly that corpse (stale `MoveDamageProyectile`
+  fields). Read the prefab YAML (grep the script guid, read the block under `m_Script:`) before trusting
+  that a field is assigned.
+- **`Assets/Enemies/Barbarian.prefab` is obsolete** (user decision, leave the asset alone). Its
+  `weapon` carries `PlayerWeaponDamage`, so `WeaponDamage == null` there; the code tolerates that shape.
+- Only **2 genuinely broken prefab owners** ever existed (`Shield_masc2`, `Shielder`) and both are
+  fixed; the 6 weapon templates in `Assets/Weapon/` are `owner = null` **by design**.
+
+**The instigator contract (new, 11/8/2026):** `Assets/Scripts/Combat/IHasInstigator.cs` defines
+`IHasInstigator.SetInstigator(GameObject)` + the static helper `HazardInstigator.Assign(root, instigator)`
+(which walks `GetComponentsInChildren<IHasInstigator>(true)` and is null-safe on both arguments).
+Hazards answer a `PerfectParry` by punishing **whoever spawned them**, so a spawner must call
+`Assign` **after** the object is activated — `VFXManager.Play(...)` returns the activated GameObject and
+pooled VFX are re-`SetActive(true)`-ed, and every hazard clears `instigator = null` in `OnEnable`, so
+assigning before activation would be wiped. Call sites today: `CharacterVFX.SpawnVFX` +
+`CharacterVFX` random-VFX overload (owner of the component = instigator) and
+`DamageProyectileSpec.CreateProyectile` (player = instigator of its arrow). Anything placed in a scene or
+instantiated without a call simply has no instigator: the parry then rewards nobody, silently, which is a
+valid authoring choice for environmental fire, not an error.
+
+**Behaviour decisions taken in this pass** (all three are feel changes, see `MEMORY.md` §"Hazards pass"
+for the reasoning): a `PerfectParry` on any hazard now applies the **optional** `ParryEffect` to the
+instigator and `LogWarning`s when the field is unassigned; an `ExplosionDamage` tick that lands during
+i-frames is **skipped but not consumed** (`tickTimer` is no longer reset before the invincibility return,
+so the tick retries the frame the roll ends); hazards now rumble (`DamageRumble` 0.6/0.6/0.2s,
+`BlockedRumble` 0.2/0.4/0.15s, identical to the player weapon path); audio moved behind
+`DamageResolver.PlaySound(def, transform)` which null-guards both `def` and `SoundFXManager.instance`.
+`ExplosionDamage.FirstTickOffset` (default 1.8) is the old hardcoded `tickTimer = 1.8f` exposed in the
+inspector — nothing rebalanced, but it is now a tunable field.
+
+**Prefab/content audit (verified 11/8/2026 by reading the YAML, `ObjectToDamage` = `Player` on every
+hazard, `Enemy` on the player projectile — both tags exist in `TagManager`):**
+- Configured and fine: `Assets/Prefabs/Combat/ArrowPrefab` (used by `BowAttack.asset`),
+  `SpecialArrowPrefab`, `Assets/VFX/AA_VFX/Prefabs/{GroundExplosion,IceFrontAttack,LightingStrike,
+  LightingStrikeBoss,Flame_ground,laserHit,DamageProyectile}` (the last one used by
+  `VFXDefinition Player/ProyectileThrown`).
+- **`Assets/Prefabs/Combat/ExplosionPrefab.prefab`** (nested in `Combat/Fireball.prefab`) has
+  `DamageEffect` + `ObjectToDamage` but **no `BlockedEffect` and no `def`** → blocking a fireball
+  explosion logs "blocked with no BlockedEffect" and applies nothing, and the hazard is silent. Content
+  fix for the designers, the code tolerates it.
+- **`Assets/Prefabs/Combat/DamageProyectile.prefab` is an orphan**: nothing references it, and its
+  `PlayerDamageProyectile` component still carries the data of the long-deleted `MoveDamageProyectile`
+  class (`velocity`, `lifeTime`, `damage`) — so `ObjectToDamage` is empty and the resolver's
+  `TagExists` check would disable it with a loud log if anyone ever instantiated it. Safe to delete.
+- **No prefab has `ParryEffect` assigned yet** (the field is new), so parrying a hazard currently rewards
+  nothing and logs one warning per parry until the designers assign a stun effect.
+
+**Still on the backlog:** assign `ParryEffect` on the hazard prefabs (needs the stun/punish effect the
+designers want, same intent as `EnemyWeaponDamage`'s parry-stun); rumble parity for the *enemy weapon*
+path (`EnemyWeaponDamage` still leaves `Haptics` unset while hazards and the player weapon now rumble);
+the interrupted dash/throw **input lock** (`personcontroller.SetInputAviable(false)` restored only in
+`EndDash()`); armour/mitigation on weapon hits; the P2/P3 tail of `SYSTEMS_REVIEW_PLAN.md`.
+
+**Unity MCP tool gotchas:** `script_apply_edits` anchors are **regex** (escape `(`, `)`, `[`); a
+multi-edit call rejected for `overlap` can still **delete** a line it had matched — always re-read after
+a failure; several combat `.cs` files mix CRLF/LF, so exact multi-line replacement fails; the console
+**clears on domain reload** — re-run the validator by reflection instead of trusting an empty console;
+`execute_code` compiles as **C#6 / CodeDom** (no local functions, no target-typed `new()`);
+`AbilityReferenceValidator.Validate()` **returns problems + warnings summed** (returns `5` on the clean
+baseline — read the log summary line, not the number); the bridge can exceed the client's **60s MCP
+timeout** during a forced refresh (probe with `manage_editor` `telemetry_ping`, then retry); and the
+editor tool needs **exact single-backslash paths** — a doubled segment wrote the edit to the right file
+*and* created a stray copy outside the project, reporting "File created" with no diff.
+`Unity__execute_code` runs the snippet as a **method body**, so `using` directives are a compile error —
+fully-qualify everything (`System.Text.StringBuilder`, `System.Reflection.BindingFlags`, …). In
+`run_commands`, **each array element is a separate PowerShell invocation**: variables do not survive from
+one element to the next and a bare header line (`--- foo ---`) is parsed as a command and throws — put the
+whole script in a single element joined with `;`. `search_codebase` timed out (30s) on broad patterns in
+this repo; `Get-ChildItem -Recurse | Select-String` is reliable instead, and the cleanest way to read a
+script GUID is `if ((Get-Content $meta -Raw) -match 'guid: ([0-9a-f]{32})') { $Matches[1] }`.
+
+---
+
+
 
 ## TABLE OF CONTENTS
 1. [Overview](#1-overview)
@@ -980,4 +1093,103 @@ means settings were never saved on this machine (`PlayerSettings` has
 Changing any option in the settings menu creates the file and the warnings stop. Unrelated to the
 ability-registry work. If it ever needs silencing, do it once inside `LoadSettingsData()` (log-once
 / first-run message) rather than muting the four callers.
+
+
+## Running the ability validator headlessly (11/8/2026)
+
+The validator has a menu item (`Tools/Ciro/Validate Ability References`) **and** a public
+`AbilityReferenceValidator.Validate()` (`Assets/GameplayAbilitySystem/Scripts/Editor/AbilityReferenceValidator.cs:105`)
+that can be called straight from an MCP `execute_code` block. It returns `issues + warnings` and logs one
+`LogError` per problem, one `LogWarning` per warning, then a one-line scope summary — so read the console
+afterwards to get the numbers. It is read-only, safe to call repeatedly, and takes ~1.3 s for the whole
+project (30 ability assets, 24 registry names, 8 attack definitions, 12 behavior graphs, 428
+prefab/scene files). Baseline on 11/8/2026: **0 problems, 5 warnings** (the duplicate-`Name` groups).
+
+Three editor-script gotchas hit while doing this:
+
+* **The class is in the global namespace** — `AbilityReferenceValidator`, `AbilityIds` and
+  `DamageResolver` all have **no** `namespace` declaration (confirmed: zero files declare
+  `namespace GameplayAbilitySystem*`). So `GameplayAbilitySystem.Editor.AbilityReferenceValidator…` does
+  not compile, and reflection by full name (`Type.GetType("GameplayAbilitySystem.Editor.AbilityReferenceValidator,
+  Assembly-CSharp-Editor")`) returns null. Reference it bare, or find it by enumerating
+  `AppDomain.CurrentDomain.GetAssemblies()` and matching `Type.Name`.
+* MCP `execute_code` compiles with **CodeDom = C# 6** in this project: no local functions
+  (`static IEnumerable<string> Helper() { … }` inside the method body fails to compile), no target-typed
+  `new()`. Use `var list = …; list.Sort();` instead of LINQ helpers, and `sb.ToString()` explicitly.
+* `AssetDatabase.*` wants the path exactly as `AssetDatabase.GUIDToAssetPath` produced it. Building an
+  absolute path (or mixing `\` and `/`) logs `Invalid AssetDatabase path: C:/…/Assets\\Weapon\\X.prefab`
+  per call — that message is easy to mistake for a validator bug, but the validator itself never emits it.
+
+What it actually checks (its own header comment is the authority): `AttackDefinition.ability`, the
+`Ability` string fields of behavior graphs used by `ActivateAbilityAction` / `CancelAbilityAction` /
+`WaitForAbilityEndAction`, UnityEvent string arguments bound to `AbilityHolder.ActivateAbility` /
+`CancelAbility`, "every ability asset `Name` exists in `AbilityIds`" and "every `AbilityIds` const is still
+referenced". It skips `Assets/DownloadPackages/`, `Assets/Synty/` and `Assets/_Recovery/` (there is **no**
+`.codegen/` exclusion — that was an earlier wrong note). Current scope line: *30 ability assets, 24 registry
+names, 8 attack definitions, 12 graphs (34 `Ability` fields), 428 prefab/scene files (4 UnityEvent
+bindings)*.
+
+**Not checked today:** the duplicate-`Name` warning says sharing an Id "is fine as long as each one sits in
+a different `AbilityHolder`", but the validator never opens a holder to confirm it. Adding that check is a
+small, high-value extension (load holders from prefabs, group their `abilities` list by `Name`) — it is the
+only way the 5 current warnings can ever be *proven* safe instead of assumed safe.
+
+## Duplicate script names that are easy to migrate by mistake (11/8/2026)
+
+**FALSE ALARM — corrected 11/8/2026.** An earlier version of this note claimed `ExplosionDamage` and
+`LightingDamage` each existed **twice**, with VFX-only copies at `Assets/Scripts/Enemies/ExplosionDamage.cs`
+and `Assets/Scripts/Lightning/LightingDamage.cs`. **Those files do not exist and never did**: `Test-Path`
+returns False, `git ls-files` lists only the two under `Enemies/Combat/`, and
+`git log --diff-filter=D -- '*ExplosionDamage.cs' '*LightingDamage.cs'` is empty. There is exactly one
+`class ExplosionDamage` and one `class LightingDamage` in the project (both global namespace), and **both
+are live combat code**:
+
+| File | What it is |
+|---|---|
+| `Assets/Scripts/Enemies/Combat/ExplosionDamage.cs` | AoE damage-over-time tick — `DamageEffect` / `BlockedEffect`, still on the pre-`DamageResolver` pipeline |
+| `Assets/Scripts/Enemies/Combat/LightingDamage.cs` | Instant lightning hit — same pre-resolver pipeline |
+
+The confusion almost certainly came from same-named **assets, not scripts**: the GameplayEffects
+`Assets/GameplayAbilitySystem/Assets/Effects/Mage/ExplosionDamage.asset`,
+`.../ExplosionBlockedResistance.asset`, `.../LightingDamage.asset`, plus the VFX prefabs
+`Assets/VFX/AA_VFX/Prefabs/LightingStrike.prefab` / `LightingStrikeBoss.prefab` and
+`Assets/VFX/AA_VFX/ScriptableObjects/Enemies/{LightingStrike,LightingBossStrike}.asset`. Touching those is
+a content change, not a code change.
+
+The habit is still worth keeping: before editing a combat script with a generic-sounding name, run
+`Get-ChildItem -LiteralPath Assets -Recurse -Include '*.cs' | Where-Object { $_.Name -eq '<name>.cs' }`
+and count the hits instead of trusting a remembered "there is a second copy somewhere".
+
+
+## Auditing serialized references inside nested weapon prefabs (11/8/2026)
+
+`PlayerWeaponDamage.owner` / `EnemyWeaponDamage.owner` (`public GameObject owner`) point **up** at the
+character that owns the weapon. Two traps when auditing them from an editor script:
+
+1. `PrefabUtility.LoadPrefabContents(path)` + `SerializedObject.FindProperty("owner")` reads the
+   **prefab's own** value. A weapon nested inside a character prefab gets its `owner` from the
+   *parent*, so this always reads null and produces ~19 false alarms. It also reports `active=false`
+   for weapons that are enabled by the parent.
+2. `AssetDatabase.LoadAssetAtPath` needs a **project-relative** path (`Assets/Weapon/Dagger.prefab`);
+   an absolute path silently returns null ("Requested asset not found").
+
+Correct approach — instantiate the character prefab and read the instance (this is what the runtime
+sees, parent overrides included):
+
+```csharp
+var go = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab);   // off-screen, then DestroyImmediate
+foreach (var d in go.GetComponentsInChildren<EnemyWeaponDamage>(true))
+    Debug.Log(d.gameObject.name + " owner=" + (d.owner == null ? "NULL" : d.owner.name)
+              + " activeInHierarchy=" + d.gameObject.activeInHierarchy);
+```
+
+**Hazard to remember**: `Awake` in both scripts does `owner.GetComponent<GameplayEffectManager>()`
+with no null check (`EnemyWeaponDamage.cs:37-38`, `PlayerWeaponDamage.cs:149-150`). A weapon whose
+`owner` is null **and** whose GameObject is active in the hierarchy therefore throws an NRE the moment
+the character spawns, and leaves the parry path (`GetParried`) broken afterwards. Weapons left
+**disabled** in the prefab (the usual swap-in placeholder on Barbarian/Brute/Magician/`Shielder AI`)
+are harmless — `Awake` never runs. So when you see `owner=NULL`, check `activeInHierarchy`: only
+active+null throws. As of 11/8/2026 three content prefabs are active+null (`Enemies/Shielder`,
+`Characters/Humans/Enemies/Shields/Shield_masc2/Shield_masc2`, and a stray `Dagger` carrying
+`PlayerWeaponDamage` under `Enemies/Barbarian`) — see the 11/8/2026 section of MEMORY.md.
 

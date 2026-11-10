@@ -106,7 +106,11 @@ public class DamageProyectileSpec : GameplayAbilitySpec
 
     private void CreateProyectile(Vector3 position, Quaternion direction)
     {
-        VFXManager.Instance.Play(proyectile, position, direction, player);
+        GameObject projectile = VFXManager.Instance.Play(proyectile, position, direction, player);
+
+        // The projectile is the player's: whoever guards or parries it has to know who to answer to
+        // (see IHasInstigator). Assigned after Play, which is what activates the pooled object.
+        HazardInstigator.Assign(projectile, player);
     }
 
     private IEnumerator SafetyTimeout()

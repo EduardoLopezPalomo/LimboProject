@@ -13,7 +13,12 @@ public class CharacterVFX : MonoBehaviour
             if (def.type == vfxType)
             {
                 
-                VFXManager.Instance.Play(def,vfxSpawnPoint.position, vfxSpawnPoint.rotation, gameObject);
+                GameObject vfx = VFXManager.Instance.Play(def,vfxSpawnPoint.position, vfxSpawnPoint.rotation, gameObject);
+
+                // This component sits on the character, so the character is whoever caused the effect.
+                // Done after Play because Play is what activates the object, and a pooled hazard clears
+                // its instigator when it is switched off (see IHasInstigator).
+                HazardInstigator.Assign(vfx, gameObject);
             }
         }
     }
@@ -28,7 +33,10 @@ public class CharacterVFX : MonoBehaviour
         VFXDefinition randomDef = filteredDefs[randomIndex];
         
         GameObject instance = VFXManager.Instance.Play(randomDef,vfxSpawnPoint.position , vfxSpawnPoint.rotation, gameObject);
-            
+
+        // See SpawnVFX: the character that owns this component is the instigator of what it just spawned.
+        HazardInstigator.Assign(instance, gameObject);
+
         return (randomDef, instance);
     }
 

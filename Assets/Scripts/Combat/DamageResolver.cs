@@ -241,6 +241,51 @@ public static class DamageResolver
     }
 
     /// <summary>
+    /// Plays the sound half of a hit / hazard cue. Safe to call with no manager.
+    ///
+    /// A null definition is a legitimate choice made per prefab ("this variant is silent"), so it is
+    /// ignored. A missing <see cref="SoundFXManager.instance"/> is a scene problem: the hazard scripts
+    /// used to call it unguarded from OnEnable, which is one missing manager away from killing the
+    /// activation of every pooled VFX that has a sound assigned.
+    /// </summary>
+    public static void PlaySound(SFXDefinition def, Transform source)
+    {
+        if (def == null) return;
+
+        if (SoundFXManager.instance == null)
+        {
+            Debug.LogError(Label(null) + $" SoundFXManager.instance is missing from the scene; the sound '{def.name}' was skipped.");
+            return;
+        }
+
+        SoundFXManager.instance.PlaySoundRandomPitch(def.sfx, source, def.volume, def.minPitch, def.maxPitch);
+    }
+
+    /// <summary>
+    /// True when <paramref name="tag"/> is a tag name Unity actually knows (a built-in one such as
+    /// "Player", or one listed in Project Settings &gt; Tags and Layers).
+    ///
+    /// There is no API that lists the defined tags, so this asks Unity to compare the name once and
+    /// treats the <see cref="UnityException"/> it throws for an undefined name as the answer. Doing it
+    /// in Awake means a typo is reported a single time on the asset that owns it: left alone, the same
+    /// typo throws from inside every OnTriggerEnter of every hazard that shares the prefab.
+    /// </summary>
+    public static bool TagExists(string tag, MonoBehaviour probe)
+    {
+        if (string.IsNullOrEmpty(tag) || probe == null) return false;
+
+        try
+        {
+            probe.gameObject.CompareTag(tag);
+            return true;
+        }
+        catch (UnityException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Applies an already validated hit to an already resolved defender: feedback first, then
     /// <see cref="GameplayEffectManager.ApplyEffect"/>.
     /// </summary>
@@ -273,5 +318,70 @@ public static class DamageResolver
         }
 
         return ApplyResolved(hit, defender);
+    }
+
+    /// <summary>
+    /// Everything that describes a one-off hit: a single explicit effect instead of a combo list.
+    /// Used by the paths that used to call <c>ApplyEffect</c> directly (counter attack, perfect
+    /// parry, explosion, lightning) so that component resolution, feedback and the loud-drop
+    /// policy stay in one place for those too.
+    /// </summary>
+    public sealed class SingleHit
+    {
+        /// <summary>The character responsible for the effect. Used for ownership and error messages.</summary>
+        public GameObject Attacker;
+
+        /// <summary>
+        /// Who receives the effect. This is the victim for a damage effect, but the attacker itself
+        /// for a self-effect such as the enemy's perfect-parry stun or the player's counter debuff.
+        /// </summary>
+        public GameObject Target;
+
+        /// <summary>The effect to apply. Required.</summary>
+        public GameplayEffect Effect;
+
+        /// <summary>See <see cref="ComboHit.SearchTargetInParent"/>.</summary>
+        public bool SearchTargetInParent;
+
+        /// <summary>Camera shake for this hit. Optional: null plays no shake.</summary>
+        public CameraShakeData? Shake;
+
+        /// <summary>Impulse source paired with <see cref="Shake"/>.</summary>
+        public CinemachineImpulseSource ImpulseSource;
+
+        /// <summary>Controller rumble for this hit. Optional: null plays no rumble.</summary>
+        public Rumble? Haptics;
+    }
+
+    /// <summary>
+    /// Full pipeline for a one-off effect: resolve the receiver, play feedback, apply the effect.
+    /// A null effect is reported and dropped instead of reaching
+    /// <see cref="GameplayEffectManager.ApplyEffect"/> with nothing in it.
+    /// </summary>
+    public static Outcome ApplySingle(SingleHit hit)
+    {
+        if (hit == null)
+        {
+            Debug.LogError("[WeaponDamage:Unknown] ApplySingle was called with no SingleHit.");
+            return Outcome.MissingTargetComponents;
+        }
+
+        if (hit.Effect == null)
+        {
+            Debug.LogError(Label(hit.Attacker) + " A single-effect hit has no GameplayEffect assigned." +
+                " The effect is being DROPPED.");
+            return Outcome.NullEffect;
+        }
+
+        if (!TryResolveDefender(hit.Target, hit.SearchTargetInParent, hit.Attacker, out Defender defender))
+        {
+            return Outcome.MissingTargetComponents;
+        }
+
+        PlayShake(hit.Shake, hit.ImpulseSource);
+        PlayRumble(hit.Haptics);
+
+        defender.Effects.ApplyEffect(hit.Effect, defender.Attributes);
+        return Outcome.Applied;
     }
 }

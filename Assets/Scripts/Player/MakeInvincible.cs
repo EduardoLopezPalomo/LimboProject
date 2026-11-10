@@ -16,6 +16,26 @@ public class MakeInvincible : MonoBehaviour
     bool isInvincible = false;
 
     /// <summary>
+    /// Safety net for the manual SetInvincible(true) / SetInvincible(false) pairing.
+    ///
+    /// The only writer today is <see cref="KnockBack"/>, which raises the flag and clears it at the
+    /// end of a KnockBackOffsetTime-long coroutine. If the character is disabled while that coroutine
+    /// is still running (death, respawn, scene or god-space transition) Unity kills the coroutine, the
+    /// clearing line never runs, and the flag survives into the next life - a respawned player that
+    /// cannot be hit. Clearing on both halves of the enable cycle means the flag can never outlive the
+    /// state change that set it, and changes nothing for callers that pair correctly.
+    /// </summary>
+    private void OnEnable()
+    {
+        isInvincible = false;
+    }
+
+    private void OnDisable()
+    {
+        isInvincible = false;
+    }
+
+    /// <summary>
     /// Sets the invincibility state.
     /// Called by other systems (combat, healing, state machines).
     /// </summary>
