@@ -2509,6 +2509,55 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4690753734948824, guid: c0220a584e159304d8540ba6ad34766b, type: 3}
   m_PrefabInstance: {fileID: 48306485}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &48889415
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 48889417}
+  - component: {fileID: 48889416}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &48889416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48889415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75c2f02053a77df4c87e50e91c21aa09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapToggle
+  miniEye: {fileID: 814108050}
+  bigEye: {fileID: 814108049}
+  miniRoot: {fileID: 814108048}
+  bigRoot: {fileID: 814108047}
+  key: 109
+--- !u!4 &48889417
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48889415}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 17.44, y: 1.53964, z: -265.83}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &51465189
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5880,6 +5929,55 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: ca1cac744eec60c4f8cf6c5ba545a7db, type: 3}
+--- !u!1 &139158467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 139158468}
+  - component: {fileID: 139158469}
+  m_Layer: 0
+  m_Name: MapManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &139158468
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139158467}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -942.56, y: -538.4604, z: -265.83}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 814108046}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &139158469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 139158467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75c2f02053a77df4c87e50e91c21aa09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapToggle
+  miniEye: {fileID: 0}
+  bigEye: {fileID: 0}
+  miniRoot: {fileID: 0}
+  bigRoot: {fileID: 0}
+  key: 109
 --- !u!1001 &142741832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50323,9 +50421,20 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9055624829034654565, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -134
+      objectReference: {fileID: 0}
+    - target: {fileID: 9055624829034654565, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -69
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 7928433447439358591, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 139158468}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
 --- !u!1 &814108044 stripped
@@ -50338,6 +50447,43 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8255426546047595683, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
   m_PrefabInstance: {fileID: 814108043}
   m_PrefabAsset: {fileID: 0}
+--- !u!224 &814108046 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7928433447439358591, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &814108047 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8911484478317752840, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &814108048 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6806798648313947503, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &814108049 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4678011948019204514, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 450359e970587db44940f712aeaf3aa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EyeAnimation
+--- !u!114 &814108050 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6952529578418823015, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 450359e970587db44940f712aeaf3aa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EyeAnimation
 --- !u!1001 &814372869
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -126740,6 +126886,7 @@ SceneRoots:
   - {fileID: 347229720}
   - {fileID: 2028790640}
   - {fileID: 607811495}
+  - {fileID: 48889417}
   - {fileID: 1665030353}
   - {fileID: 1881306037}
   - {fileID: 1088496657}
