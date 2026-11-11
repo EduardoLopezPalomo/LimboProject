@@ -96,11 +96,10 @@ public class PlayerWeaponDamage : MonoBehaviour
     /// </summary>
     [HideInInspector] public ParentConstraint parentConstraint;
     
-    /// <summary>
-    /// Chance of landing a counter-attack (0.0 to 1.0).
-    /// Used in counter-attack logic.
-    /// </summary>
-    public float counterAttackChance = 0.5f;
+    // T-042: the counter-attack chance no longer lives here. It was one float shared by every enemy on
+    // screen (pushed in by PlayerWeaponController at Awake, never updated again). The tunables are a
+    // CounterAttackProfile asset now, and the live, per-enemy value is EnemyCounterAttackState, which this
+    // class asks for a roll from - see CanCounter.
 
     
     private BoxCollider weaponCollider;
@@ -258,10 +257,11 @@ public class PlayerWeaponDamage : MonoBehaviour
     {
         BehaviorGraphAgent agent = other.gameObject.GetComponentInParent<BehaviorGraphAgent>();
         RotateAlongPlayer rotateAlongPlayer = other.gameObject.GetComponentInParent<RotateAlongPlayer>();
+        EnemyCounterAttackState counterState = other.gameObject.GetComponentInParent<EnemyCounterAttackState>();
 
         // An enemy without its AI wiring used to throw here, which also aborted the sweep for every
         // remaining enemy in the same step. It can still be damaged, it just cannot offer a counter.
-        if (agent != null && rotateAlongPlayer != null && CanCounter(rotateAlongPlayer, agent))
+        if (agent != null && rotateAlongPlayer != null && CanCounter(rotateAlongPlayer, agent, counterState))
         {
             Counter(other, agent);
             return;
@@ -291,21 +291,43 @@ public class PlayerWeaponDamage : MonoBehaviour
             ImpulseSource = impulseSource,
             Haptics = HitRumble
         });
+
+        // T-042: only a hit that actually landed escalates this enemy. Every branch above returns early -
+        // countered, invincible - so those add nothing to its counter chance (D-10 Q2).
+        if (counterState != null) counterState.NotifyDamageTaken();
     }
 
+    // Reported once per weapon (not once per swing) when a guarding enemy has no EnemyCounterAttackState.
+    private bool missingCounterStateReported = false;
+
     /// <summary>
-    /// True when this enemy is guarding and the roll says the attack gets countered. The blackboard
-    /// lookup result is honoured: a missing AttackingState variable no longer reads as a real state.
+    /// True when this enemy is guarding AND its own escalating chance says the attack gets countered.
+    /// The guard gate is exactly where it always was (no orbit, or graph not reporting Defend, and there is
+    /// no counter animation for a guard that is down); what changed is the dice - they used to be one
+    /// constant on this weapon and are now per-enemy, owned and spent by EnemyCounterAttackState (T-042).
     /// </summary>
-    private bool CanCounter(RotateAlongPlayer rotateAlongPlayer, BehaviorGraphAgent agent)
+    private bool CanCounter(RotateAlongPlayer rotateAlongPlayer, BehaviorGraphAgent agent, EnemyCounterAttackState counterState)
     {
         if (!rotateAlongPlayer.isBlocking) return false;
         if (agent.BlackboardReference == null) return false;
 
         AttackingState state = default(AttackingState);
         if (!agent.BlackboardReference.GetVariableValue("AttackingState", out state)) return false;
+        if (state != AttackingState.Defend) return false;
 
-        return state == AttackingState.Defend && UnityEngine.Random.Range(0f, 1f) < counterAttackChance;
+        if (counterState == null)
+        {
+            if (!missingCounterStateReported)
+            {
+                missingCounterStateReported = true;
+                Debug.LogWarning(DamageResolver.Label(owner) + $" '{rotateAlongPlayer.gameObject.name}' is " +
+                    "guarding but has no EnemyCounterAttackState, so it can never counter. Its hits are " +
+                    "still dealt normally; add the component to the prefab. (Reported once.)");
+            }
+            return false;
+        }
+
+        return counterState.RollCounter();
     }
 
     /// <summary>

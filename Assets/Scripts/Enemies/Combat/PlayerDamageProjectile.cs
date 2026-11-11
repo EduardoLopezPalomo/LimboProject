@@ -142,9 +142,14 @@ public class PlayerDamageProjectile : MonoBehaviour, IHasInstigator
     /// Enemy target, decided the way PlayerWeaponDamage decides it: an enemy that is orbiting with its
     /// weapon up and whose graph reports Defend guards the hit. Missing AI wiring is not an error - the
     /// enemy just cannot guard, so the projectile lands.
+    ///
+    /// A hit that lands also escalates that enemy's counter-attack chance (T-042). A guarded one did no
+    /// damage, so it escalates nothing - see D-10 Q2.
     /// </summary>
     private void ApplyEnemyHit(GameObject target)
     {
+        EnemyCounterAttackState counterState = target.GetComponentInParent<EnemyCounterAttackState>();
+
         if (IsEnemyGuarding(target))
         {
             ApplyBlocked(target);
@@ -152,6 +157,8 @@ public class PlayerDamageProjectile : MonoBehaviour, IHasInstigator
         }
 
         ApplyDamage(target);
+
+        if (counterState != null) counterState.NotifyDamageTaken();
     }
 
     /// <summary>

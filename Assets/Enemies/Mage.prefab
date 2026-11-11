@@ -1149,6 +1149,7 @@ GameObject:
   - component: {fileID: 4129496956001533894}
   - component: {fileID: 2896925817792600348}
   - component: {fileID: 8973236422076449556}
+  - component: {fileID: 3931493913623894305}
   m_Layer: 9
   m_Name: Mage
   m_TagString: Enemy
@@ -1487,6 +1488,7 @@ MonoBehaviour:
   Speed: 150
   player: {fileID: 0}
   hasPlayerRotate: 0
+  IsShooting: 0
 --- !u!114 &5655987160920270496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1542,8 +1544,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RotateAlongPlayer
   player: {fileID: 0}
-  rotationSpeedALongPlayer: 10
+  rotationSpeedAlongPlayer: 10
   selfRotationSpeed: 60
+  speed: 1.5
+  wobbleAmplitude: 8
+  wobbleFrequency: 0.4
+  neighborCheckRadius: 3
+  minSafeDistance: 1.5
+  isBlocking: 0
 --- !u!114 &2896925817792600348
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1558,6 +1566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TokenTimer
   cooldownTimeMin: 3
   cooldownTimeMax: 6
+  controller: {fileID: 0}
 --- !u!114 &8973236422076449556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1571,6 +1580,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SlotUpdate
   timeToUpdate: 10
+--- !u!114 &3931493913623894305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416926081852918481}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8bbcbd5f4c447644b08caf09261a081, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCounterAttackState
+  profile: {fileID: 11400000, guid: 58f5f4ee36e3e4c4d9d79396d5da4b13, type: 2}
+  debugLog: 0
 --- !u!1 &4523139366846529165
 GameObject:
   m_ObjectHideFlags: 0

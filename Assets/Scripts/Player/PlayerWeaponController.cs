@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// PlayerWeaponController extends WeaponController with player-specific logic.
-/// Handles counter-attack mechanics and integration with PlayerWeaponDamage.
+/// Wires the weapon's damage component and drives its collision window.
 /// </summary>
 public class PlayerWeaponController : WeaponController
 {
@@ -12,14 +12,11 @@ public class PlayerWeaponController : WeaponController
     /// Used for damage calculations and hit detection.
     /// </summary>
     [HideInInspector] public PlayerWeaponDamage WeaponDamage;
-    
-    [Header("Counter-Attack Chance [0,1]")]
-    /// <summary>
-    /// Probability of landing a counter-attack when attacking from the back.
-    /// Value is clamped between 0.0 and 1.0.
-    /// Default: 0.5 (50% chance)
-    /// </summary>
-    [SerializeField] public float counterAttackChance = 0.5f;
+
+    // T-042: this controller used to own `counterAttackChance` and push it onto the weapon at Awake, which
+    // meant every enemy on screen shared one flat coin flip that never changed. The chance is enemy state
+    // now: CounterAttackProfile holds the tunables, EnemyCounterAttackState holds the live value per
+    // instance. There is deliberately nothing to configure here any more.
 
     protected override void Awake()
     {
@@ -27,12 +24,6 @@ public class PlayerWeaponController : WeaponController
         
         // Get the player's weapon damage component
         WeaponDamage = weapon.GetComponent<PlayerWeaponDamage>();
-        
-        // Clamp counter-attack chance to valid range
-        counterAttackChance = Mathf.Clamp(counterAttackChance, 0f, 1f);
-        
-        // Sync with the weapon damage component
-        WeaponDamage.counterAttackChance = counterAttackChance;
     }
 
     /// <summary>
