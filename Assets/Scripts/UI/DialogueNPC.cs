@@ -1,18 +1,20 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 public class DialogueNPC : MonoBehaviour
 {
     [SerializeField] private NPCDialogueData dialogueData;
     [SerializeField] private NPCDialogueData completeQuestData;
-    [SerializeField] private bool esNPCDeFiesta = false;
-    private bool haSaludadoHoy = false;
+    [FormerlySerializedAs("esNPCDeFiesta")]
+    [SerializeField] private bool isPartyNpc = false;
+    private bool hasGreetedToday = false;
 
     public string NpcId => dialogueData.NpcId;
     public string NpcName => dialogueData.NpcName;
-    public TipoVoz VozNPC => dialogueData.tipoVoz;
-    public RetratoNPC NPCRetrato => dialogueData.retrato;
+    public VoiceType NpcVoice => dialogueData.voiceType;
+    public NpcPortrait Portrait => dialogueData.portrait;
 
     private MinimapIcon minimapIcon;
 
@@ -28,7 +30,7 @@ public class DialogueNPC : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!esNPCDeFiesta)
+        if (!isPartyNpc)
             DayNight.OnDayPhaseChanged += OnDayPhaseChanged;
 
         QuestManager.OnGoalChange += HandleGoalsChanged;
@@ -37,17 +39,17 @@ public class DialogueNPC : MonoBehaviour
 
     private void OnDisable()
     {
-        if (!esNPCDeFiesta)
+        if (!isPartyNpc)
             DayNight.OnDayPhaseChanged -= OnDayPhaseChanged;
 
         QuestManager.OnGoalChange -= HandleGoalsChanged;
     }
 
-    private void OnDayPhaseChanged(DayPhase nuevaFase)
+    private void OnDayPhaseChanged(DayPhase newPhase)
     {
-        if (nuevaFase != DayPhase.Day && nuevaFase != DayPhase.FirstLight)
+        if (newPhase != DayPhase.Day && newPhase != DayPhase.FirstLight)
         {
-            haSaludadoHoy = false;
+            hasGreetedToday = false;
         }
     }
 
@@ -56,58 +58,58 @@ public class DialogueNPC : MonoBehaviour
         RefreshGoalState();
     }
 
-    public List<string> ObtenerLineasDialogo()
+    public List<string> GetDialogueLines()
     {
-        List<string> lineas = new List<string>();
+        List<string> lines = new List<string>();
 
-        if (esNPCDeFiesta)
+        if (isPartyNpc)
         {
-            lineas.Add(dialogueData.partyText);
-            return lineas;
+            lines.Add(dialogueData.partyText);
+            return lines;
         }
 
-        DayPhase faseActual = DayNight.Instance.ActualPhase;
-        bool esDia = faseActual == DayPhase.Day
-                  || faseActual == DayPhase.FirstLight
-                  || faseActual == DayPhase.Dawn;
+        DayPhase currentPhaseLocal = DayNight.Instance.CurrentPhase;
+        bool isDay = currentPhaseLocal == DayPhase.Day
+                  || currentPhaseLocal == DayPhase.FirstLight
+                  || currentPhaseLocal == DayPhase.Dawn;
 
-        if (CheckPrincipalQuest())
+        if (CheckMainQuest())
         {
-            lineas = dialogueData.QuestDialogue;
-            return lineas;
+            lines = dialogueData.QuestDialogue;
+            return lines;
         }
 
         if (CheckCompleteQuest())
         {
-            lineas = completeQuestData.QuestDialogue;
-            return lineas;
+            lines = completeQuestData.QuestDialogue;
+            return lines;
         }
 
         if (CheckSecondaryQuest())
         {
             QuestManager.instance.AddSecondaryQuest(dialogueData.GiveSecondaryQuest);
-            lineas = dialogueData.QuestDialogue;
-            return lineas;
+            lines = dialogueData.QuestDialogue;
+            return lines;
         }
 
-        if (esDia)
+        if (isDay)
         {
-            if (!haSaludadoHoy && dialogueData.dayGreeting.Count != 0)
+            if (!hasGreetedToday && dialogueData.dayGreeting.Count != 0)
             {
-                lineas = dialogueData.dayGreeting;
-                haSaludadoHoy = true;
+                lines = dialogueData.dayGreeting;
+                hasGreetedToday = true;
             }
             else
             {
-                lineas.Add(dialogueData.dayGreeting[^1]);
+                lines.Add(dialogueData.dayGreeting[^1]);
             }
         }
         else
         {
-            lineas.Add(dialogueData.nightText);
+            lines.Add(dialogueData.nightText);
         }
 
-        return lineas;
+        return lines;
     }
 
     private void RefreshGoalState()
@@ -115,20 +117,20 @@ public class DialogueNPC : MonoBehaviour
         if (minimapIcon == null) return;
 
         bool esGoal =
-            (QuestManager.IsCurrentGoal(dialogueData.NpcId) && dialogueData.ActualQuest != null && !dialogueData.ActualQuest.completed)
-            || (completeQuestData != null && QuestManager.IsCurrentGoal(completeQuestData.NpcId) && completeQuestData.ActualQuest != null && !completeQuestData.ActualQuest.completed);
+            (QuestManager.IsCurrentGoal(dialogueData.NpcId) && dialogueData.CurrentQuest != null && !dialogueData.CurrentQuest.completed)
+            || (completeQuestData != null && QuestManager.IsCurrentGoal(completeQuestData.NpcId) && completeQuestData.CurrentQuest != null && !completeQuestData.CurrentQuest.completed);
 
         minimapIcon.SetAsGoal(esGoal);
     }
 
-    private bool CheckPrincipalQuest()
+    private bool CheckMainQuest()
     {
-        return dialogueData.ActualQuest != null && dialogueData.QuestDialogue.Count != 0 && QuestManager.instance.GetActualQuest() == dialogueData.ActualQuest.questId;
+        return dialogueData.CurrentQuest != null && dialogueData.QuestDialogue.Count != 0 && QuestManager.instance.GetCurrentQuest() == dialogueData.CurrentQuest.questId;
     }
 
     private bool CheckCompleteQuest()
     {
-        return completeQuestData != null && completeQuestData.QuestDialogue.Count != 0 && QuestManager.instance.GetActualQuest() == completeQuestData.ActualQuest.questId;
+        return completeQuestData != null && completeQuestData.QuestDialogue.Count != 0 && QuestManager.instance.GetCurrentQuest() == completeQuestData.CurrentQuest.questId;
     }
 
     private bool CheckSecondaryQuest()

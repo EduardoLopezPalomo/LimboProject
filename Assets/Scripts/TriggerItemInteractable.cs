@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class QuestItemInteractable : MonoBehaviour
 {
     public static event Action<string> OnItemInteracted;
     public string itemId;
-    public Quest actualQuest;
-    public Goals actualGoal;
+    [FormerlySerializedAs("actualQuest")]
+    public Quest currentQuest;
+    [FormerlySerializedAs("actualGoal")]
+    public Goals currentGoal;
 
     public GameplayAbility abilityToUnlock;
 
@@ -30,7 +33,7 @@ public class QuestItemInteractable : MonoBehaviour
 
     private void Start()
     {
-        if (actualGoal == null) return;
+        if (currentGoal == null) return;
         interactUI.SetActive(false);
         HandleGoalsChanged(null);
     }
@@ -57,7 +60,7 @@ public class QuestItemInteractable : MonoBehaviour
 
     private bool CanInteract()
     {
-        return actualQuest != null && QuestManager.instance.GetActualQuest() == actualQuest.questId && !actualGoal.completed;
+        return currentQuest != null && QuestManager.instance.GetCurrentQuest() == currentQuest.questId && !currentGoal.completed;
     }
 
     private void Interact()
@@ -93,9 +96,9 @@ public class QuestItemInteractable : MonoBehaviour
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
-        bool esObjetivo = QuestManager.IsCurrentGoal(itemId);
-        minimapIcon.enabled = esObjetivo;
-        if (esObjetivo && !actualGoal.completed)
+        bool isObjective = QuestManager.IsCurrentGoal(itemId);
+        minimapIcon.enabled = isObjective;
+        if (isObjective && !currentGoal.completed)
         {
             minimapIcon.SetAsGoal(true);
             boxCollider.enabled = true;

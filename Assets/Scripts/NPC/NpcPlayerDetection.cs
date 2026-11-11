@@ -27,20 +27,20 @@ public class NpcPlayerDetection : MonoBehaviour, IConversation
 
                 if (interactAction != null && interactAction.WasPressedThisFrame())
                 {
-                    IniciarDialogo();
+                    StartDialogue();
                 }
             }
         }
     }
 
-    private void IniciarDialogo()
+    private void StartDialogue()
     {
         DialogueInitData data = new DialogueInitData();
-        data.lineas = dialogueNPC.ObtenerLineasDialogo();
+        data.lines = dialogueNPC.GetDialogueLines();
         data.npcId = dialogueNPC.NpcId;
-        data.nombre = dialogueNPC.NpcName;
-        data.voz = dialogueNPC.VozNPC;
-        data.retrato = dialogueNPC.NPCRetrato;
+        data.characterName = dialogueNPC.NpcName;
+        data.voice = dialogueNPC.NpcVoice;
+        data.portrait = dialogueNPC.Portrait;
         data.input = playerInput;
 
         IConversation.RaiseDialogueInit(data);

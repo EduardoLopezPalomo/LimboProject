@@ -3,6 +3,7 @@ using Unity.Behavior;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.Serialization;
 
 public class BossConversation : MonoBehaviour, IConversation
 {
@@ -10,8 +11,10 @@ public class BossConversation : MonoBehaviour, IConversation
     [SerializeField] private NPCDialogueData dataIntro;
     [SerializeField] private NPCDialogueData dataBeaten;
     [SerializeField] private DialogueNPC dialogueNPC;
-    [SerializeField] private Quest actualQuest;
-    [SerializeField] private Goals actualGoal;
+    [FormerlySerializedAs("actualQuest")]
+    [SerializeField] private Quest currentQuest;
+    [FormerlySerializedAs("actualGoal")]
+    [SerializeField] private Goals currentGoal;
     [SerializeField] private BoxCollider teleportCollider;
 
     [Header("Continuará")]
@@ -42,17 +45,17 @@ public class BossConversation : MonoBehaviour, IConversation
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (actualQuest == null || QuestManager.instance.GetActualQuest() != actualQuest.questId || actualGoal.completed) return;
+        if (currentQuest == null || QuestManager.instance.GetCurrentQuest() != currentQuest.questId || currentGoal.completed) return;
 
         if (other.CompareTag("Player"))
         {
             playerInput = other.GetComponent<PlayerInput>();
             DialogueInitData data = new DialogueInitData();
-            data.lineas = dataIntro.dayGreeting;
+            data.lines = dataIntro.dayGreeting;
             data.npcId = dialogueNPC.NpcId;
-            data.nombre = dataIntro.NpcName;
-            data.voz = dialogueNPC.VozNPC;
-            data.retrato = dialogueNPC.NPCRetrato;
+            data.characterName = dataIntro.NpcName;
+            data.voice = dialogueNPC.NpcVoice;
+            data.portrait = dialogueNPC.Portrait;
             data.input = playerInput;
 
             IConversation.RaiseDialogueInit(data);
@@ -75,7 +78,7 @@ public class BossConversation : MonoBehaviour, IConversation
         else
         {
             Destroy(Boss, 0.5f);
-            StartCoroutine(MostrarContinuaraYVolverAlMenu());
+            StartCoroutine(ShowContinueThenReturnToMenu());
         }
 
     }
@@ -85,11 +88,11 @@ public class BossConversation : MonoBehaviour, IConversation
         if (deathEnemy == Boss && playerInput)
         {
             DialogueInitData data = new DialogueInitData();
-            data.lineas = dataBeaten.dayGreeting;
+            data.lines = dataBeaten.dayGreeting;
             data.npcId = dialogueNPC.NpcId;
-            data.nombre = dataBeaten.NpcName;
-            data.voz = dialogueNPC.VozNPC;
-            data.retrato = dialogueNPC.NPCRetrato;
+            data.characterName = dataBeaten.NpcName;
+            data.voice = dialogueNPC.NpcVoice;
+            data.portrait = dialogueNPC.Portrait;
             data.input = playerInput;
 
             IConversation.RaiseDialogueInit(data);
@@ -99,7 +102,7 @@ public class BossConversation : MonoBehaviour, IConversation
         }
     }
 
-    private IEnumerator MostrarContinuaraYVolverAlMenu()
+    private IEnumerator ShowContinueThenReturnToMenu()
     {
         yield return new WaitForSeconds(0.5f);
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 
 
@@ -12,11 +13,12 @@ public class QuestManager : MonoBehaviour
 
     public static event Action<HashSet<string>> OnGoalChange;
 
-    [SerializeField] private List<Quest> PrincipalQuests;
+    [FormerlySerializedAs("PrincipalQuests")]
+    [SerializeField] private List<Quest> mainQuests;
 
     private Dictionary<string, Quest> SecondaryQuests;
     private static HashSet<string> currentGoalIds = new HashSet<string>();
-    private int actualPrincipalQuestIndex = 0;
+    private int currentMainQuestIndex = 0;
 
     private void OnEnable()
     {
@@ -44,13 +46,13 @@ public class QuestManager : MonoBehaviour
     private void Start()
     {
         SecondaryQuests = new Dictionary<string, Quest>();
-        if (PrincipalQuests.Count > 0)
-            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], false);
+        if (mainQuests.Count > 0)
+            ActivateQuest(mainQuests[currentMainQuestIndex], false);
     }
 
     public void ReStart()
     {
-        actualPrincipalQuestIndex = 0;
+        currentMainQuestIndex = 0;
         Start();
     }
 
@@ -69,16 +71,16 @@ public class QuestManager : MonoBehaviour
 
     private void principalQuestCompleted(string questId)
     {
-        if (questId == PrincipalQuests[actualPrincipalQuestIndex].questId)
+        if (questId == mainQuests[currentMainQuestIndex].questId)
         {
-            actualPrincipalQuestIndex++;
-            if (actualPrincipalQuestIndex >= PrincipalQuests.Count)
+            currentMainQuestIndex++;
+            if (currentMainQuestIndex >= mainQuests.Count)
             {
                 Debug.LogWarning("There is no more quest");
                 return;
             }
 
-            ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], true);
+            ActivateQuest(mainQuests[currentMainQuestIndex], true);
         }
     }
 
@@ -90,7 +92,7 @@ public class QuestManager : MonoBehaviour
     private void ActivateQuest(Quest quest, bool notification)
     {
         quest.InitGoals(notification);
-        SetCurrentGoals(PrincipalQuests[actualPrincipalQuestIndex].goals);
+        SetCurrentGoals(mainQuests[currentMainQuestIndex].goals);
     }
 
     private static void SetCurrentGoals(List<Goals> goals)
@@ -116,9 +118,9 @@ public class QuestManager : MonoBehaviour
         SecondaryQuests.Add(quest.questId, quest);
     }
 
-    public String GetActualQuest()
+    public String GetCurrentQuest()
     {
-        return PrincipalQuests[actualPrincipalQuestIndex].questId;
+        return mainQuests[currentMainQuestIndex].questId;
     }
 
     public bool HasSecondaryQuest(string questId)
@@ -128,15 +130,15 @@ public class QuestManager : MonoBehaviour
 
     public int GetQuestNumber()
     {
-        return PrincipalQuests.Count;
+        return mainQuests.Count;
     }
 
     public List<Quest> GetActiveQuests()
     {
         List<Quest> activas = new List<Quest>();
 
-        if (actualPrincipalQuestIndex < PrincipalQuests.Count)
-            activas.Add(PrincipalQuests[actualPrincipalQuestIndex]);
+        if (currentMainQuestIndex < mainQuests.Count)
+            activas.Add(mainQuests[currentMainQuestIndex]);
 
         activas.AddRange(SecondaryQuests.Values);
 
@@ -146,27 +148,27 @@ public class QuestManager : MonoBehaviour
     #region SaveAndLoadData
     public int GetQuestIndex()
     {
-        return actualPrincipalQuestIndex;
+        return currentMainQuestIndex;
     }
 
     public void SetQuestIndex(int index)
     {
-        while (index > actualPrincipalQuestIndex)
+        while (index > currentMainQuestIndex)
         {
-            PrincipalQuests[actualPrincipalQuestIndex].Complete(true);
-            actualPrincipalQuestIndex++;
+            mainQuests[currentMainQuestIndex].Complete(true);
+            currentMainQuestIndex++;
         }
 
-        actualPrincipalQuestIndex = index;
-        ActivateQuest(PrincipalQuests[actualPrincipalQuestIndex], false);
+        currentMainQuestIndex = index;
+        ActivateQuest(mainQuests[currentMainQuestIndex], false);
     }
 
     public string[] GetIdOfQuests()
     {
-        string[] listId = new string[PrincipalQuests.Count];
+        string[] listId = new string[mainQuests.Count];
 
         int i = 0;
-        foreach (Quest quest in PrincipalQuests)
+        foreach (Quest quest in mainQuests)
         {
             listId[i] = quest.questId;
             i++;
@@ -177,10 +179,10 @@ public class QuestManager : MonoBehaviour
 
     public int[] GetCurrentAmountOfQuest()
     {
-        int[] actualAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        int[] actualAmount = new int[mainQuests[currentMainQuestIndex].goals.Count];
 
         int i = 0;
-        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        foreach (Goals goal in mainQuests[currentMainQuestIndex].goals)
         {
             actualAmount[i] = goal.currentAmount;
             i++;
@@ -191,10 +193,10 @@ public class QuestManager : MonoBehaviour
 
     public int[] GetRequiredAmountOfQuest()
     {
-        int[] requiredAmount = new int[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        int[] requiredAmount = new int[mainQuests[currentMainQuestIndex].goals.Count];
 
         int i = 0;
-        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        foreach (Goals goal in mainQuests[currentMainQuestIndex].goals)
         {
             requiredAmount[i] = goal.requiredAmount;
             i++;
@@ -205,10 +207,10 @@ public class QuestManager : MonoBehaviour
 
     public bool[] GetCompletedGoalOfQuest()
     {
-        bool[] completed = new bool[PrincipalQuests[actualPrincipalQuestIndex].goals.Count];
+        bool[] completed = new bool[mainQuests[currentMainQuestIndex].goals.Count];
 
         int i = 0;
-        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        foreach (Goals goal in mainQuests[currentMainQuestIndex].goals)
         {
             completed[i] = goal.completed;
             i++;
@@ -221,7 +223,7 @@ public class QuestManager : MonoBehaviour
     public void LoadGoalData(int[] currentAmount, int[] requiredAmount, bool[] completed)
     {
         int i = 0;
-        foreach (Goals goal in PrincipalQuests[actualPrincipalQuestIndex].goals)
+        foreach (Goals goal in mainQuests[currentMainQuestIndex].goals)
         {
             goal.currentAmount = currentAmount[i];
             goal.requiredAmount = requiredAmount[i];

@@ -77,7 +77,7 @@ public class GoingToPlayer : MonoBehaviour
         return currentSlot.position;
     }
 
-    public Vector3 GetActualSlot()
+    public Vector3 GetAssignedSlotPosition()
     {
         return currentSlot != null ? currentSlot.position : Vector3.zero;
     }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class NotificationUI : MonoBehaviour
 {
@@ -12,8 +13,10 @@ public class NotificationUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.3f;
 
     [Header("Config por tipo (opcional)")]
-    [SerializeField] private List<NotificationTypeConfig> configuracionesPorTipo;
-    [SerializeField] private float duracionVisiblePorDefecto = 3f;
+    [FormerlySerializedAs("configuracionesPorTipo")]
+    [SerializeField] private List<NotificationTypeConfig> perTypeConfigs;
+    [FormerlySerializedAs("duracionVisiblePorDefecto")]
+    [SerializeField] private float defaultVisibleDuration = 3f;
 
     private void Start()
     {
@@ -25,9 +28,9 @@ public class NotificationUI : MonoBehaviour
         titleText.text = data.title;
         notificationTypeText.text = GetNotificationType(data.notificationType);
 
-        SFXDefinition sonido = ObtenerSonidoParaTipo(data.notificationType); // <-- NUEVO
-        if (sonido != null)
-            SoundFXManager.instance.PlaySound(sonido.sfx, transform, sonido.volume); // <-- usa "sonido" en vez de "notificationSound"
+        SFXDefinition sound = GetSoundForType(data.notificationType); // <-- NUEVO
+        if (sound != null)
+            SoundFXManager.instance.PlaySound(sound.sfx, transform, sound.volume); // <-- usa "sonido" en vez de "notificationSound"
 
         yield return StartCoroutine(Fade(0f, 1f));
     }
@@ -37,16 +40,16 @@ public class NotificationUI : MonoBehaviour
         yield return StartCoroutine(Fade(1f, 0f));
     }
 
-    public float ObtenerDuracionVisible(NotificationType tipo)
+    public float GetVisibleDuration(NotificationType tipo)
     {
-        var config = configuracionesPorTipo.Find(c => c.type == tipo);
-        return config != null ? config.duracionVisible : duracionVisiblePorDefecto;
+        var config = perTypeConfigs.Find(c => c.type == tipo);
+        return config != null ? config.visibleDuration : defaultVisibleDuration;
     }
 
-    private SFXDefinition ObtenerSonidoParaTipo(NotificationType tipo)
+    private SFXDefinition GetSoundForType(NotificationType tipo)
     {
-        var config = configuracionesPorTipo.Find(c => c.type == tipo);
-        if (config != null && config.sonido != null) return config.sonido;
+        var config = perTypeConfigs.Find(c => c.type == tipo);
+        if (config != null && config.sound != null) return config.sound;
         return null;
     }
 
@@ -83,7 +86,9 @@ public class NotificationUI : MonoBehaviour
     public class NotificationTypeConfig
     {
         public NotificationType type;
-        public SFXDefinition sonido;
-        public float duracionVisible = 3f;
+        [FormerlySerializedAs("sonido")]
+        public SFXDefinition sound;
+        [FormerlySerializedAs("duracionVisible")]
+        public float visibleDuration = 3f;
     }
 }

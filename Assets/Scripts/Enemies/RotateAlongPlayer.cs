@@ -182,9 +182,9 @@ public class RotateAlongPlayer : MonoBehaviour
         toPlayer.y = 0f;
         currentAngle = Mathf.Atan2(toPlayer.x, toPlayer.z) * Mathf.Rad2Deg;
 
-        if (reservedSlot == null && SlotPosition != null && SlotPosition.GetActualSlot() != Vector3.zero)
+        if (reservedSlot == null && SlotPosition != null && SlotPosition.GetAssignedSlotPosition() != Vector3.zero)
         {
-            Vector3 targetPosition = SlotPosition.GetActualSlot();
+            Vector3 targetPosition = SlotPosition.GetAssignedSlotPosition();
             targetPosition.y = 0f;
             currentRadius = Vector3.Distance(targetPosition, new Vector3(player.position.x, 0, player.position.z));
         }

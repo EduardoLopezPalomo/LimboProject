@@ -2,43 +2,49 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class InternalDialogueTrigger : MonoBehaviour, IConversation
 {
     [Header("Contenido del diálogo interno")]
-    [SerializeField] private List<string> lineas;
+    [FormerlySerializedAs("lineas")]
+    [SerializeField] private List<string> lines;
 
     [Header("Apariencia (protagonista)")]
-    [SerializeField] private string nombreProtagonista = "Tú";
-    [SerializeField] private RetratoNPC retratoProtagonista;
-    [SerializeField] private TipoVoz vozProtagonista = TipoVoz.Masculina;
+    [FormerlySerializedAs("nombreProtagonista")]
+    [SerializeField] private string protagonistName = "Tú";
+    [FormerlySerializedAs("retratoProtagonista")]
+    [SerializeField] private NpcPortrait protagonistPortrait;
+    [FormerlySerializedAs("vozProtagonista")]
+    [SerializeField] private VoiceType protagonistVoice = VoiceType.Masculine;
 
     [Header("Comportamiento")]
-    [SerializeField] private bool soloUnaVez = true;
+    [FormerlySerializedAs("soloUnaVez")]
+    [SerializeField] private bool onceOnly = true;
 
 
-    private bool yaMostrado = false;
+    private bool alreadyShown = false;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        if (soloUnaVez && yaMostrado) return;
+        if (onceOnly && alreadyShown) return;
 
         PlayerInput playerInput = other.GetComponent<PlayerInput>();
         if (playerInput == null) return;
         
         DialogueInitData data = new DialogueInitData();
-        data.lineas = lineas;
+        data.lines = lines;
         data.npcId = "";
-        data.nombre = nombreProtagonista;
-        data.voz = vozProtagonista;
-        data.retrato = retratoProtagonista;
+        data.characterName = protagonistName;
+        data.voice = protagonistVoice;
+        data.portrait = protagonistPortrait;
         data.input = playerInput;
         
         IConversation.RaiseDialogueInit(data);
         
         playerInput.SwitchCurrentActionMap("UI");
 
-        yaMostrado = true;
+        alreadyShown = true;
     }
 }

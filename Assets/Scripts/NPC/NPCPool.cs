@@ -33,7 +33,7 @@ public class NPCPool : MonoBehaviour
         DayNight.OnDayPhaseChanged += WakeUp;
         if (DayNight.Instance != null)
         {
-            WakeUp(DayNight.Instance.ActualPhase);
+            WakeUp(DayNight.Instance.CurrentPhase);
         }
     }
 

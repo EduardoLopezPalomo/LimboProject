@@ -24,7 +24,7 @@ public class NPCGraphBridge : MonoBehaviour
     {
         if (DayNight.Instance != null)
         {
-            HandleDayPhaseChanged(DayNight.Instance.ActualPhase);
+            HandleDayPhaseChanged(DayNight.Instance.CurrentPhase);
         }
         if (agentComponent != null && animator != null)
         {

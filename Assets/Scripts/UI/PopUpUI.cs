@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PopUpUI : MonoBehaviour
 {
-    public TMP_Text infoDelPopUp;
+    [FormerlySerializedAs("infoDelPopUp")]
+    public TMP_Text messageText;
 
     private bool PartyOn = false;
     private Vector3 pointNewScene;
@@ -14,9 +16,9 @@ public class PopUpUI : MonoBehaviour
 
     private string sceneName;
 
-    public void MostrarMensaje(string mensaje)
+    public void ShowMessage(string message)
     {
-        infoDelPopUp.text = mensaje;
+        messageText.text = message;
     }
 
     public void SetVariables(bool partyOn, PlayerInput input, string scene, Vector3 point, Quaternion rotation)
@@ -28,7 +30,7 @@ public class PopUpUI : MonoBehaviour
         rotationNewScene = rotation;
     }
 
-    public void Confirmar()
+    public void Confirm()
     {
         if (PartyOn)
         {
@@ -42,7 +44,7 @@ public class PopUpUI : MonoBehaviour
         TimeEffectsManager.ResumeGame();
     }
 
-    public void Cancelar()
+    public void Cancel()
     {
         gameObject.SetActive(false);
 

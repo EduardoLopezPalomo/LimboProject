@@ -113,18 +113,18 @@ public class MinimapIcon : MonoBehaviour
         icon.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
     }
 
-    public void SetAsGoal(bool esObjetivo)
+    public void SetAsGoal(bool isObjective)
     {
         EnsureIcon();
-        clampToMinimapEdge = esObjetivo;
+        clampToMinimapEdge = isObjective;
         if (iconMaterial != null)
         {
-            iconMaterial.SetColor("_BaseColor", esObjetivo ? goalColor : iconColor);
+            iconMaterial.SetColor("_BaseColor", isObjective ? goalColor : iconColor);
         }
 
         if (icon != null)
         {
-            float multiplier = esObjetivo ? goalSizeMultiplier : 1f;
+            float multiplier = isObjective ? goalSizeMultiplier : 1f;
             icon.transform.localScale = Vector3.one * iconSize * multiplier;
         }
     }

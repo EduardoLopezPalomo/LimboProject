@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 public enum DayPhase
 {
@@ -20,7 +21,8 @@ public class DayNight : MonoBehaviour
     [Range(0f, 1f)]
     public float timeOfDay = 0.25f;
 
-    public DayPhase ActualPhase = DayPhase.Day;
+    [FormerlySerializedAs("ActualPhase")]
+    public DayPhase CurrentPhase = DayPhase.Day;
 
     public bool CanChangePhase = true;
 
@@ -62,9 +64,9 @@ public class DayNight : MonoBehaviour
             Moon.useColorTemperature = true;
         }
         RenderSettings.ambientMode = AmbientMode.Trilight;
-        ActualPhase = GetPhase(timeOfDay);
+        CurrentPhase = GetPhase(timeOfDay);
         RotateLights();
-        ChangePhase(ActualPhase);
+        ChangePhase(CurrentPhase);
     }
 
     void Update()
@@ -137,25 +139,25 @@ public class DayNight : MonoBehaviour
             {
                 case DayPhase.Day:
                     selected = Pick(daySkies);
-                    ActualPhase = DayPhase.Day;
+                    CurrentPhase = DayPhase.Day;
                     break;
 
                 case DayPhase.Night:
                     selected = Pick(nightSkies);
-                    ActualPhase = DayPhase.Night;
+                    CurrentPhase = DayPhase.Night;
                     break;
 
                 case DayPhase.Dawn:
                     selected = Pick(dawnSkies);
-                    ActualPhase = DayPhase.Dawn;
+                    CurrentPhase = DayPhase.Dawn;
                     break;
 
                 case DayPhase.Sunset:
                     selected = Pick(sunsetSkies);
-                    ActualPhase = DayPhase.Sunset;
+                    CurrentPhase = DayPhase.Sunset;
                     break;
                 case DayPhase.FirstLight:
-                    ActualPhase = DayPhase.FirstLight;
+                    CurrentPhase = DayPhase.FirstLight;
                     break;
             }
 

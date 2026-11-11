@@ -33,7 +33,7 @@ public class TeleportQuest : MonoBehaviour
         foreach (var quest in quests)
         {
             if (quest == null) continue;
-            if (QuestManager.instance.GetActualQuest() == quest.questId && !quest.completed)
+            if (QuestManager.instance.GetCurrentQuest() == quest.questId && !quest.completed)
             {
                 minimapIcon.SetAsGoal(true);
                 return;

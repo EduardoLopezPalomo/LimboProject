@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [Serializable]
-public struct RetratoNPC
+public struct NpcPortrait
 {
     public Sprite baseSprite;
     public Sprite openEyes;
@@ -29,7 +29,7 @@ public class NPCBlinkAnimation : MonoBehaviour
     private float timer;
     private bool haveMouth;
 
-    public void SetRetrato(RetratoNPC r)
+    public void SetPortrait(NpcPortrait r)
     {
         baseImg.sprite = r.baseSprite;
         openEyes.sprite = r.openEyes;

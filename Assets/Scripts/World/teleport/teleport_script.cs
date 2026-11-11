@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 public class teleport_script : MonoBehaviour
 {
@@ -10,9 +11,11 @@ public class teleport_script : MonoBehaviour
     [SerializeField] private Quaternion rotationInNewScene;
     [SerializeField] private bool PartyOn = false;
     [SerializeField] private GameObject popUp;
-    [SerializeField] private GameObject botonAceptar;
+    [FormerlySerializedAs("botonAceptar")]
+    [SerializeField] private GameObject acceptButton;
 
-    [SerializeField][TextArea] private string mensajePopUP;
+    [FormerlySerializedAs("mensajePopUP")]
+    [SerializeField][TextArea] private string popupMessage;
 
 
     private PlayerInput playerInput;
@@ -30,11 +33,11 @@ public class teleport_script : MonoBehaviour
             {
                 playerInput.SwitchCurrentActionMap("UI");
                 popUpUI.SetVariables(PartyOn, playerInput, sceneName, pointInNewScene, rotationInNewScene);
-                popUpUI.MostrarMensaje(mensajePopUP);
+                popUpUI.ShowMessage(popupMessage);
                 
             }
 
-            EventSystem.current.SetSelectedGameObject(botonAceptar);
+            EventSystem.current.SetSelectedGameObject(acceptButton);
             TimeEffectsManager.PauseGame();
 
 

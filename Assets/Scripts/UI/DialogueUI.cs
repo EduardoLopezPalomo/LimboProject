@@ -5,15 +5,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 [Serializable]
 public struct DialogueInitData
 {
-    public List<string> lineas;
+    public List<string> lines;
     public string npcId;
-    public string nombre;
-    public TipoVoz voz;
-    public RetratoNPC retrato;
+    public string characterName;
+    public VoiceType voice;
+    public NpcPortrait portrait;
     public PlayerInput input;
 }
 
@@ -21,24 +22,31 @@ public class DialogueUI : MonoBehaviour
 {
     public static event System.Action<string> OnEndDialogue;
     
-    [SerializeField] private GameObject panelDialogo;
-    [SerializeField] private TMP_Text textoDialogo;
-    [SerializeField] private TMP_Text nombreNPC;
+    [FormerlySerializedAs("panelDialogo")]
+    [SerializeField] private GameObject dialoguePanel;
+    [FormerlySerializedAs("textoDialogo")]
+    [SerializeField] private TMP_Text dialogueText;
+    [FormerlySerializedAs("nombreNPC")]
+    [SerializeField] private TMP_Text npcNameText;
     [SerializeField] private NPCBlinkAnimation avatar;
 
     [Header("Efecto de escritura")]
-    [SerializeField] private float velocidadEscritura = 0.03f;
-    [SerializeField] private List<SFXDefinition> sfxHablaMasculina;
-    [SerializeField] private List<SFXDefinition> sfxHablaFemenina;
-    [SerializeField] private List<SFXDefinition> sfxHablaMonstruo;
+    [FormerlySerializedAs("velocidadEscritura")]
+    [SerializeField] private float typewriterDelay = 0.03f;
+    [FormerlySerializedAs("sfxHablaMasculina")]
+    [SerializeField] private List<SFXDefinition> masculineTalkSfx;
+    [FormerlySerializedAs("sfxHablaFemenina")]
+    [SerializeField] private List<SFXDefinition> feminineTalkSfx;
+    [FormerlySerializedAs("sfxHablaMonstruo")]
+    [SerializeField] private List<SFXDefinition> monsterTalkSfx;
 
-    private string actualNpcId;
-    private TipoVoz vozActual;
-    private Queue<string> colaLineas = new Queue<string>();
-    private PlayerInput playerInputActual;
-    private Coroutine escrituraCoroutine;
-    private bool escribiendo = false;
-    private string lineaActual = "";
+    private string currentNpcId;
+    private VoiceType currentVoice;
+    private Queue<string> lineQueue = new Queue<string>();
+    private PlayerInput currentPlayerInput;
+    private Coroutine typewriterCoroutine;
+    private bool isTyping = false;
+    private string currentLine = "";
     private AudioClip LastClip;
     private AudioSource LastAudioSource;
 
@@ -57,18 +65,18 @@ public class DialogueUI : MonoBehaviour
     private void Update()
     {
         avatar.SetTalking(LastAudioSource != null && LastAudioSource.isPlaying);
-        if (!InDialogue || playerInputActual == null) return;
+        if (!InDialogue || currentPlayerInput == null) return;
 
-        InputAction interactAction = playerInputActual.currentActionMap.FindAction("Interact");
+        InputAction interactAction = currentPlayerInput.currentActionMap.FindAction("Interact");
         if (interactAction != null && interactAction.WasPressedThisFrame())
         {
-            if (escribiendo)
+            if (isTyping)
             {
-                CompletarLineaInstantaneamente();
+                CompleteLineInstantly();
             }
             else
             {
-                MostrarSiguienteLinea();
+                ShowNextLine();
             }
         }
     }
@@ -76,97 +84,97 @@ public class DialogueUI : MonoBehaviour
     private void DialogueInit(DialogueInitData data)
     {
         InDialogue = true;
-        MostrarDialogo(data.lineas, data.npcId, data.nombre, data.voz, data.retrato, data.input);
+        ShowDialogue(data.lines, data.npcId, data.characterName, data.voice, data.portrait, data.input);
     }
 
 
-    private void MostrarDialogo(List<string> lineas , string npcId, string nombre, TipoVoz voz, RetratoNPC retrato, PlayerInput input = null)
+    private void ShowDialogue(List<string> lines , string npcId, string characterName, VoiceType voice, NpcPortrait portrait, PlayerInput input = null)
     {
 
-        colaLineas = new Queue<string>(lineas);
-        playerInputActual = input;
-        nombreNPC.text = nombre;
-        vozActual = voz;
-        actualNpcId = npcId;
+        lineQueue = new Queue<string>(lines);
+        currentPlayerInput = input;
+        npcNameText.text = characterName;
+        currentVoice = voice;
+        currentNpcId = npcId;
         //if (retratoNPC != null)
           //  retratoNPC.sprite = retrato;
-        avatar.SetRetrato(retrato);
+        avatar.SetPortrait(portrait);
 
-        panelDialogo.SetActive(true);
-        MostrarSiguienteLinea();
+        dialoguePanel.SetActive(true);
+        ShowNextLine();
     }
 
-    public void MostrarSiguienteLinea()
+    public void ShowNextLine()
     {
-        if (colaLineas.Count == 0)
+        if (lineQueue.Count == 0)
         {
-            CerrarDialogo();
+            CloseDialogue();
             return;
         }
 
-        lineaActual = colaLineas.Dequeue();
+        currentLine = lineQueue.Dequeue();
 
-        if (escrituraCoroutine != null)
-            StopCoroutine(escrituraCoroutine);
+        if (typewriterCoroutine != null)
+            StopCoroutine(typewriterCoroutine);
 
-        escrituraCoroutine = StartCoroutine(EscribirTexto(lineaActual));
+        typewriterCoroutine = StartCoroutine(TypeText(currentLine));
     }
 
-    private IEnumerator EscribirTexto(string linea)
+    private IEnumerator TypeText(string line)
     {
-        escribiendo = true;
-        textoDialogo.text = "";
+        isTyping = true;
+        dialogueText.text = "";
         
         
 
-        SFXDefinition clipVoz = ObtenerClipSegunVoz();
-        if (clipVoz != null)
+        SFXDefinition voiceClip = GetClipForVoice();
+        if (voiceClip != null)
         {
-            LastAudioSource = SoundFXManager.instance.PlaySoundRandomPitch(clipVoz.sfx, transform, clipVoz.volume , clipVoz.minPitch, clipVoz.maxPitch);
-            LastClip = clipVoz.sfx;
+            LastAudioSource = SoundFXManager.instance.PlaySoundRandomPitch(voiceClip.sfx, transform, voiceClip.volume , voiceClip.minPitch, voiceClip.maxPitch);
+            LastClip = voiceClip.sfx;
         }
 
-        foreach (char letra in linea)
+        foreach (char ch in line)
         {
-            textoDialogo.text += letra;
-            yield return new WaitForSeconds(velocidadEscritura);
+            dialogueText.text += ch;
+            yield return new WaitForSeconds(typewriterDelay);
         }
 
-        escribiendo = false;
+        isTyping = false;
     }
 
-    private SFXDefinition ObtenerClipSegunVoz()
+    private SFXDefinition GetClipForVoice()
     {
-        List<SFXDefinition> lista = vozActual switch
+        List<SFXDefinition> voiceClips = currentVoice switch
         {
-            TipoVoz.Masculina => sfxHablaMasculina,
-            TipoVoz.Femenina => sfxHablaFemenina,
-            TipoVoz.Monstruo => sfxHablaMonstruo,
-            _ => sfxHablaMasculina
+            VoiceType.Masculine => masculineTalkSfx,
+            VoiceType.Feminine => feminineTalkSfx,
+            VoiceType.Monster => monsterTalkSfx,
+            _ => masculineTalkSfx
         };
 
-        if (lista == null || lista.Count == 0) return null;
+        if (voiceClips == null || voiceClips.Count == 0) return null;
 
-        return lista[UnityEngine.Random.Range(0, lista.Count)];
+        return voiceClips[UnityEngine.Random.Range(0, voiceClips.Count)];
     }
 
-    private void CompletarLineaInstantaneamente()
+    private void CompleteLineInstantly()
     {
-        if (escrituraCoroutine != null)
-            StopCoroutine(escrituraCoroutine);
+        if (typewriterCoroutine != null)
+            StopCoroutine(typewriterCoroutine);
         
         if(LastClip != null && LastAudioSource != null)
         {
             SoundFXManager.instance.StopSound(LastClip, LastAudioSource);
         }
 
-        textoDialogo.text = lineaActual;
-        escribiendo = false;
+        dialogueText.text = currentLine;
+        isTyping = false;
     }
 
-    private void CerrarDialogo()
+    private void CloseDialogue()
     {
-        panelDialogo.SetActive(false);
+        dialoguePanel.SetActive(false);
         
         if(LastClip != null && LastAudioSource != null)
         {
@@ -176,8 +184,8 @@ public class DialogueUI : MonoBehaviour
         LastClip = null;
         LastAudioSource = null;
         InDialogue = false;
-        if (playerInputActual != null)
-            playerInputActual.SwitchCurrentActionMap("Player");
-        OnEndDialogue?.Invoke(actualNpcId);
+        if (currentPlayerInput != null)
+            currentPlayerInput.SwitchCurrentActionMap("Player");
+        OnEndDialogue?.Invoke(currentNpcId);
     }
 }

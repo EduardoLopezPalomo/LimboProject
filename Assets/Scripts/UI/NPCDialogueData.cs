@@ -1,21 +1,24 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public enum TipoVoz
+public enum VoiceType
 {
-    Masculina,
-    Femenina, 
-    Monstruo
+    Masculine,
+    Feminine, 
+    Monster
 }
 
-[CreateAssetMenu(fileName = "NewNPCDialogue", menuName = "Dialogos/NPC Dialogue Data")]
+[CreateAssetMenu(fileName = "NewNPCDialogue", menuName = "Dialogue/NPC Dialogue Data")]
 
 public class NPCDialogueData : ScriptableObject
 {
     public string NpcName;
-    public TipoVoz tipoVoz = TipoVoz.Masculina;
-    public RetratoNPC retrato;
+    [FormerlySerializedAs("tipoVoz")]
+    public VoiceType voiceType = VoiceType.Masculine;
+    [FormerlySerializedAs("retrato")]
+    public NpcPortrait portrait;
 
     [Header("Dia")]
     [TextArea] public List<string> dayGreeting;   
@@ -28,8 +31,10 @@ public class NPCDialogueData : ScriptableObject
 
     [Header("Quest")] 
     public string NpcId;
-    public Quest ActualQuest;
-    public Goals ActualGoal;
+    [FormerlySerializedAs("ActualQuest")]
+    public Quest CurrentQuest;
+    [FormerlySerializedAs("ActualGoal")]
+    public Goals CurrentGoal;
     public Quest GiveSecondaryQuest;
     [TextArea] public List<string> QuestDialogue;
 

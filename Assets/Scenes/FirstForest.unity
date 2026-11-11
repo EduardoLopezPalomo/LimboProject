@@ -999,7 +999,7 @@ GameObject:
   m_Component:
   - component: {fileID: 41192533}
   m_Layer: 0
-  m_Name: TutoTriggers
+  m_Name: TutorialTriggers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1974,7 +1974,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Next
+      value: TutorialTrigger-Next
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2432,11 +2432,11 @@ PrefabInstance:
       value: Village
       objectReference: {fileID: 0}
     - target: {fileID: 1662677735473317931, guid: 7e3d2a367866d27409ccac64be343eac, type: 3}
-      propertyPath: botonAceptar
+      propertyPath: acceptButton
       value: 
       objectReference: {fileID: 7955810176117413229}
     - target: {fileID: 1662677735473317931, guid: 7e3d2a367866d27409ccac64be343eac, type: 3}
-      propertyPath: mensajePopUP
+      propertyPath: popupMessage
       value: Do you want to go to the Village?
       objectReference: {fileID: 0}
     - target: {fileID: 1662677735473317931, guid: 7e3d2a367866d27409ccac64be343eac, type: 3}
@@ -4607,11 +4607,11 @@ PrefabInstance:
       value: Zone9661fd56-3963-46bd-af27-baa486228e25
       objectReference: {fileID: 0}
     - target: {fileID: 2749224409876990501, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: ActualGoal
+      propertyPath: CurrentGoal
       value: 
       objectReference: {fileID: 11400000, guid: b442acd2de0b2744b98fdf15108e7696, type: 2}
     - target: {fileID: 2749224409876990501, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: ActualQuest
+      propertyPath: CurrentQuest
       value: 
       objectReference: {fileID: 11400000, guid: 3f174e556aefe7f4f9f100d0528c9888, type: 2}
     - target: {fileID: 5305632866246182270, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
@@ -4631,23 +4631,23 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: lineas.Array.size
+      propertyPath: lines.Array.size
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: retratoProtagonista
+      propertyPath: protagonistPortrait
       value: 
       objectReference: {fileID: 21300000, guid: 64b7a40722987e4459ffd95beb78e5db, type: 3}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: 'lineas.Array.data[0]'
+      propertyPath: 'lines.Array.data[0]'
       value: My head hurts... How did I get here?
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: 'lineas.Array.data[1]'
+      propertyPath: 'lines.Array.data[1]'
       value: Bah, whatever. I have to get out of the forest!
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: 'lineas.Array.data[2]'
+      propertyPath: 'lines.Array.data[2]'
       value: But first... I have to get out of this forest... hehe.
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -496788,7 +496788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Parry-Dash
+      value: TutorialTrigger-Parry-Dash
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -496943,7 +496943,7 @@ GameObject:
   - component: {fileID: 590886440}
   - component: {fileID: 590886439}
   m_Layer: 0
-  m_Name: TutoManager
+  m_Name: TutorialManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -513965,11 +513965,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13fe8a152e871e54aaa39f3799f72531, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialExitBlocker
-  actualGoal: {fileID: 11400000, guid: 58982fd0e5974164991c112726fd56b6, type: 2}
-  colliderBloqueo: {fileID: 1205052016}
-  colliderAviso: {fileID: 1205052015}
-  tituloNotificacion: Kill all the enemies first
-  cooldownAviso: 5
+  currentGoal: {fileID: 11400000, guid: 58982fd0e5974164991c112726fd56b6, type: 2}
+  blockCollider: {fileID: 1205052016}
+  warningTrigger: {fileID: 1205052015}
+  notificationTitle: Kill all the enemies first
+  warningCooldown: 5
 --- !u!65 &1205052015
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -517271,7 +517271,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Attack
+      value: TutorialTrigger-Attack
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -518852,7 +518852,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Target
+      value: TutorialTrigger-Target
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -519899,7 +519899,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Mov-Cam
+      value: TutorialTrigger-Mov-Cam
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -530684,7 +530684,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Pause-UINav
+      value: TutorialTrigger-Pause-UINav
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -532256,7 +532256,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Diary
+      value: TutorialTrigger-Diary
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -536217,7 +536217,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Abs
+      value: TutorialTrigger-Abs
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -537537,7 +537537,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8682166025611987539, guid: 020df91f7a5cd6e49a7878f7730c27b2, type: 3}
       propertyPath: m_Name
-      value: TutoTrigger-Sprint
+      value: TutorialTrigger-Sprint
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -540761,7 +540761,7 @@ PrefabInstance:
       value: 0.3400879
       objectReference: {fileID: 0}
     - target: {fileID: 4392743177324252598, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
-      propertyPath: 'sfxHablaFemenina.Array.data[10]'
+      propertyPath: 'feminineTalkSfx.Array.data[10]'
       value: 
       objectReference: {fileID: 11400000, guid: 36acc656c948c8946aebeef4b2a52275, type: 2}
     - target: {fileID: 5547805925453604655, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}

@@ -7,7 +7,7 @@ public class SoundFXManager : MonoBehaviour
     public static SoundFXManager instance;
     [SerializeField] private AudioSource soundFXObject;
     
-    private Dictionary<AudioClip, List<AudioSource>> ActualSounds = new Dictionary<AudioClip, List<AudioSource>>();
+    private Dictionary<AudioClip, List<AudioSource>> activeSources = new Dictionary<AudioClip, List<AudioSource>>();
 
     private void Awake()
     {
@@ -30,10 +30,10 @@ public class SoundFXManager : MonoBehaviour
         audioSource.volume = volume;
         audioSource.Play();
         
-        if (!ActualSounds.ContainsKey(clip))
-            ActualSounds[clip] = new List<AudioSource>();
+        if (!activeSources.ContainsKey(clip))
+            activeSources[clip] = new List<AudioSource>();
 
-        ActualSounds[clip].Add(audioSource);
+        activeSources[clip].Add(audioSource);
 
         StartCoroutine(RemoveAfterPlay(clip, audioSource));
         
@@ -53,10 +53,10 @@ public class SoundFXManager : MonoBehaviour
         audioSource.volume = volume;
         audioSource.Play();
         
-        if (!ActualSounds.ContainsKey(clip))
-            ActualSounds[clip] = new List<AudioSource>();
+        if (!activeSources.ContainsKey(clip))
+            activeSources[clip] = new List<AudioSource>();
 
-        ActualSounds[clip].Add(audioSource);
+        activeSources[clip].Add(audioSource);
 
         StartCoroutine(RemoveAfterPlay(clip, audioSource));
         
@@ -79,10 +79,10 @@ public class SoundFXManager : MonoBehaviour
         audioSource.volume = volume;
         audioSource.Play();
         
-        if (!ActualSounds.ContainsKey(clip))
-            ActualSounds[clip] = new List<AudioSource>();
+        if (!activeSources.ContainsKey(clip))
+            activeSources[clip] = new List<AudioSource>();
 
-        ActualSounds[clip].Add(audioSource);
+        activeSources[clip].Add(audioSource);
 
         StartCoroutine(RemoveAfterPlay(clip, audioSource));
         
@@ -105,10 +105,10 @@ public class SoundFXManager : MonoBehaviour
         audioSource.volume = volume;
         audioSource.Play();
         
-        if (!ActualSounds.ContainsKey(clip))
-            ActualSounds[clip] = new List<AudioSource>();
+        if (!activeSources.ContainsKey(clip))
+            activeSources[clip] = new List<AudioSource>();
 
-        ActualSounds[clip].Add(audioSource);
+        activeSources[clip].Add(audioSource);
 
         StartCoroutine(RemoveAfterPlay(clip, audioSource));
         
@@ -117,9 +117,9 @@ public class SoundFXManager : MonoBehaviour
     
     public void StopSound(AudioClip clip, AudioSource audioSource)
     {
-        if (ActualSounds.ContainsKey(clip) && ActualSounds[clip].Contains(audioSource))
+        if (activeSources.ContainsKey(clip) && activeSources[clip].Contains(audioSource))
         {
-            ActualSounds[clip].Remove(audioSource);
+            activeSources[clip].Remove(audioSource);
             Destroy(audioSource.gameObject);
         }
     }
@@ -128,8 +128,8 @@ public class SoundFXManager : MonoBehaviour
     {
         yield return new WaitForSeconds(audioSource.clip.length);
         
-        if (ActualSounds.ContainsKey(clip))
-            ActualSounds[clip].Remove(audioSource);
+        if (activeSources.ContainsKey(clip))
+            activeSources[clip].Remove(audioSource);
 
         if (audioSource != null)
             Destroy(audioSource.gameObject);

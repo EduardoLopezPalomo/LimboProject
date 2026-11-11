@@ -1,43 +1,49 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TutorialExitBlocker : MonoBehaviour
 {
-    [SerializeField] private KillGoal actualGoal;
-    [SerializeField] private Collider colliderBloqueo;   // sólido, bloquea la salida físicamente
-    [SerializeField] private Collider colliderAviso;      // trigger, un poco antes del bloqueo
-    [SerializeField] private string tituloNotificacion = "Aún quedan enemigos por derrotar";
-    [SerializeField] private float cooldownAviso = 5f;    // evita spamear la notificación si te quedas ahí
+    [FormerlySerializedAs("actualGoal")]
+    [SerializeField] private KillGoal currentGoal;
+    [FormerlySerializedAs("colliderBloqueo")]
+    [SerializeField] private Collider blockCollider;   // sólido, bloquea la salida físicamente
+    [FormerlySerializedAs("colliderAviso")]
+    [SerializeField] private Collider warningTrigger;      // trigger, un poco antes del bloqueo
+    [FormerlySerializedAs("tituloNotificacion")]
+    [SerializeField] private string notificationTitle = "Aún quedan enemigos por derrotar";
+    [FormerlySerializedAs("cooldownAviso")]
+    [SerializeField] private float warningCooldown = 5f;    // evita spamear la notificación si te quedas ahí
 
-    private float ultimoAviso = -999f;
+    private float lastWarningTime = -999f;
 
     private void OnEnable()
     {
-        Goals.OnGoalCompleted += RevisarEstado;
+        Goals.OnGoalCompleted += CheckState;
     }
 
     private void OnDisable()
     {
-        Goals.OnGoalCompleted -= RevisarEstado;
+        Goals.OnGoalCompleted -= CheckState;
     }
 
     private void Start()
     {
-        RevisarEstado(); // por si ya estaba completada la goal al cargar la escena
+        CheckState(); // por si ya estaba completada la goal al cargar la escena
     }
 
-    private void RevisarEstado()
+    private void CheckState()
     {
-        if (actualGoal.completed)
-            colliderBloqueo.enabled = false;
+        if (currentGoal.completed)
+            blockCollider.enabled = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
-        if (actualGoal.completed) return;
-        if (Time.time - ultimoAviso < cooldownAviso) return;
+        if (currentGoal.completed) return;
+        if (Time.time - lastWarningTime < warningCooldown) return;
 
-        ultimoAviso = Time.time;
-        GameplayWarning.Show(tituloNotificacion);
+        lastWarningTime = Time.time;
+        GameplayWarning.Show(notificationTitle);
     }
 }

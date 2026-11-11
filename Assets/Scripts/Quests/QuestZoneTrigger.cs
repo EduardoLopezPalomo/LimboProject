@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class QuestZoneTrigger : MonoBehaviour
 {
     public static event Action<string> OnEnterQuestZone;
     public string ZoneId;
-    public Quest ActualQuest;
-    public Goals ActualGoal;
+    [FormerlySerializedAs("ActualQuest")]
+    public Quest CurrentQuest;
+    [FormerlySerializedAs("ActualGoal")]
+    public Goals CurrentGoal;
 
     public bool ActivateEndDialogue = true;
 
@@ -23,7 +26,7 @@ public class QuestZoneTrigger : MonoBehaviour
 
     private void Start()
     {
-        if (ActualGoal == null) return;
+        if (CurrentGoal == null) return;
 
         HandleGoalsChanged(null);
     }
@@ -38,9 +41,9 @@ public class QuestZoneTrigger : MonoBehaviour
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
-        bool esObjetivo = QuestManager.IsCurrentGoal(ZoneId);
-        minimapIcon.enabled = esObjetivo;
-        if (esObjetivo && !ActualGoal.completed)
+        bool isObjective = QuestManager.IsCurrentGoal(ZoneId);
+        minimapIcon.enabled = isObjective;
+        if (isObjective && !CurrentGoal.completed)
         {
             minimapIcon.SetAsGoal(true);
             boxCollider.enabled = true;
@@ -64,7 +67,7 @@ public class QuestZoneTrigger : MonoBehaviour
 
     public void AlertQuest()
     {
-        if (ActualQuest != null && QuestManager.instance.GetActualQuest() == ActualQuest.questId && !ActualGoal.completed)
+        if (CurrentQuest != null && QuestManager.instance.GetCurrentQuest() == CurrentQuest.questId && !CurrentGoal.completed)
         {
             OnEnterQuestZone?.Invoke(ZoneId);
             gameObject.SetActive(false);

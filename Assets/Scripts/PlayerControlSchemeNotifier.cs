@@ -7,6 +7,6 @@ public class PlayerControlSchemeNotifier : MonoBehaviour
     // porque el PlayerInput está configurado en modo "Send Messages"
     public void OnControlsChanged(PlayerInput input)
     {
-        InputIconSwitcher.NotificarCambioEsquema(input);
+        InputIconSwitcher.NotifySchemeChanged(input);
     }
 }
