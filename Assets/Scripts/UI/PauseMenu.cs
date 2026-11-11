@@ -8,7 +8,7 @@ public class PauseMenu : MonoBehaviour
     public GameObject OptionMenu;
     public GameObject HUD;
     public Button continueButton;
-    public string levelToLoad = "MainMenu";
+    public string levelToLoad = "Main Menu";
     public float DurationMusicFade = 2f;
 
     [HideInInspector] public GameObject player { set; private get; }

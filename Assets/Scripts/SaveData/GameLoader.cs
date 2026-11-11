@@ -30,7 +30,7 @@ public class GameLoader : MonoBehaviour
             if (!playerDataLoaded)
             {
                 OnGameLoadFail?.Invoke("Save loaded with inconsistent player data.");
-                LevelLoader.Instance.LoadLevelAsync("MainMenu");
+                LevelLoader.Instance.LoadLevelAsync("Main Menu");
             }
         }
     }
