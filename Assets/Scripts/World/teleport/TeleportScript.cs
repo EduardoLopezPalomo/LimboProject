@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
-public class teleport_script : MonoBehaviour
+public class TeleportScript : MonoBehaviour
 {
     [SerializeField] private string sceneName;
     [SerializeField] private Vector3 pointInNewScene;
