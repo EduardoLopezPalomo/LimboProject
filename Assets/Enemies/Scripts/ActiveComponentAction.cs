@@ -8,7 +8,7 @@ using Unity.Properties;
 [NodeDescription(name: "ActiveComponent", story: "Set [component] [active]", category: "Action", id: "35834810d3ddd6ccf7074c7cc6fe89be")]
 public partial class ActiveComponentAction : Action
 {
-    [SerializeReference] public BlackboardVariable<MinimapIcon> Component;
+    [SerializeReference] public BlackboardVariable<MapMarker> Component;
     [SerializeReference] public BlackboardVariable<bool> Active;
 
     protected override Status OnStart()

@@ -5,11 +5,13 @@ public class TeleportQuest : MonoBehaviour
 {
     public List<Quest> quests;
 
-    private MinimapIcon minimapIcon;
+    private MapMarker mapMarker;
 
     void Awake()
     {
-        minimapIcon = GetComponent<MinimapIcon>();
+        mapMarker = GetComponent<MapMarker>();
+        if (mapMarker == null)
+            Debug.LogError($"{name} has a TeleportQuest but no MapMarker on the same GameObject, so this teleport never highlights as a quest goal. Add one (Static / Teleport).", this);
     }
 
     private void Start()
@@ -29,16 +31,16 @@ public class TeleportQuest : MonoBehaviour
 
     private void HandleGoalsChanged(HashSet<string> ids)
     {
-        if (quests.Count == 0 || QuestManager.instance == null) return;
+        if (quests.Count == 0 || QuestManager.instance == null || mapMarker == null) return;
         foreach (var quest in quests)
         {
             if (quest == null) continue;
             if (QuestManager.instance.GetCurrentQuest() == quest.questId && !quest.completed)
             {
-                minimapIcon.SetAsGoal(true);
+                mapMarker.SetAsGoal(true);
                 return;
             }
         }
-        minimapIcon.SetAsGoal(false);
+        mapMarker.SetAsGoal(false);
     }
 }

@@ -34,6 +34,7 @@ namespace StarterAssets
         [Header("UI Events")]
 		public UnityEvent OnPauseEvent;
 		public UnityEvent OnAbilityMenuEvent;
+		public UnityEvent OnOpenMapEvent;
 		public UnityEvent OnBackEvent;
 		
 		private LockOn lockOnSystem;
@@ -124,6 +125,12 @@ namespace StarterAssets
 		public void OnAbilityMenu(InputValue value)
 		{
 			if(value.isPressed) OnAbilityMenuEvent?.Invoke();
+		}
+
+		// OpenMap: the world map (M / leftShoulder). Handled by MapToggle.
+		public void OnOpenMap(InputValue value)
+		{
+			if(value.isPressed) OnOpenMapEvent?.Invoke();
 		}
 
 		public void OnBack(InputValue value)

@@ -862,9 +862,9 @@ GameObject:
   - component: {fileID: 3329059217729061267}
   - component: {fileID: 1810138069914868542}
   - component: {fileID: 5536700599689674020}
-  - component: {fileID: 5088752880255100858}
   - component: {fileID: 6054101994529046203}
   - component: {fileID: 3154227728158418716}
+  - component: {fileID: 5481749235563814381}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -1129,6 +1129,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnOpenMapEvent:
+    m_PersistentCalls:
+      m_Calls: []
   OnBackEvent:
     m_PersistentCalls:
       m_Calls:
@@ -1558,25 +1561,6 @@ MonoBehaviour:
     ListenerAmplitude: 1
     ListenerFrequency: 1
     ListenerDuration: 1
---- !u!114 &5088752880255100858
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1520184032351820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7b1e4395c05afc47a373a7147554c3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MinimapIcon
-  iconColor: {r: 0.86415094, g: 0.6108858, b: 0, a: 1}
-  iconSize: 3
-  HeightOffset: 30
-  minimapLayerName: MinimapIcon
-  clampToMinimapEdge: 0
-  goalColor: {r: 0, g: 1, b: 1, a: 1}
-  goalSizeMultiplier: 2
 --- !u!114 &6054101994529046203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1642,6 +1626,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5096849ba6beaf4408be5d245e17a07c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerControlSchemeNotifier
+--- !u!114 &5481749235563814381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520184032351820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc145fe55709f7a48983e460ddf3a8ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapMarker
+  tier: 2
+  iconType: 4
+  worldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &1521465169146536
 GameObject:
   m_ObjectHideFlags: 0

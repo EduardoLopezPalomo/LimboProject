@@ -16,11 +16,11 @@ public class DialogueNPC : MonoBehaviour
     public VoiceType NpcVoice => dialogueData.voiceType;
     public NpcPortrait Portrait => dialogueData.portrait;
 
-    private MinimapIcon minimapIcon;
+    private MapMarker mapMarker;
 
     private void Awake()
     {
-        minimapIcon = GetComponentInChildren<MinimapIcon>();
+        mapMarker = GetComponentInChildren<MapMarker>();
     }
 
     private void Start()
@@ -114,13 +114,13 @@ public class DialogueNPC : MonoBehaviour
 
     private void RefreshGoalState()
     {
-        if (minimapIcon == null) return;
+        if (mapMarker == null) return;
 
         bool esGoal =
             (QuestManager.IsCurrentGoal(dialogueData.NpcId) && dialogueData.CurrentQuest != null && !dialogueData.CurrentQuest.completed)
             || (completeQuestData != null && QuestManager.IsCurrentGoal(completeQuestData.NpcId) && completeQuestData.CurrentQuest != null && !completeQuestData.CurrentQuest.completed);
 
-        minimapIcon.SetAsGoal(esGoal);
+        mapMarker.SetAsGoal(esGoal);
     }
 
     private bool CheckMainQuest()

@@ -5,7 +5,19 @@ public class EyeAnimation : MonoBehaviour
 {
     [SerializeField] private Animator animator;
 
+    [SerializeField, Tooltip("Keep the eyelid playing while Time.timeScale is 0. MapToggle pauses the game as it opens the map, and an Animator does not advance at timeScale 0: without this the close never finishes, its animation event never fires, and the map wedges halfway open. Ignored while the game is running normally, so nothing else changes.")]
+    private bool playWhilePaused = true;
+
     private Action onDone;
+
+    private void Update()
+    {
+        if (!playWhilePaused || animator == null) return;
+        if (Time.timeScale >= 0.0001f) return;
+        if (animator.isActiveAndEnabled == false || animator.gameObject.activeInHierarchy == false) return;
+
+        animator.Update(Time.unscaledDeltaTime * animator.speed);
+    }
 
     public void PlayClose(Action callback = null)
     {

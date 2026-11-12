@@ -137,7 +137,7 @@ public class EnemyCounterAttackState : MonoBehaviour
             missingProfileReported = true;
             Debug.LogError($"[EnemyCounterAttackState:{name}] has no CounterAttackProfile assigned, so " +
                 "this enemy can never counter-attack. Assign one on the prefab " +
-                "(Assets/Enemies/CounterAttackProfiles/Neutral.asset is the flat default).");
+                "(Assets/Enemies/CounterAttackProfiles/ - Example.asset is the flat 0.5 reference).");
         }
         return false;
     }

@@ -14,13 +14,16 @@ public class QuestZoneTrigger : MonoBehaviour
 
     public bool ActivateEndDialogue = true;
 
-    private MinimapIcon minimapIcon;
+    private MapMarker mapMarker;
     private BoxCollider boxCollider;
 
     void Awake()
     {
-        minimapIcon = GetComponent<MinimapIcon>();
-        minimapIcon.enabled = false;
+        mapMarker = GetComponent<MapMarker>();
+        if (mapMarker == null)
+            Debug.LogError($"{name} has a QuestZoneTrigger but no MapMarker on the same GameObject, so this quest zone never appears on the map. Add one (Static / MissionPoint).", this);
+        else
+            mapMarker.enabled = false;
         boxCollider = GetComponent<BoxCollider>();
     }
 
@@ -42,17 +45,15 @@ public class QuestZoneTrigger : MonoBehaviour
     private void HandleGoalsChanged(HashSet<string> ids)
     {
         bool isObjective = QuestManager.IsCurrentGoal(ZoneId);
-        minimapIcon.enabled = isObjective;
-        if (isObjective && !CurrentGoal.completed)
+        bool showGoal = isObjective && !CurrentGoal.completed;
+
+        if (mapMarker != null)
         {
-            minimapIcon.SetAsGoal(true);
-            boxCollider.enabled = true;
+            mapMarker.enabled = isObjective;
+            mapMarker.SetAsGoal(showGoal);
         }
-        else
-        {
-            minimapIcon.SetAsGoal(false);
-            boxCollider.enabled = false;
-        }
+
+        boxCollider.enabled = showGoal;
     }
 
     private void OnTriggerEnter(Collider other)

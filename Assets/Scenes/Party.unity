@@ -2519,6 +2519,9 @@ GameObject:
   m_Component:
   - component: {fileID: 48889417}
   - component: {fileID: 48889416}
+  - component: {fileID: 48889420}
+  - component: {fileID: 48889419}
+  - component: {fileID: 48889418}
   m_Layer: 0
   m_Name: MapManager
   m_TagString: Untagged
@@ -2542,7 +2545,8 @@ MonoBehaviour:
   bigEye: {fileID: 814108049}
   miniRoot: {fileID: 814108048}
   bigRoot: {fileID: 814108047}
-  key: 109
+  mapService: {fileID: 48889418}
+  playerInputs: {fileID: 1946091381}
 --- !u!4 &48889417
 Transform:
   m_ObjectHideFlags: 0
@@ -2558,6 +2562,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &48889418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48889415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79748e163f942de44975f8f08ed43e85, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapService
+  view: {fileID: 48889420}
+  binder: {fileID: 48889419}
+  player: {fileID: 1946091380}
+  dynamicMarkerMaxDistanceMetres: 0
+  cullBeyondExtraCropMultiplier: 1.05
+--- !u!114 &48889419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48889415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 255c98357557a3a4380b2edbc57ff7fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapSceneBinder
+  definition: {fileID: 11400000, guid: cddd312178d3c614c9323f7b8f0f4313, type: 2}
+  fallback: {fileID: 11400000, guid: 44dd1f7ad1172dd4a84637151c949831, type: 2}
+  iconCatalog: {fileID: 11400000, guid: 4e06fc0ac6043ef4d9c7e67f6fc9e4fd, type: 2}
+--- !u!114 &48889420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48889415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c058fd0551d1f8141a0fc3f7d7e0b684, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapView
+  minimapViewport: {fileID: 814108051}
+  bigMapViewpport: {fileID: 814108046}
+  clampMinimapToContent: 0
+  poolCapPerIconType: 64
 --- !u!1001 &51465189
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5929,55 +5981,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: ca1cac744eec60c4f8cf6c5ba545a7db, type: 3}
---- !u!1 &139158467
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 139158468}
-  - component: {fileID: 139158469}
-  m_Layer: 0
-  m_Name: MapManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &139158468
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 139158467}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -942.56, y: -538.4604, z: -265.83}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 814108046}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &139158469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 139158467}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 75c2f02053a77df4c87e50e91c21aa09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MapToggle
-  miniEye: {fileID: 0}
-  bigEye: {fileID: 0}
-  miniRoot: {fileID: 0}
-  bigRoot: {fileID: 0}
-  key: 109
 --- !u!1001 &142741832
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -50431,10 +50434,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 7928433447439358591, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: 139158468}
+    m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
 --- !u!1 &814108044 stripped
@@ -50449,7 +50449,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &814108046 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7928433447439358591, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_CorrespondingSourceObject: {fileID: 4187082201055369697, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
   m_PrefabInstance: {fileID: 814108043}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &814108047 stripped
@@ -50484,6 +50484,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 450359e970587db44940f712aeaf3aa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EyeAnimation
+--- !u!224 &814108051 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9055624829034654565, guid: 6387436965dacba4c92e5a9d163236d9, type: 3}
+  m_PrefabInstance: {fileID: 814108043}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &814372869
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -114635,6 +114640,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4986658054915990, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
   m_PrefabInstance: {fileID: 1946091377}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1946091381 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1843773672162983562, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
+  m_PrefabInstance: {fileID: 1946091377}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2073245354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e087ecce43ebbff45a1b360637807d93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1946091382 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8662427420636072550, guid: 6aa00496bbd2cb044bdfa91800e1fb2c, type: 3}
@@ -126819,12 +126835,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
-      propertyPath: estadoAlMostrarse
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
       propertyPath: lines.Array.size
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
+      propertyPath: estadoAlMostrarse
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7302099658200054016, guid: b6b802e8b4153b64384629639b6ef7c7, type: 3}
       propertyPath: 'lines.Array.data[0]'

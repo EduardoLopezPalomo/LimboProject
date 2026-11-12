@@ -21,13 +21,16 @@ public class QuestItemInteractable : MonoBehaviour
     private bool playerInside = false;
     private PlayerInput playerInput;
     private AbilityHolder abilityHolder;
-    private MinimapIcon minimapIcon;
+    private MapMarker mapMarker;
     private BoxCollider boxCollider;
 
     private void Awake()
     {
-        minimapIcon = GetComponent<MinimapIcon>();
-        minimapIcon.enabled = false;
+        mapMarker = GetComponent<MapMarker>();
+        if (mapMarker == null)
+            Debug.LogError($"{name} has a QuestItemInteractable but no MapMarker on the same GameObject, so this quest objective never appears on the map. Add one (Static / MissionPoint).", this);
+        else
+            mapMarker.enabled = false;
         boxCollider = GetComponent<BoxCollider>();
     }
 
@@ -97,17 +100,15 @@ public class QuestItemInteractable : MonoBehaviour
     private void HandleGoalsChanged(HashSet<string> ids)
     {
         bool isObjective = QuestManager.IsCurrentGoal(itemId);
-        minimapIcon.enabled = isObjective;
-        if (isObjective && !currentGoal.completed)
+        bool showGoal = isObjective && !currentGoal.completed;
+
+        if (mapMarker != null)
         {
-            minimapIcon.SetAsGoal(true);
-            boxCollider.enabled = true;
+            mapMarker.enabled = isObjective;
+            mapMarker.SetAsGoal(showGoal);
         }
-        else
-        {
-            minimapIcon.SetAsGoal(false);
-            boxCollider.enabled = false;
-        }
+
+        boxCollider.enabled = showGoal;
     }
 
     [ContextMenu("Create Id")]
