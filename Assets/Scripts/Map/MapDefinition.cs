@@ -167,6 +167,24 @@ public class MapDefinition : ScriptableObject
         return new Vector3(center.x + offset.x, y, center.y + offset.y);
     }
 
+    /// <summary>A point written in the drawing's own axes - the space <see cref="WorldMin"/> and
+    /// <see cref="WorldMax"/> are authored in - as a world position. The exact inverse of
+    /// <see cref="WorldOffsetMetres"/>, and the only drawing-to-world seam that does NOT carry the
+    /// marker alignment knobs, because the knobs move markers and never the art.
+    ///
+    /// Public for the Scene-view overlay (T-047). <see cref="MapPointToWorld"/> cannot stand in for
+    /// it: it un-applies the knobs, which is right for a marker and wrong for the drawing itself.
+    /// Re-deriving this rotation in editor code is how a projection grows a third copy and drifts.</summary>
+    public Vector3 DrawingPointToWorld(Vector2 drawingXZ, float y)
+    {
+        Vector2 offset = drawingXZ - WorldCenter;
+        if (!Mathf.Approximately(mapNorthDegrees, 0f))
+            offset = Rotate(offset, mapNorthDegrees);
+
+        Vector2 center = WorldCenter;
+        return new Vector3(center.x + offset.x, y, center.y + offset.y);
+    }
+
     /// <summary>True when a world position falls inside the drawing's world rectangle.
     ///
     /// Deliberately NOT affected by the alignment knobs: those move the markers, never the art, so
@@ -206,6 +224,27 @@ public class MapDefinition : ScriptableObject
         return new Vector3(center.x + dx * scale, world.y, center.z + dz * scale);
     }
 
+    /// <summary>How far the world rectangle disagrees with the drawing's own aspect, as a percentage
+    /// of the art's aspect: 5.5 means the art is being stretched 5.5 % to cover the level. Zero when
+    /// there is nothing to compare (no drawing, no span).
+    ///
+    /// The single source of that number: <see cref="Validate"/> warns with it and the Scene-view
+    /// overlay labels with it (T-047), so the two can never report different figures for one asset.</summary>
+    public float AspectErrorPercent
+    {
+        get
+        {
+            if (baseMap == null) return 0f;
+            Vector2 span = WorldSpan;
+            Vector2 rect = baseMap.rect.size;
+            if (span.y <= 0.0001f || rect.x <= 0f || rect.y <= 0f) return 0f;
+
+            float worldAspect = span.x / span.y;
+            float artAspect = rect.x / rect.y;
+            return Mathf.Abs(worldAspect - artAspect) / artAspect * 100f;
+        }
+    }
+
     /// <summary>Advisory checks used by the calibration tool. Never blocks loading a scene.</summary>
     public int Validate()
     {
@@ -230,9 +269,10 @@ public class MapDefinition : ScriptableObject
         Vector2 rect = baseMap.rect.size;
         float worldAspect = span.x / span.y;
         float artAspect = rect.x / rect.y;
-        if (Mathf.Abs(worldAspect - artAspect) / artAspect > 0.02f)
+        float aspectError = AspectErrorPercent;
+        if (aspectError > 2f)
         {
-            Debug.LogWarning($"[MapDefinition] '{name}': the drawing is {artAspect:F3} aspect but the world rectangle is {worldAspect:F3}. The art stretches by {Mathf.Abs(worldAspect - artAspect) / artAspect * 100f:F1}% and markers drift off its landmarks.", this);
+            Debug.LogWarning($"[MapDefinition] '{name}': the drawing is {artAspect:F3} aspect but the world rectangle is {worldAspect:F3}. The art stretches by {aspectError:F1}% and markers drift off its landmarks.", this);
             problemCount++;
         }
 

@@ -7,7 +7,9 @@ using UnityEngine;
 ///
 /// A marker follows its host's active state and its <c>enabled</c> flag, so the existing quest
 /// code that does <c>GetComponent&lt;MapMarker&gt;().enabled = isObjective</c> keeps working: Unity
-/// calls OnDisable for both the GameObject and the behaviour being turned off.
+/// calls OnDisable for both the GameObject and the behaviour being turned off, and
+/// <see cref="MapService"/> consults <c>enabled</c> in its visibility pass as well, so a marker that
+/// starts the scene switched off never draws - the flag is the whole switch, in either direction.
 /// </summary>
 public class MapMarker : MonoBehaviour
 {
@@ -49,7 +51,12 @@ public class MapMarker : MonoBehaviour
 
     private void OnDisable()
     {
-        if (!isRegistered || service == null) return;
+        // Deliberately not gated on isRegistered: MapService's Awake sweep registers markers that never
+        // saw their own OnEnable, so isRegistered is still false here while the entry is live. Gating on
+        // it kept such a marker in the registry - icon and all - after the game switched it off.
+        // Unregister is a no-op when this marker is not registered, so the only test that matters is
+        // whether we know which service to ask.
+        if (service == null) return;
 
         service.Unregister(this);
         isRegistered = false;

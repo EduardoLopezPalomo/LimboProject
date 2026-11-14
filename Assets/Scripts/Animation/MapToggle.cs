@@ -220,7 +220,16 @@ public class MapToggle : MonoBehaviour
         if (playerInputs == null || lookInputLocked == locked) return;
 
         if (locked)
+        {
             lookInputWasEnabled = playerInputs.cursorInputForLook;
+
+            // The switch itself. Measured in Forest play mode 11/14/2026 this branch only remembered
+            // the value and never cleared it, so cursorInputForLook stayed true with the map open and
+            // the documented starvation of CameraRotation never happened: the camera held purely
+            // because SetBrainLocked had switched the Cinemachine brain off. Both halves now do the
+            // job they describe, and the unlock still restores whatever was found rather than true.
+            playerInputs.cursorInputForLook = false;
+        }
         else
             playerInputs.cursorInputForLook = lookInputWasEnabled;
 

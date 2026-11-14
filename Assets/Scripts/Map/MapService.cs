@@ -99,7 +99,19 @@ public class MapService : MonoBehaviour
 
             Vector3 world = entry.marker.MarkerWorldPosition;
 
-            if (!IsRevealed(entry.marker))
+            // Two different switches, and both have to agree before anything draws:
+            //   marker.enabled  - the authoring/code switch. A quest POI that is not currently an
+            //                     objective (QuestItemInteractable / QuestZoneTrigger switch it off),
+            //                     and the boss blip PhaseController holds until the fight starts.
+            //   IsRevealed()    - the discovery switch (fog of war, still unwritten - D-11 Q4).
+            // The enabled half belongs HERE and not only in the registration sweep below, because a
+            // marker can be registered by that sweep before any code switches it off: measured in
+            // SpaceBoss play mode 11/14/2026, 4 of the 7 registered entries were components with
+            // enabled = false and 2 of them were on screen, so every quest objective drew from frame
+            // one and D-13's hidden boss blip was never hidden. Registration order cannot fix that
+            // (it depends on whether MapService.Awake or the quest component's Awake runs first);
+            // consulting the flag in the one visibility seam does, for every caller, permanently.
+            if (!entry.marker.enabled || !IsRevealed(entry.marker))
             {
                 Hide(entry);
                 continue;
