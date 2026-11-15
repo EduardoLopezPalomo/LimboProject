@@ -24,9 +24,14 @@ public class EnemyHealthResponse : GeneralHealthResponse
         }
         CharacterVFX vfx = owner.GetComponent<CharacterVFX>();
         CharacterSFX sfx = owner.GetComponent<CharacterSFX>();
-        if (vfx != null && sfx != null)
+        // Independent guards — see PlayerHealthResponse: the shared `vfx != null && sfx != null` let a missing
+        // hurt sound switch the hit flash off as well (T-012).
+        if (vfx != null)
         {
             vfx.SpawnVFX(VFXType.Damaged);
+        }
+        if (sfx != null)
+        {
             sfx.SpawnRandomSFX(SFXType.Damaged);
         }
         
