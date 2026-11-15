@@ -52,6 +52,9 @@ public class DialogueUI : MonoBehaviour
 
     private bool InDialogue = false;
 
+    /// <summary>T-046 B4: "Interact" used to be looked up by name every frame of every dialogue.</summary>
+    private readonly CachedInputAction interactActionCache = new CachedInputAction("Interact");
+
     private void OnEnable()
     {
         IConversation.OnDialogueInit += DialogueInit;
@@ -67,7 +70,7 @@ public class DialogueUI : MonoBehaviour
         avatar.SetTalking(LastAudioSource != null && LastAudioSource.isPlaying);
         if (!InDialogue || currentPlayerInput == null) return;
 
-        InputAction interactAction = currentPlayerInput.currentActionMap.FindAction("Interact");
+        InputAction interactAction = interactActionCache.Get(currentPlayerInput);
         if (interactAction != null && interactAction.WasPressedThisFrame())
         {
             if (isTyping)

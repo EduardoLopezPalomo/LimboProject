@@ -24,6 +24,9 @@ public class QuestItemInteractable : MonoBehaviour
     private MapMarker mapMarker;
     private BoxCollider boxCollider;
 
+    /// <summary>T-046 B4: "Interact" used to be looked up by name every frame while the player stood in the trigger.</summary>
+    private readonly CachedInputAction interactActionCache = new CachedInputAction("Interact");
+
     private void Awake()
     {
         mapMarker = GetComponent<MapMarker>();
@@ -54,7 +57,7 @@ public class QuestItemInteractable : MonoBehaviour
     {
         if (!playerInside || playerInput == null || !CanInteract()) return;
 
-        InputAction interactAction = playerInput.currentActionMap.FindAction("Interact");
+        InputAction interactAction = interactActionCache.Get(playerInput);
         if (interactAction != null && interactAction.WasPressedThisFrame())
         {
             Interact();

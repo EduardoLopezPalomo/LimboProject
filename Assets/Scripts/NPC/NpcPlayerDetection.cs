@@ -14,21 +14,27 @@ public class NpcPlayerDetection : MonoBehaviour, IConversation
     private PlayerInput playerInput;
     private bool playerDetected = false;
 
+    /// <summary>T-046 B4: "Interact" used to be looked up by name every frame.</summary>
+    private readonly CachedInputAction interactActionCache = new CachedInputAction("Interact");
+
     void Update()
     {
-        if (playerDetected)
-        {
+        if (!playerDetected) return;
+
+        // T-046 B5: this used to call SetActive(true) on every frame the player stayed in range, with
+        // the object already on. The state is the same; only a real change is worth a call.
+        if (!interactUI.activeSelf)
             interactUI.SetActive(true);
-            PossibleInteraction = true;
 
-            if (playerInput != null && playerInput.currentActionMap.name != "UI")
+        PossibleInteraction = true;
+
+        if (playerInput != null && playerInput.currentActionMap.name != "UI")
+        {
+            InputAction interactAction = interactActionCache.Get(playerInput);
+
+            if (interactAction != null && interactAction.WasPressedThisFrame())
             {
-                InputAction interactAction = playerInput.currentActionMap.FindAction("Interact");
-
-                if (interactAction != null && interactAction.WasPressedThisFrame())
-                {
-                    StartDialogue();
-                }
+                StartDialogue();
             }
         }
     }
