@@ -13,9 +13,28 @@ public partial class ReturnTokenAction : Action
 
     protected override Status OnStart()
     {
+        // token / Controller may be null bindings, not just null Values - see the note in AlertGroupAction.
+        if (token == null)
+        {
+            LogFailure($"'{nameof(token)}' is not bound on this ReturnToken node - an attack token may stay spent.", true);
+            return Status.Failure;
+        }
+
         if (token.Value)
         {
-            Controller.Value.ReturnToken();  
+            EnemiesGroupController controller = Controller != null ? Controller.Value : null;
+            if (controller == null)
+            {
+                controller = EnemiesGroupController.Resolve(base.GameObject);
+                if (controller == null)
+                {
+                    LogFailure($"No group controller found above {EnemiesGroupController.Describe(base.GameObject)} - the attack token is lost.", true);
+                    return Status.Failure;
+                }
+                if (Controller != null) Controller.Value = controller;
+            }
+
+            controller.ReturnToken();
             token.Value = false;
         }
         return Status.Success;

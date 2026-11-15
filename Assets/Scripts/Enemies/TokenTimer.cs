@@ -20,7 +20,8 @@ public class TokenTimer : MonoBehaviour
             {
                 isOnCooldown = false;
                 timer = 0f;
-                controller.ReturnToken();
+                // Guarded: a null controller used to throw every frame from Update.
+                if (controller != null) controller.ReturnToken();
             }
         }
     }
@@ -30,6 +31,15 @@ public class TokenTimer : MonoBehaviour
         cooldownTime = Random.Range(cooldownTimeMin, cooldownTimeMax);
         isOnCooldown = true;
         timer = 0f;
+
+        if (controller == null)
+        {
+            controller = EnemiesGroupController.Resolve(gameObject);
+            if (controller == null)
+            {
+                Debug.LogError($"{name}: no {nameof(EnemiesGroupController)} assigned and none found above {gameObject.name} - the attack token will never be returned.", gameObject);
+            }
+        }
     }
     
     public bool IsOnCooldown()

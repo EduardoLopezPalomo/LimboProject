@@ -12,7 +12,20 @@ public partial class NotifyEndBattleAction : Action
 
     protected override Status OnStart()
     {
-        GroupController.Value.EnemyEndPersecution();
+        // Null by design - see the note in AlertGroupAction.
+        EnemiesGroupController controller = GroupController != null ? GroupController.Value : null;
+        if (controller == null)
+        {
+            controller = EnemiesGroupController.Resolve(base.GameObject);
+            if (controller == null)
+            {
+                LogFailure($"No group controller found above {EnemiesGroupController.Describe(base.GameObject)} - the group cannot be told the chase is over.", true);
+                return Status.Failure;
+            }
+            if (GroupController != null) GroupController.Value = controller;
+        }
+
+        controller.EnemyEndPersecution();
         return Status.Success;
     }
 

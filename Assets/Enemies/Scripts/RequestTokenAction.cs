@@ -13,12 +13,26 @@ public partial class RequestTokenAction : Action
 
     protected override Status OnStart()
     {
-        if (Controller.Value.RequestToken())
+        // Null by design - see the note in AlertGroupAction: a scene object cannot be authored into a
+        // shared graph or prefab, so resolving from the hierarchy is the intended path and stays silent.
+        EnemiesGroupController controller = Controller != null ? Controller.Value : null;
+        if (controller == null)
         {
-            Token.Value = true;
+            controller = EnemiesGroupController.Resolve(base.GameObject);
+            if (controller == null)
+            {
+                LogFailure($"No group controller found above {EnemiesGroupController.Describe(base.GameObject)} - it cannot request an attack token.", true);
+                return Status.Failure;
+            }
+            if (Controller != null) Controller.Value = controller;
+        }
+
+        if (controller.RequestToken())
+        {
+            if (Token != null) Token.Value = true;
             return Status.Success;
         }
-        Token.Value = false;
+        if (Token != null) Token.Value = false;
         return Status.Failure;
     }
 

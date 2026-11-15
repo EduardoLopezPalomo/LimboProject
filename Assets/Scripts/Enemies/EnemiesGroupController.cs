@@ -12,6 +12,35 @@ public class EnemiesGroupController : MonoBehaviour
     private int currentToken = 0;
     private List<GameObject> enemies = new List<GameObject>();
 
+    /// <summary>
+    /// Finds the group controller that owns an enemy.
+    ///
+    /// The graph nodes cannot carry this reference: commit 574a7847 (T-026 typo sweep) renamed
+    /// EnemiesGroupContoller -> EnemiesGroupController inside the graph assets, and Unity does not
+    /// deserialize a [SerializeReference] BlackboardVariable&lt;OldName&gt; into a field whose type was
+    /// renamed, so AlertGroupAction's GroupController field is null on all 44 live nodes (measured).
+    /// Even with the binding restored, a shared .asset could never point at a scene object.
+    /// Every placed enemy is instead parented under the group that owns it: measured in Forest, 44 of
+    /// 44 enemies are a direct child of exactly one of the 15 groups, none is nested under two, and
+    /// Resolve(enemy) equals the group whose own Awake()-built roster contains it, 44 of 44.
+    ///
+    /// Do NOT replace this with FindObjectOfType: with 15 groups in a level it returns an arbitrary
+    /// one and alerts the wrong enemies.
+    ///
+    /// Returns null when the enemy really is outside every group; the caller decides how loud to be.
+    /// </summary>
+    public static EnemiesGroupController Resolve(GameObject enemy)
+    {
+        if (enemy == null) return null;
+        return enemy.GetComponentInParent<EnemiesGroupController>(true);
+    }
+
+    /// <summary>Names a possibly-null object for a log line.</summary>
+    internal static string Describe(GameObject obj)
+    {
+        return obj != null ? obj.name : "this agent";
+    }
+
     void Awake()
     {
         currentToken = maxTokens;
@@ -70,8 +99,15 @@ public class EnemiesGroupController : MonoBehaviour
         foreach (var v in enemies)
         {
             if (alerter == v) continue;
+            if (v == null) continue;
 
             EnemyGraphBridge aux = v.GetComponent<EnemyGraphBridge>();
+            // One enemy missing its bridge must not cost the rest of the group their alert.
+            if (aux == null)
+            {
+                Debug.LogError($"{name}: {v.name} has no {nameof(EnemyGraphBridge)} - it will not be alerted.", v);
+                continue;
+            }
             aux.SetDetection();
         }
     }
@@ -91,8 +127,18 @@ public class EnemiesGroupController : MonoBehaviour
     {
         foreach (var enemy in enemies)
         {
+            if (enemy == null) continue;
+
             BehaviorGraphAgent agent = enemy.GetComponent<BehaviorGraphAgent>();
             BlackboardVariable<BarbarianState> stateVariable;
+
+            // Without an agent we cannot read its state; ignore it rather than throwing and leaving
+            // the battle running forever (the old code threw a NullReferenceException here).
+            if (agent == null)
+            {
+                Debug.LogError($"{name}: {enemy.name} has no BehaviorGraphAgent - it is ignored when deciding if the battle is over.", enemy);
+                continue;
+            }
 
             if (agent.GetVariable("ActualState", out stateVariable))
             {
