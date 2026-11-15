@@ -12,7 +12,7 @@ public enum MapIconType
     MonsterNpc = 2,
     HumanNpc = 3,
 
-    // Important tier.
+    // Player tier.
     MainCharacter = 4,
 
     // Static tier: quest and world places.

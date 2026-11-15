@@ -116,7 +116,8 @@ internal static class MapCalibrationOverlay
             hash = hash * 31 + d.IconsOffset.GetHashCode();
             hash = hash * 31 + d.IconsRadiusMultiplier.GetHashCode();
             hash = hash * 31 + (d.HasCalibration ? 1 : 0);
-            hash = hash * 31 + d.UnitsPerMetre.GetHashCode();
+            hash = hash * 31 + d.MapRotationDegrees.GetHashCode();
+            hash = hash * 31 + d.MapScaleMultiplier.GetHashCode();
             hash = hash * 31 + Markers.Count;
             hash = hash * 31 + SceneLabel.GetHashCode();
             return hash;

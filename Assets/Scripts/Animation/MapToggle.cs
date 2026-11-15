@@ -3,7 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// Opens the full-screen drawing and closes it again. The input is the <c>OpenMap</c> action
-/// (M / gamepad L1, bound in StarterAssets.inputactions) delivered through
+/// (measured in StarterAssets.inputactions 11/15/2026: <c>&lt;Keyboard&gt;/m</c> and
+/// <c>&lt;Gamepad&gt;/select</c> - not L1, which is Parry) delivered through
 /// <see cref="StarterAssets.StarterAssetsInputs.OnOpenMapEvent"/>, so rebinding is an Inspector
 /// edit and not a code change (D-11 Q7).
 ///

@@ -167,7 +167,7 @@ public class MapService : MonoBehaviour
             Vector2 mapPoint = definition.WorldToMapPoint(drawn);
             entry.rect.anchoredPosition = mapPoint;
 
-            if (entry.marker.Tier == MapMarkerTier.Important)
+            if (entry.marker.Tier == MapMarkerTier.Player)
             {
                 // Point the arrow the way the player faces, measured IN MAP SPACE instead of handing
                 // over the raw world yaw.

@@ -14,7 +14,7 @@ using UnityEngine;
 public class MapMarker : MonoBehaviour
 {
     [Header("What this marker is")]
-    [SerializeField, Tooltip("Static places never move. Dynamic entities track position only. Important (the player) also tracks yaw.")]
+    [SerializeField, Tooltip("Static = a place. Dynamic = anything that walks (position only). Player = the player, and the only tier allowed to turn with its yaw.")]
     private MapMarkerTier tier = MapMarkerTier.Dynamic;
 
     [SerializeField, Tooltip("Which drawing from Assets/UI Images/Map/Elements to use, resolved through MapIconCatalog.")]
@@ -24,6 +24,10 @@ public class MapMarker : MonoBehaviour
     [SerializeField, Tooltip("Offset from the host's transform, in world units. Useful when the trigger volume is not where the landmark appears to be.")]
     private Vector3 worldOffset = Vector3.zero;
 
+    [Header("Size")]
+    [SerializeField, Min(0.05f), Tooltip("This pin's OWN multiplier on top of its tier's size on the MapDefinition asset: 1 = the tier size, 1.5 = half as big again. Use it for the one pin that has to stand out (a boss, a unique landmark) instead of growing the whole tier. An active quest goal gets the definition's Goal Marker Multiplier on top of this.")]
+    private float sizeMultiplier = 1f;
+
     private MapService service;
     private bool isRegistered;
     private bool isGoal;
@@ -32,6 +36,11 @@ public class MapMarker : MonoBehaviour
     public MapMarkerTier Tier => tier;
     public MapIconType IconType => iconType;
 
+    /// <summary>This pin's own size multiplier, applied by <see cref="MapView.GetMarkerSizeUnits"/>
+    /// after the tier size and before the quest-goal bump. The tier size and the definition's global
+    /// Marker Size Multiplier live on the asset; this is the per-pin exception.</summary>
+    public float SizeMultiplier => sizeMultiplier;
+
     /// <summary>True while a quest goal points at this marker. Drives the size bump and the
     /// minimap-edge clamp, replacing the old goal colour swap.</summary>
     public bool IsGoal => isGoal;
@@ -39,9 +48,10 @@ public class MapMarker : MonoBehaviour
     /// <summary>Where the marker sits, in world space.</summary>
     public Vector3 MarkerWorldPosition => transform.position + worldOffset;
 
-    /// <summary>Horizontal rotation used by the <see cref="MapMarkerTier.Important"/> tier, which is
-    /// the only tier allowed to turn. The map itself stays north-up; the marker rotates by
-    /// (yaw - mapNorth) inside MapService.</summary>
+    /// <summary>Horizontal rotation used by the <see cref="MapMarkerTier.Player"/> tier, which is
+    /// the only tier allowed to turn. MapService converts the yaw into map space; if the asset turns
+    /// the whole map with Map Rotation Degrees, the arrow turns with it, because it lives under the
+    /// same MapSpace node as the drawing.</summary>
     public float GetYawDegrees() => transform.eulerAngles.y;
 
     private void OnEnable()

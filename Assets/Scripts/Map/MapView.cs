@@ -10,6 +10,11 @@ using UnityEngine.UI;
 ///
 /// Markers are never positioned per view, so switching framings cannot make one jump. That is the
 /// whole point of the design, and it is what verification item 7 in T-045 checks.
+///
+/// Inside the content root sits one <c>MapSpace</c> node carrying the definition's Whole map
+/// placement (offset / rotation / scale), and the drawing and the marker layer are its two children.
+/// That is what lets a designer move, turn or resize the entire map - art and icons as one picture -
+/// without any code touching a marker's map-space position or the world calibration.
 /// </summary>
 public class MapView : MonoBehaviour
 {
@@ -37,11 +42,14 @@ public class MapView : MonoBehaviour
     private int poolCapPerIconType = 64;
 
     private const string ContentName = "MapContent";
+    private const string MapSpaceName = "MapSpace";
+    private const string MapArtName = "Art";
     private const string MarkerLayerName = "Markers";
 
     private MapDefinition definition;
     private MapIconCatalog catalog;
     private RectTransform contentRoot;
+    private RectTransform mapSpaceRoot;
     private RectTransform markerLayer;
     private Image baseImage;
     private RectTransform placeholderLabelRect;
@@ -95,16 +103,43 @@ public class MapView : MonoBehaviour
         catalog = newCatalog;
         Teardown();
 
-        GameObject contentGO = new GameObject(ContentName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        // The hierarchy is the whole reason the two framings can never disagree, and why the
+        // Whole map placement knobs move the art and its pins together:
+        //
+        //   contentRoot - framing ONLY: scale (crop or fit x zoom) and offset (follow or pan)
+        //     MapSpace  - Whole map placement: offset, rotation and scale of the picture as one
+        //       Art     - the drawing, stretched over the world rectangle
+        //       Markers - every pin, still written in raw map-space coordinates by MapService
+        //
+        // A pin is placed once, in map space, and no view ever re-places it (D-11 Q1). Moving
+        // MapSpace therefore cannot desync the minimap from the big map: there is one pin layer and
+        // both framings look at the same one.
+        GameObject contentGO = new GameObject(ContentName, typeof(RectTransform), typeof(CanvasRenderer));
         contentGO.transform.SetParent(minimapViewport, false);
         contentRoot = (RectTransform)contentGO.transform;
         contentRoot.anchorMin = new Vector2(0.5f, 0.5f);
         contentRoot.anchorMax = new Vector2(0.5f, 0.5f);
         contentRoot.pivot = new Vector2(0.5f, 0.5f);
-        contentRoot.sizeDelta = definition.ContentSize;
+        contentRoot.sizeDelta = definition.PlacedContentSize;
         contentRoot.localRotation = Quaternion.identity;
 
-        baseImage = contentGO.GetComponent<Image>();
+        GameObject mapSpaceGO = new GameObject(MapSpaceName, typeof(RectTransform));
+        mapSpaceGO.transform.SetParent(contentRoot, false);
+        mapSpaceRoot = (RectTransform)mapSpaceGO.transform;
+        mapSpaceRoot.anchorMin = new Vector2(0.5f, 0.5f);
+        mapSpaceRoot.anchorMax = new Vector2(0.5f, 0.5f);
+        mapSpaceRoot.pivot = new Vector2(0.5f, 0.5f);
+        mapSpaceRoot.sizeDelta = definition.ContentSize;
+
+        GameObject artGO = new GameObject(MapArtName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        artGO.transform.SetParent(mapSpaceRoot, false);
+        RectTransform artRect = (RectTransform)artGO.transform;
+        artRect.anchorMin = new Vector2(0.5f, 0.5f);
+        artRect.anchorMax = new Vector2(0.5f, 0.5f);
+        artRect.pivot = new Vector2(0.5f, 0.5f);
+        artRect.sizeDelta = definition.ContentSize;
+
+        baseImage = artGO.GetComponent<Image>();
         baseImage.sprite = definition.BaseMap;
         baseImage.type = Image.Type.Simple;
         baseImage.preserveAspect = false;
@@ -112,7 +147,7 @@ public class MapView : MonoBehaviour
         baseImage.raycastTarget = false;
 
         GameObject markersGO = new GameObject(MarkerLayerName, typeof(RectTransform));
-        markersGO.transform.SetParent(contentRoot, false);
+        markersGO.transform.SetParent(mapSpaceRoot, false);
         markerLayer = (RectTransform)markersGO.transform;
         markerLayer.anchorMin = new Vector2(0.5f, 0.5f);
         markerLayer.anchorMax = new Vector2(0.5f, 0.5f);
@@ -125,7 +160,77 @@ public class MapView : MonoBehaviour
         bigMapPan = Vector2.zero;
 
         BuildPlaceholderLabel();
+        // The node is brand new, so its transform must be written even when the knobs happen to
+        // match what the previous node was given: drop the write-guard first.
+        placementApplied = false;
+        ApplyWholeMapPlacement();
         ApplyFraming(Vector3.zero);
+    }
+
+    private Vector2 lastPlacedOffset;
+    private float lastPlacedRotation;
+    private float lastPlacedScale;
+    private bool placementApplied;
+
+    /// <summary>Writes the definition's Whole map placement knobs to the MapSpace node, which is the
+    /// shared parent of the drawing and the marker layer. That parenting IS the feature: offset,
+    /// rotation and scale reach the art and every pin at once, while <see cref="MapService"/> keeps
+    /// writing raw map-space positions and calibration stays untouched.
+    ///
+    /// ⚠️ This MUST stay in step with <see cref="ApplyFraming"/>, which re-centres the crop through
+    /// <see cref="MapDefinition.ApplyMapPlacement"/> every frame. Applying it only at build time was
+    /// the bug the user reported on 11/15/2026: dragging Map Rotation or Map Scale while playing
+    /// moved the crop and left the picture behind, so the player's pin slid off the art. It is
+    /// therefore called from <see cref="LateUpdate"/> (both framings) and from the head of
+    /// <see cref="ApplyFraming"/> (whichever runs first in a frame wins the sync, and the second
+    /// call is free because of the guard below).
+    ///
+    /// Write-only-on-change, the house pattern from T-046 wave 1: three comparisons per frame, and
+    /// zero transform writes while nothing moves.</summary>
+    private bool ApplyWholeMapPlacement()
+    {
+        if (mapSpaceRoot == null || definition == null) return false;
+
+        Vector2 offset = definition.MapOffset;
+        float rotation = definition.MapRotationDegrees;
+        float scale = definition.MapScaleMultiplier;
+
+        if (placementApplied && offset == lastPlacedOffset
+            && Mathf.Approximately(rotation, lastPlacedRotation)
+            && Mathf.Approximately(scale, lastPlacedScale))
+            return false;
+
+        lastPlacedOffset = offset;
+        lastPlacedRotation = rotation;
+        lastPlacedScale = scale;
+        placementApplied = true;
+
+        mapSpaceRoot.anchoredPosition = offset;
+        mapSpaceRoot.localRotation = Quaternion.Euler(0f, 0f, rotation);
+        mapSpaceRoot.localScale = Vector3.one * scale;
+
+        // Nothing measures contentRoot.rect (the framing maths reads the definition and the
+        // viewport), so this is cosmetic - but it costs nothing here and stops the next reader
+        // assuming the size is deliberately stale.
+        if (contentRoot != null)
+            contentRoot.sizeDelta = definition.PlacedContentSize;
+
+        return true;
+    }
+
+    /// <summary>Keeps the MapSpace node honest with the asset every frame, in both framings. The big
+    /// map deliberately does NOT re-apply framing per frame (nothing moves while the player just
+    /// looks at it), so without this a placement knob edited while the big map is open would land on
+    /// the crop maths only, and the art would only follow when something panned or zoomed.
+    ///
+    /// A placement change also re-fits the big map, because its fit divides by
+    /// <see cref="MapDefinition.PlacedContentSize"/>: turn the drawing and the box it must fit inside
+    /// changes shape. The minimap needs nothing extra - it is re-framed every frame anyway.</summary>
+    private void LateUpdate()
+    {
+        if (!IsBuilt) return;
+        if (ApplyWholeMapPlacement() && framing == Framing.BigMap)
+            ApplyFraming(Vector3.zero);
     }
 
     /// <summary>A placeholder definition has no calibration, so it shows the drawing plus a label
@@ -158,8 +263,10 @@ public class MapView : MonoBehaviour
             Destroy(contentRoot.gameObject);
 
         contentRoot = null;
+        mapSpaceRoot = null;
         markerLayer = null;
         baseImage = null;
+        placementApplied = false;
         if (placeholderLabelRect != null) Destroy(placeholderLabelRect.gameObject);
         placeholderLabelRect = null;
         pools.Clear();
@@ -186,6 +293,11 @@ public class MapView : MonoBehaviour
     {
         if (!IsBuilt) return;
 
+        // Sync the placement node BEFORE any framing maths, so the picture and the crop centre can
+        // never be computed from two different values of Map Offset / Rotation / Scale. Free when
+        // nothing changed (see ApplyWholeMapPlacement).
+        ApplyWholeMapPlacement();
+
         RectTransform viewport = ActiveViewport;
         if (viewport == null) return;
 
@@ -199,15 +311,27 @@ public class MapView : MonoBehaviour
             placeholderLabelRect.localScale = Vector3.one;
         }
 
-        Vector2 content = definition.ContentSize;
+        // The PLACED box (turned AND magnified): what the pan clamp must keep covering the window.
+        // The big-map fit uses FitContentSize instead - scale included there would cancel the knob.
+        Vector2 content = definition.PlacedContentSize;
         Vector2 window = viewport.rect.size;
 
         if (framing == Framing.Minimap)
         {
-            float cropUnits = definition.MinimapCropMetres * definition.UnitsPerMetre;
+            // Map space is metres (see MapDefinition.ContentSize), so the crop window is simply
+            // MinimapCropMetres of it wide. MapScaleMultiplier does NOT belong here: it is on the
+            // MapSpace node below contentRoot, so it magnifies the content inside this window
+            // instead - which is why a bigger map shows fewer world metres, and why MapService
+            // divides the cull radius by it.
+            float cropUnits = definition.MinimapCropMetres;
             framingScale = cropUnits > 0.0001f ? window.x / cropUnits : 1f;
 
-            Vector2 playerMapPoint = definition.WorldToMapPoint(playerWorld);
+            // Centre on the player's point WITH the whole-map placement applied, or turning the map
+            // would slide the art out from under the pin. The pin itself needs no correction - it is
+            // a child of MapSpace, so it turns and scales with the drawing by construction. A
+            // MapOffset therefore cancels here (the crop follows the placed player): the offset is a
+            // big-map knob, while rotation and scale read on both framings.
+            Vector2 playerMapPoint = definition.ApplyMapPlacement(definition.WorldToMapPoint(playerWorld));
             Vector2 offset = -playerMapPoint * framingScale;
             if (clampMinimapToContent)
                 offset = ClampOffset(offset, content * framingScale, window);
@@ -218,8 +342,13 @@ public class MapView : MonoBehaviour
         }
         else
         {
-            float fitX = content.x > 0.0001f ? (window.x - definition.BigMapPaddingPixels * 2f) / content.x : 1f;
-            float fitY = content.y > 0.0001f ? (window.y - definition.BigMapPaddingPixels * 2f) / content.y : 1f;
+            // FIT against the drawing turned-but-not-magnified. Using the placed box here divided
+            // the fit by Map Scale Multiplier while the MapSpace node still multiplied by it, so the
+            // art stayed pinned to the frame and only the pins grew - the bug reported 11/15/2026.
+            // The clamp two lines below keeps using the PLACED box, because that is what is on screen.
+            Vector2 fit = definition.FitContentSize;
+            float fitX = fit.x > 0.0001f ? (window.x - definition.BigMapPaddingPixels * 2f) / fit.x : 1f;
+            float fitY = fit.y > 0.0001f ? (window.y - definition.BigMapPaddingPixels * 2f) / fit.y : 1f;
             framingScale = Mathf.Max(0.0001f, Mathf.Min(fitX, fitY)) * bigMapZoom;
 
             contentRoot.localScale = Vector3.one * framingScale;
@@ -330,12 +459,26 @@ public class MapView : MonoBehaviour
         rect.sizeDelta = viewportUnits * compensation;
     }
 
-    /// <summary>The marker's size in viewport units, including the quest-goal bump.</summary>
+    /// <summary>The marker's box in viewport units: the tier size on the definition, times that
+    /// definition's global Marker Size Multiplier, times this pin's own multiplier on
+    /// <see cref="MapMarker"/>, times the quest-goal bump. One square box, because the icon is fitted
+    /// inside it with its own proportions (see <c>AcquireMarker</c>).
+    ///
+    /// Whole-map MapScaleMultiplier is deliberately NOT here: the pin is a child of the MapSpace node
+    /// that carries it, so the glyph scales with the picture through the hierarchy, without this
+    /// number having to know about it.</summary>
     public Vector2 GetMarkerSizeUnits(MapMarker marker)
     {
         if (definition == null || marker == null) return Vector2.zero;
-        float multiplier = marker.IsGoal ? definition.GoalMarkerMultiplier : 1f;
-        return definition.GetMarkerPixels(marker.Tier) * multiplier;
+
+        float size = definition.GetMarkerSize(marker.Tier)
+                     * definition.MarkerSizeMultiplier
+                     * marker.SizeMultiplier;
+
+        if (marker.IsGoal)
+            size *= definition.GoalMarkerMultiplier;
+
+        return Vector2.one * size;
     }
 
     /// <summary>Keeps the content covering the window when it is bigger than the window, and centred

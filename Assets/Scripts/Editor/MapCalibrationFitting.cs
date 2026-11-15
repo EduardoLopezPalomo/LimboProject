@@ -713,7 +713,7 @@ internal static class MapCalibrationFitting
                 world = world,
                 icon = m.IconType.ToString(),
                 tier = m.Tier.ToString() + (m.gameObject.activeInHierarchy ? string.Empty : " [HOST OFF]"),
-                isPlayer = m.Tier == MapMarkerTier.Important,
+                isPlayer = m.Tier == MapMarkerTier.Player,
                 outside = inside == false,
                 mapPoint = new Vector2((uv.x - 0.5f) * span.x, (uv.y - 0.5f) * span.y)
             });
