@@ -20,6 +20,10 @@ using Object = UnityEngine.Object;
 ///   4. every GameplayAbility asset Name exists in AbilityIds. Two assets may share a Name as
 ///      long as they live in different AbilityHolders, so that case is only a warning.
 ///   5. every AbilityIds const is still referenced, by an asset or by code (AbilityIds.<Name>)
+/// And one convention check, riding on the same walk of every first-party .cs:
+///   6. the player's movement lock is only touched through InputController (T-001). Anyone calling
+///      the StarterAssets setter directly is rebuilding the bug where an interrupted dash or throw
+///      leaves the player permanently unable to move.
 ///
 /// Deliberate NON-checks: Animator parameter names ("Dash", "CounterAttack", ...),
 /// attribute names ("BlockResistance"), blackboard variable NAMES, node/class names and
@@ -112,7 +116,7 @@ public static class AbilityReferenceValidator
 
         try
         {
-            CollectCodeUsage(used);
+            CollectCodeUsage(used, issues);
             CheckAbilityAssets(issues, warnings, used, counts);
             CheckAttackDefinitions(issues, used, counts);
             CheckBehaviorGraphs(issues, used, counts);
@@ -483,7 +487,7 @@ public static class AbilityReferenceValidator
     /// (a cancel triggered from script, an Animator sync, ...) is not drift, and reporting it would
     /// push people towards deleting a const that is doing real work.
     /// </summary>
-    static void CollectCodeUsage(HashSet<string> used)
+    static void CollectCodeUsage(HashSet<string> used, List<Issue> issues)
     {
         const string marker = "AbilityIds.";
         var dataPath = Application.dataPath.Replace('\\', '/');
@@ -502,6 +506,10 @@ public static class AbilityReferenceValidator
             {
                 continue;
             }
+
+            // Check 6 rides along in this walk instead of opening every file a second time.
+            CheckInputLockConvention(path, text, issues);
+
             if (text.IndexOf(marker, StringComparison.Ordinal) < 0) continue;
 
             var at = 0;
@@ -515,6 +523,57 @@ public static class AbilityReferenceValidator
                 if (AbilityIds.IsKnownName(name)) used.Add(name);
             }
         }
+    }
+
+    // ------------------------------------------------------------------ 6
+    // The player's movement lock (T-001). The StarterAssets bool behind ThirdPersonController's
+    // misspelled setter has no owner, no timer and no reset, so a caller that pairs its own false/true
+    // by hand leaves the player permanently unable to move as soon as anything interrupts the pair -
+    // death, knockback, a level change, a cancelled ability, a clip cut short before its restoring
+    // event. That was 13 call sites in 7 files until the seam in Assets/Scripts/Player/InputController.cs
+    // folded them all into a named, self-clearing lock. Nothing else may open that door again.
+    //
+    // Matching on the member access (".Set..."/".InputAvaible") keeps mentions inside doc comments out
+    // of the report, and ".InputAvaible" catches a direct write to the public field. GetInputAviable()
+    // is deliberately not matched: reading the flag is what InputController.Update does to self-heal.
+    // ------------------------------------------------------------------
+    static void CheckInputLockConvention(string path, string text, List<Issue> issues)
+    {
+        const string Seam = "Assets/Scripts/Player/InputController.cs";
+        const string Setter = ".SetInputAviable";
+        const string Field = ".InputAvaible";
+
+        if (path == Seam) return;
+
+        // The grep is exempt from the grep: this file has to spell the setter's name to look for it.
+        if (path.EndsWith("AbilityReferenceValidator.cs", StringComparison.Ordinal)) return;
+
+        for (var at = text.IndexOf(Setter, StringComparison.Ordinal); at >= 0; at = text.IndexOf(Setter, at + 1, StringComparison.Ordinal))
+        {
+            Add(issues, path + ":" + LineOf(text, at) + " freezes the player's movement through the StarterAssets "
+                + "controller directly. Use InputController.AcquireInputLock(owner, holder) and ReleaseInputLock "
+                + "(the ability's own AbilityIds name as holder): the seam is counted, it releases itself when the "
+                + "character is disabled, and it survives an interrupted ability. This call does none of that (T-001).",
+                null);
+        }
+
+        for (var at = text.IndexOf(Field, StringComparison.Ordinal); at >= 0; at = text.IndexOf(Field, at + 1, StringComparison.Ordinal))
+        {
+            Add(issues, path + ":" + LineOf(text, at) + " writes the StarterAssets movement field directly, which "
+                + "bypasses the lock bookkeeping in InputController and can strand the player unable to move. "
+                + "Use InputController.AcquireInputLock / ReleaseInputLock instead (T-001).",
+                null);
+        }
+    }
+
+    static int LineOf(string text, int index)
+    {
+        var line = 1;
+        for (var i = 0; i < index && i < text.Length; i++)
+        {
+            if (text[i] == '\n') line++;
+        }
+        return line;
     }
 
     // ------------------------------------------------------------------ helpers

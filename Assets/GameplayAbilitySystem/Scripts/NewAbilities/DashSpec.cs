@@ -10,7 +10,6 @@ public class DashSpec : GameplayAbilitySpec
     private Animator animator;
     private AttributeSystem attributeSystem;
     private CharacterController charactercontroller;
-    private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
     private StarterAssetsInputs starterInputs;
@@ -24,7 +23,6 @@ public class DashSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         charactercontroller = owner.GetComponent<CharacterController>();
-        personcontroller = owner.GetComponent<ThirdPersonController>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
@@ -61,7 +59,7 @@ public class DashSpec : GameplayAbilitySpec
         RotateTowardsDashDirection();
         
         makeInvincible.SetInvincible(true);
-        personcontroller.SetInputAviable(false);
+        InputController.AcquireInputLock(owner, AbilityIds.Dash);
 
         dashEnded = false;
         safetyCoroutine = abilityHolder.StartCoroutine(SafetyTimeout());
@@ -149,7 +147,7 @@ public class DashSpec : GameplayAbilitySpec
         }
 
         makeInvincible.SetInvincible(false);
-        personcontroller.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.Dash);
         charactercontroller.Move(Vector3.zero);
         EndAbility();
     }

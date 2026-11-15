@@ -7,7 +7,6 @@ public class ParrySpec : GameplayAbilitySpec
     private Animator animator;
     private AbilityHolder abilityHolder;
     private DefenseState defenseState;
-    private ThirdPersonController personController;
     private LockOn lockOn;
     private PlayerWeaponController weaponController;
     private Transform ownerTransform;
@@ -21,7 +20,6 @@ public class ParrySpec : GameplayAbilitySpec
         animator = owner.GetComponent<Animator>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         defenseState = owner.GetComponent<DefenseState>();
-        personController = owner.GetComponent<ThirdPersonController>();
         weaponController = owner.GetComponent<PlayerWeaponController>();
         lockOn = owner.GetComponent<LockOn>();
         ownerTransform = owner.transform;
@@ -43,7 +41,7 @@ public class ParrySpec : GameplayAbilitySpec
         base.ActivateAbility();
 
         holdingButton = true;
-        personController.SetInputAviable(false);
+        InputController.AcquireInputLock(owner, AbilityIds.Parry);
         animator.SetBool("Blocking", true);
         weaponController.EquipWeapon();
         weaponController.WeaponDamage.parentConstraint.enabled = true;
@@ -105,7 +103,7 @@ public class ParrySpec : GameplayAbilitySpec
         holdingButton = false;
         animator.SetBool("Blocking", false);
         animator.SetBool("BlockHit", false);
-        personController.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.Parry);
         defenseState.SetState(GuardState.Idle, this);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
         weaponController.ResetTransform();
@@ -137,7 +135,7 @@ public class ParrySpec : GameplayAbilitySpec
         animator.SetBool("Blocking", false);
         animator.SetBool("BlockHit", false);
         defenseState.SetState(GuardState.Idle, this);
-        personController.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.Parry);
         weaponController.WeaponDamage.parentConstraint.enabled = false;
         weaponController.ResetTransform();
         EndAbility();

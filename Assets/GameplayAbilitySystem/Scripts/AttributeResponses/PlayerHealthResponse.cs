@@ -48,16 +48,16 @@ public class PlayerHealthResponse : GeneralHealthResponse
         lastDeathTime = Time.time;
 
         Animator animator = owner.GetComponent<Animator>();
-        ThirdPersonController personController = owner.GetComponent<ThirdPersonController>();
         LockOn lockOn = owner.GetComponent<LockOn>();
         if (lockOn != null)
         {
             lockOn.ClearLock();
         }
-        if (personController != null)
-        {
-            personController.SetInputAviable(false);
-        }
+        // T-001: held under its own holder name, so a dash or a throw that is still running when the player
+        // dies cannot hand movement back on its way out, and the death lock itself cannot outlive the
+        // character. PlayerDeath.anim's InputAfterDeath event is what frees movement afterwards (see
+        // InputController.Update, which adopts that write instead of keeping the lock as debt).
+        InputController.AcquireInputLock(owner.gameObject, InputController.LockOwner.Death);
         if (animator != null)
         {
             animator.SetTrigger("IsDeath");

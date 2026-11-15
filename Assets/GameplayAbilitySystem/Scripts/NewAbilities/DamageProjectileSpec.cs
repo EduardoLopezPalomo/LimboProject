@@ -6,7 +6,6 @@ public class DamageProjectileSpec : GameplayAbilitySpec
 {
     private Animator animator;
     private CharacterController charactercontroller;
-    private ThirdPersonController personcontroller;
     private AbilityHolder abilityHolder;
     private MakeInvincible makeInvincible;
     private AttributeSystem attributeSystem;
@@ -27,7 +26,6 @@ public class DamageProjectileSpec : GameplayAbilitySpec
     {
         animator = owner.GetComponent<Animator>();
         charactercontroller = owner.GetComponent<CharacterController>();
-        personcontroller = owner.GetComponent<ThirdPersonController>();
         abilityHolder = owner.GetComponent<AbilityHolder>();
         makeInvincible = owner.GetComponent<MakeInvincible>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
@@ -68,7 +66,7 @@ public class DamageProjectileSpec : GameplayAbilitySpec
         animator.SetTrigger("Throw");
 
         makeInvincible.SetInvincible(true);
-        personcontroller.SetInputAviable(false);
+        InputController.AcquireInputLock(owner, AbilityIds.DamageProyectile);
 
         dashEnded = false;
         safetyCoroutine = abilityHolder.StartCoroutine(SafetyTimeout());
@@ -157,7 +155,7 @@ public class DamageProjectileSpec : GameplayAbilitySpec
         }
 
         makeInvincible.SetInvincible(false);
-        personcontroller.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.DamageProyectile);
         charactercontroller.Move(Vector3.zero);
         EndAbility();
     }

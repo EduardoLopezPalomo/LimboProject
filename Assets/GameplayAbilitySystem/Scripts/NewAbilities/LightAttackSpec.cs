@@ -111,7 +111,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         {
             weaponController.UnequipWeapon();
         }
-        controller.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.LightAttack);
         characterController.Move(Vector3.zero);
         animator.SetBool("InCombo", false);
     }
@@ -307,13 +307,19 @@ public class LightAttackSpec : GameplayAbilitySpec
             return;
         }
         EndAbility();
-        controller.SetInputAviable(true);
+        InputController.ReleaseInputLock(owner, AbilityIds.LightAttack);
         characterController.Move(Vector3.zero);
     }
 
+    /// <summary>
+    /// Animation event (Attack_2 / Attack_3 / PlayerAttack, via AbilityAnimationBridge.DisableInputPlayer):
+    /// the swing owns the lock, and every way out of it (CanHaveInput, EndCombo, CancelAbility) releases it.
+    /// A clip that gets cut short is now safe - the combo releases on cancel, and disabling the character
+    /// releases even if nothing else does (T-001).
+    /// </summary>
     public void DisableInput()
     {
-        controller.SetInputAviable(false);
+        InputController.AcquireInputLock(owner, AbilityIds.LightAttack);
     }
 
 
