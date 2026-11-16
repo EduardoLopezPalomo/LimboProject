@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 using Stopwatch = System.Diagnostics.Stopwatch;
@@ -20,10 +21,13 @@ using Object = UnityEngine.Object;
 ///   4. every GameplayAbility asset Name exists in AbilityIds. Two assets may share a Name as
 ///      long as they live in different AbilityHolders, so that case is only a warning.
 ///   5. every AbilityIds const is still referenced, by an asset or by code (AbilityIds.<Name>)
-/// And one convention check, riding on the same walk of every first-party .cs:
+/// And two convention checks, riding on the same walk of every first-party .cs:
 ///   6. the player's movement lock is only touched through InputController (T-001). Anyone calling
 ///      the StarterAssets setter directly is rebuilding the bug where an interrupted dash or throw
 ///      leaves the player permanently unable to move.
+///   7. new code must not reach for a manager through a static singleton (P1.3, T-023). The 147
+///      accesses the game already depends on are frozen per file, so only a new coupling is warned
+///      about and the existing debt is not re-reported on every reload.
 ///
 /// Deliberate NON-checks: Animator parameter names ("Dash", "CounterAttack", ...),
 /// attribute names ("BlockResistance"), blackboard variable NAMES, node/class names and
@@ -67,6 +71,9 @@ public static class AbilityReferenceValidator
         public int eventFiles;
         public int eventBindings;
         public int eventNonStringBindings;
+        public int singletonFiles;
+        public int singletonSites;
+        public int singletonNew;
     }
 
     [MenuItem("Tools/Ciro/Validate Ability References")]
@@ -116,7 +123,7 @@ public static class AbilityReferenceValidator
 
         try
         {
-            CollectCodeUsage(used, issues);
+            CollectCodeUsage(used, issues, warnings, counts);
             CheckAbilityAssets(issues, warnings, used, counts);
             CheckAttackDefinitions(issues, used, counts);
             CheckBehaviorGraphs(issues, used, counts);
@@ -139,7 +146,9 @@ public static class AbilityReferenceValidator
             + counts.graphs + " behavior graphs (" + counts.graphAbilityFields + " Ability fields, "
             + counts.graphFieldsSkipped + " non-string skipped), " + counts.eventFiles
             + " prefab/scene files (" + counts.eventBindings + " ActivateAbility/CancelAbility bindings, "
-            + counts.eventNonStringBindings + " non-string bindings ignored) in "
+            + counts.eventNonStringBindings + " non-string bindings ignored), "
+            + counts.singletonSites + " raw singleton accesses in " + counts.singletonFiles
+            + " files (" + counts.singletonNew + " beyond the frozen baseline) in "
             + sw.ElapsedMilliseconds + "ms";
         if (issues.Count == 0 && warnings.Count == 0) Debug.Log(summary + " -> OK, no ability-reference drift.");
         else Debug.LogWarning(summary + " -> " + issues.Count + " problem(s) and " + warnings.Count + " warning(s) logged above.");
@@ -483,32 +492,32 @@ public static class AbilityReferenceValidator
     }
 
     /// <summary>
+    /// Walks every first-party .cs once. Three things come out of it: which AbilityIds names the code
+    /// uses, and the two convention checks (6 and 7) that ride along instead of opening the files again.
+    ///
+    /// The sources are kept in memory for the pass because check 7 needs to know which types declare a
+    /// singleton, and a type is only declared in one file while it is used in twenty. 305 small files
+    /// cost a couple of MB for the length of a run that already reads every prefab in the project.
+    ///
     /// A name used from C# as "AbilityIds.&lt;Name&gt;" counts as used: a name that only code needs
     /// (a cancel triggered from script, an Animator sync, ...) is not drift, and reporting it would
     /// push people towards deleting a const that is doing real work.
     /// </summary>
-    static void CollectCodeUsage(HashSet<string> used, List<Issue> issues)
+    static void CollectCodeUsage(HashSet<string> used, List<Issue> issues, List<Issue> warnings, Counts counts)
     {
         const string marker = "AbilityIds.";
-        var dataPath = Application.dataPath.Replace('\\', '/');
 
-        foreach (var file in Directory.GetFiles(Application.dataPath, "*.cs", SearchOption.AllDirectories))
+        var sources = ReadFirstPartySources();
+        var singletons = CollectSingletonTypes(sources);
+
+        for (int s = 0; s < sources.Count; s++)
         {
-            var path = "Assets" + file.Replace('\\', '/').Substring(dataPath.Length);
-            if (IsExcluded(path)) continue;
+            var path = sources[s].Key;
+            var text = sources[s].Value;
 
-            string text;
-            try
-            {
-                text = File.ReadAllText(file);
-            }
-            catch (Exception)
-            {
-                continue;
-            }
-
-            // Check 6 rides along in this walk instead of opening every file a second time.
+            // Checks 6 and 7 ride along in this walk instead of opening every file a second time.
             CheckInputLockConvention(path, text, issues);
+            CheckSingletonConvention(path, text, singletons, warnings, counts);
 
             if (text.IndexOf(marker, StringComparison.Ordinal) < 0) continue;
 
@@ -564,6 +573,310 @@ public static class AbilityReferenceValidator
                 + "Use InputController.AcquireInputLock / ReleaseInputLock instead (T-001).",
                 null);
         }
+    }
+
+    // ------------------------------------------------------------------ 7
+    // The P1.3 rule: new code is handed the manager it needs instead of reaching for a static
+    // singleton. A singleton is a global, so a class that uses one cannot be built under test, and it
+    // reads null at exactly the moments people forget about - a scene that does not carry the manager,
+    // an Awake that ran before the manager's, a level that unloads it first. The game already has
+    // hundreds of these accesses (GameplayMenu, MenuNavigation, SaveSystem, the ability specs, the UI
+    // menus, ...). Re-writing all of them is a project of its own, so the debt is FROZEN per file
+    // rather than re-reported: SingletonDebt records what each file has today, and the check warns
+    // only when a file goes past its own number. Deleting one is always welcome - after a cleanup run
+    // Tools/Ciro/Print Singleton Debt and paste the smaller table back in.
+    //
+    // What counts as a singleton is decided by the source, not by a hand-kept name list: any type that
+    // declares a static Instance/instance member (SingletonDeclaration). That is what makes the check
+    // cheap to trust - BindingFlags.Instance, the seven reflection calls in GraphBindingValidator, is
+    // not a singleton because nothing in this project declares it, so it is never reported and nobody
+    // has to maintain a deny-list for it.
+    //
+    // Comments and string bodies are blanked first (BlankOutNonCode), because a mention of a manager in
+    // documentation or in a log string is not a dependency, and a guard that reports documentation is
+    // a guard that gets switched off.
+    // ------------------------------------------------------------------
+
+    /// <summary>A static member named Instance/instance: the declaration of a singleton.</summary>
+    static readonly Regex SingletonDeclaration =
+        new Regex("\\bstatic\\s+(?:readonly\\s+)?([A-Za-z_][A-Za-z0-9_]*)\\s+[iI]nstance\\b");
+
+    /// <summary>An access through such a member: MusicManager.Instance, DayNight.instance, ...</summary>
+    static readonly Regex SingletonAccess =
+        new Regex("\\b([A-Za-z_][A-Za-z0-9_]*)\\.[iI]nstance\\b");
+
+    /// <summary>
+    /// The freeze, taken 11/16/2026: 147 accesses in 57 files. One entry per file that reaches for a
+    /// manager today. A file listed here may keep that many accesses or fewer, never more; a file that
+    /// is not listed has never been allowed any. Regenerate with Tools/Ciro/Print Singleton Debt.
+    /// </summary>
+    static readonly Dictionary<string, int> SingletonDebt =
+        new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/BossHealthResponse.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/EnemyHealthResponse.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/PlayerHealthResponse.cs", 3 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/BowAttackSpec.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/DamageProjectileSpec.cs", 2 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/ElectroAttackSpec.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/FireAttackSpec.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/HealPlayerSpec.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/MageCounterAttackSpec.cs", 1 },
+            { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/TeleportSpec.cs", 2 },
+            { "Assets/NPC/Scripts/DeactivateNpcAction.cs", 1 },
+            { "Assets/Scripts/Camera/RegisterListener.cs", 2 },
+            { "Assets/Scripts/ChangeMainMenuPC.cs", 1 },
+            { "Assets/Scripts/CharacterSFX.cs", 2 },
+            { "Assets/Scripts/CharacterVFX.cs", 3 },
+            { "Assets/Scripts/Combat/DamageResolver.cs", 6 },
+            { "Assets/Scripts/Enemies/Boss/BossConversation.cs", 2 },
+            { "Assets/Scripts/Enemies/EnemiesGroupController.cs", 2 },
+            { "Assets/Scripts/Enemies/EnemyGraphBridge.cs", 1 },
+            { "Assets/Scripts/Enemies/GoingToPlayer.cs", 3 },
+            { "Assets/Scripts/Enemies/RotateAlongPlayer.cs", 1 },
+            { "Assets/Scripts/Managers/PlayerSubSlot.cs", 2 },
+            { "Assets/Scripts/NPC/GuardBlockerNPC.cs", 2 },
+            { "Assets/Scripts/NPC/NPCGraphBridge.cs", 2 },
+            { "Assets/Scripts/NPC/NPCPool.cs", 2 },
+            { "Assets/Scripts/Player/LockOn.cs", 5 },
+            { "Assets/Scripts/QuestItemInteractable.cs", 2 },
+            { "Assets/Scripts/Quests/Goals/Goals.cs", 1 },
+            { "Assets/Scripts/Quests/Quest.cs", 3 },
+            { "Assets/Scripts/Quests/QuestZoneTrigger.cs", 1 },
+            { "Assets/Scripts/SaveData/GameData.cs", 1 },
+            { "Assets/Scripts/SaveData/GameLoader.cs", 7 },
+            { "Assets/Scripts/SaveData/SaveSystem.cs", 4 },
+            { "Assets/Scripts/UI/Credits/CreditsSceneController.cs", 2 },
+            { "Assets/Scripts/UI/DeathMenu.cs", 2 },
+            { "Assets/Scripts/UI/DialogueNPC.cs", 5 },
+            { "Assets/Scripts/UI/DialogueUI.cs", 3 },
+            { "Assets/Scripts/UI/DisplayMenu.cs", 6 },
+            { "Assets/Scripts/UI/GameplayMenu.cs", 4 },
+            { "Assets/Scripts/UI/InterfaceMenu.cs", 8 },
+            { "Assets/Scripts/UI/LevelLoader.cs", 6 },
+            { "Assets/Scripts/UI/MainMenu.cs", 4 },
+            { "Assets/Scripts/UI/MenuNavigation.cs", 6 },
+            { "Assets/Scripts/UI/Notifications/NotificationUI.cs", 1 },
+            { "Assets/Scripts/UI/PauseMenu.cs", 5 },
+            { "Assets/Scripts/UI/PlayerHUDMenu.cs", 4 },
+            { "Assets/Scripts/UI/PlayerHealth.cs", 1 },
+            { "Assets/Scripts/UI/PlayerUIController.cs", 4 },
+            { "Assets/Scripts/UI/PopUpUI.cs", 2 },
+            { "Assets/Scripts/UI/QuestListUI.cs", 1 },
+            { "Assets/Scripts/UI/Sound/ButtonSound.cs", 2 },
+            { "Assets/Scripts/UI/Sound/SliderSound.cs", 1 },
+            { "Assets/Scripts/UI/Sound/ToggleSound.cs", 2 },
+            { "Assets/Scripts/UI/Video/VideoSceneController.cs", 4 },
+            { "Assets/Scripts/World/Teleport/TeleportQuest.cs", 2 },
+            { "Assets/Scripts/World/Tutorial/TutorialTrigger.cs", 1 },
+            { "Assets/VFX/Free Slash VFX/Demo/Scripts/ParticleAnimationEvent.cs", 1 },
+        };
+
+    static void CheckSingletonConvention(string path, string text, HashSet<string> singletons,
+        List<Issue> warnings, Counts counts)
+    {
+        // The grep is exempt from the grep: this file has to spell both patterns to look for them.
+        if (path.EndsWith("AbilityReferenceValidator.cs", StringComparison.Ordinal)) return;
+
+        var code = BlankOutNonCode(text);
+        var matches = SingletonAccess.Matches(code);
+        if (matches.Count == 0) return;
+
+        var allowed = 0;
+        SingletonDebt.TryGetValue(path, out allowed);
+
+        var seen = 0;
+        var countedHere = false;
+        for (var i = 0; i < matches.Count; i++)
+        {
+            // Not every ".Instance" is a singleton: BindingFlags.Instance is a .NET enum member, and a
+            // type nobody here declares is not a singleton either way.
+            if (!singletons.Contains(matches[i].Groups[1].Value)) continue;
+
+            counts.singletonSites++;
+            if (!countedHere) { countedHere = true; counts.singletonFiles++; }
+            seen++;
+            if (seen <= allowed) continue;
+
+            counts.singletonNew++;
+
+            Add(warnings, path + ":" + LineOf(code, matches[i].Index) + " reaches for " + matches[i].Value
+                + (allowed == 0
+                    ? ", and this file is not allowed any raw singleton access"
+                    : ", which is access number " + seen + " in a file frozen at " + allowed)
+                + ". Pass the manager in instead (a SerializeField, a parameter, or one lookup in the "
+                + "scene bootstrap handed to whoever needs it): a static is null in exactly the scenes "
+                + "nobody tested, and it cannot be replaced in a test. Going the other way is the fix - "
+                + "run Tools/Ciro/Print Singleton Debt and paste the smaller table into "
+                + "AbilityReferenceValidator.SingletonDebt (P1.3).",
+                null);
+        }
+    }
+
+    /// <summary>
+    /// Replaces every comment and every string/char literal body with spaces, keeping the length and
+    /// every line break, so a mention of a manager inside documentation or inside a log message is not
+    /// mistaken for code, and LineOf() still reports the real line of whatever survives.
+    /// Interpolated strings are blanked whole, which can hide a call written inside curly braces -
+    /// a guard that only ever under-reports is the safe direction for a guard like this one.
+    /// </summary>
+    static string BlankOutNonCode(string text)
+    {
+        var buf = text.ToCharArray();
+        var i = 0;
+        while (i < buf.Length)
+        {
+            var c = buf[i];
+
+            if (c == '/' && i + 1 < buf.Length && (buf[i + 1] == '/' || buf[i + 1] == '*'))
+            {
+                var block = buf[i + 1] == '*';
+                buf[i] = ' ';
+                buf[i + 1] = ' ';
+                i += 2;
+                while (i < buf.Length)
+                {
+                    if (!block && buf[i] == '\n') break;
+                    if (block && buf[i] == '*' && i + 1 < buf.Length && buf[i + 1] == '/')
+                    {
+                        buf[i] = ' ';
+                        buf[i + 1] = ' ';
+                        i += 2;
+                        break;
+                    }
+                    if (buf[i] != '\n' && buf[i] != '\r') buf[i] = ' ';
+                    i++;
+                }
+                continue;
+            }
+
+            if (c == '@' && i + 1 < buf.Length && buf[i + 1] == '"')
+            {
+                buf[i] = ' ';
+                i++;
+                buf[i] = ' ';
+                i++;
+                while (i < buf.Length)
+                {
+                    if (buf[i] == '"')
+                    {
+                        if (i + 1 < buf.Length && buf[i + 1] == '"')
+                        {
+                            buf[i] = ' ';
+                            buf[i + 1] = ' ';
+                            i += 2;
+                            continue;
+                        }
+                        buf[i] = ' ';
+                        i++;
+                        break;
+                    }
+                    if (buf[i] != '\n' && buf[i] != '\r') buf[i] = ' ';
+                    i++;
+                }
+                continue;
+            }
+
+            if (c == '"' || c == '\'')
+            {
+                buf[i] = ' ';
+                i++;
+                while (i < buf.Length && buf[i] != c && buf[i] != '\n')
+                {
+                    if (buf[i] == '\\')
+                    {
+                        buf[i] = ' ';
+                        i++;
+                        if (i >= buf.Length || buf[i] == '\n') break;
+                    }
+                    buf[i] = ' ';
+                    i++;
+                }
+                if (i < buf.Length && buf[i] == c)
+                {
+                    buf[i] = ' ';
+                    i++;
+                }
+                continue;
+            }
+
+            i++;
+        }
+        return new string(buf);
+    }
+
+    /// <summary>
+    /// Every first-party .cs as (asset path, text), honouring ExcludedPrefixes. The single source of
+    /// the file list for all three consumers: the AbilityIds scan, the two convention checks and
+    /// Tools/Ciro/Print Singleton Debt.
+    /// </summary>
+    static List<KeyValuePair<string, string>> ReadFirstPartySources()
+    {
+        var dataPath = Application.dataPath.Replace('\\', '/');
+        var sources = new List<KeyValuePair<string, string>>(320);
+
+        foreach (var file in Directory.GetFiles(Application.dataPath, "*.cs", SearchOption.AllDirectories))
+        {
+            var path = "Assets" + file.Replace('\\', '/').Substring(dataPath.Length);
+            if (IsExcluded(path)) continue;
+            try
+            {
+                sources.Add(new KeyValuePair<string, string>(path, File.ReadAllText(file)));
+            }
+            catch (Exception)
+            {
+                // A file we cannot read is not a finding; every other check simply does not see it.
+            }
+        }
+        return sources;
+    }
+
+    /// <summary>The types that declare a static Instance/instance member somewhere in those sources.</summary>
+    static HashSet<string> CollectSingletonTypes(List<KeyValuePair<string, string>> sources)
+    {
+        var singletons = new HashSet<string>(StringComparer.Ordinal);
+        for (var s = 0; s < sources.Count; s++)
+        {
+            var declared = SingletonDeclaration.Matches(sources[s].Value);
+            for (var i = 0; i < declared.Count; i++) singletons.Add(declared[i].Groups[1].Value);
+        }
+        return singletons;
+    }
+
+    /// <summary>
+    /// Prints check 7's table in the exact shape of the SingletonDebt field, so a cleanup is recorded
+    /// by pasting the smaller table over the old one. Read-only.
+    /// </summary>
+    [MenuItem("Tools/Ciro/Print Singleton Debt")]
+    public static void PrintSingletonDebt()
+    {
+        var sources = ReadFirstPartySources();
+        var singletons = CollectSingletonTypes(sources);
+        var perFile = new Dictionary<string, int>(StringComparer.Ordinal);
+        var total = 0;
+
+        for (var s = 0; s < sources.Count; s++)
+        {
+            if (sources[s].Key.EndsWith("AbilityReferenceValidator.cs", StringComparison.Ordinal)) continue;
+            var matches = SingletonAccess.Matches(BlankOutNonCode(sources[s].Value));
+            for (var i = 0; i < matches.Count; i++)
+            {
+                if (!singletons.Contains(matches[i].Groups[1].Value)) continue;
+                var file = sources[s].Key;
+                var had = 0;
+                perFile.TryGetValue(file, out had);
+                perFile[file] = had + 1;
+                total++;
+            }
+        }
+
+        var lines = new List<string>(perFile.Count);
+        foreach (var pair in perFile) lines.Add("        { \"" + pair.Key + "\", " + pair.Value + " },");
+        lines.Sort(StringComparer.Ordinal);
+
+        Debug.Log(Tag + "singleton debt is " + total + " accesses in " + perFile.Count
+            + " files. Paste these between the braces of SingletonDebt to re-freeze:"
+            + "\n" + string.Join("\n", lines));
     }
 
     static int LineOf(string text, int index)
