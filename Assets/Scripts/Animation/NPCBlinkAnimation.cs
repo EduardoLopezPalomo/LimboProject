@@ -13,6 +13,7 @@ public struct NpcPortrait
     public Sprite closeMouth;
 }
 
+
 public class NPCBlinkAnimation : MonoBehaviour
 {
     [Header("Images")]
@@ -24,11 +25,20 @@ public class NPCBlinkAnimation : MonoBehaviour
     [SerializeField] private Image closeMouth;
     [Header("Mouth")]
     [SerializeField] private float timeBetweenMouthShapes = 0.12f;
+    [SerializeField] private Animator blinkAnimator;
 
     private bool talking;
     private float timer;
     private bool haveMouth;
 
+    private Animator BlinkAnimator
+    {
+        get
+        {
+            if (blinkAnimator == null) blinkAnimator = GetComponent<Animator>();
+            return blinkAnimator;
+        }
+    }
     public void SetPortrait(NpcPortrait r)
     {
         baseImg.sprite = r.baseSprite;
@@ -41,6 +51,30 @@ public class NPCBlinkAnimation : MonoBehaviour
         // Only if the NPC has a mouth
         haveMouth = r.openMouth != null && r.closeMouth != null;
         SetMouth(false);
+
+        // The NPC god could have no eyes only if there is no sprite assigned for them, otherwise they should have eyes. 
+        bool nameHasGods = !string.IsNullOrEmpty(baseImg.sprite.name)
+        && baseImg.sprite.name.Contains("gods", StringComparison.OrdinalIgnoreCase);
+
+        bool hasNotEyesAssigned = r.openEyes == null && r.mediumEyes == null && r.closeEyes == null;
+
+
+        bool hasNotEyes = nameHasGods && hasNotEyesAssigned;
+
+        Debug.Log($"NPC {baseImg.sprite.name} has no eyes assigned: {hasNotEyesAssigned}, name has gods: {nameHasGods}, final result (has not eyes): {hasNotEyes}");
+        if (hasNotEyes)
+        {
+            BlinkAnimator.enabled = false;
+            openEyes.gameObject.SetActive(false);
+            mediumEyes.gameObject.SetActive(false);
+            closeEyes.gameObject.SetActive(false);
+        }
+        else
+        {
+            BlinkAnimator.enabled = true;
+        }
+
+         
     }
 
     public void SetTalking(bool value)
