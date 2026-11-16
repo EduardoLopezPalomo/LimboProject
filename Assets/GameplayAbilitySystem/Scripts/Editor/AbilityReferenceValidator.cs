@@ -32,6 +32,11 @@ using Object = UnityEngine.Object;
 ///      still exists in Project Settings. Unity answers a name it does not know with -1 / an empty mask
 ///      instead of an error, so a layer renamed in the Project Settings window silently turns into
 ///      "matches nothing": enemies stop seeing the player and area attacks find no targets.
+/// And one check that reads the scenes themselves instead of the code:
+///   9. every PlayerUIController in a scene that is in the build has all five of its menu slots filled (T-056).
+///      Assets/Characters/Player.prefab ships those slots empty and each scene fills them in on its own Player
+///      instance, so Unity never reports a gap either: an empty slot was a NullReferenceException on the pause
+///      key, on the back key, or inside the death animation event where a throw is invisible.
 ///
 /// Deliberate NON-checks: Animator parameter names ("Dash", "CounterAttack", ...),
 /// attribute names ("BlockResistance"), blackboard variable NAMES, node/class names and
@@ -81,6 +86,9 @@ public static class AbilityReferenceValidator
         public int layerResolverSites;
         public int layerLookups;
         public int layerNames;
+        public int menuSlotScenes;
+        public int menuSlotInstances;
+        public int menuSlotGaps;
     }
 
     [MenuItem("Tools/Ciro/Validate Ability References")]
@@ -137,6 +145,7 @@ public static class AbilityReferenceValidator
             CheckEventBindings(issues, used, counts);
             CheckRegistryIsUsed(issues, used);
             CheckLayerNamesExist(issues, counts);
+            CheckMenuSlots(issues, counts);
         }
         catch (Exception e)
         {
@@ -159,7 +168,9 @@ public static class AbilityReferenceValidator
             + " files (" + counts.singletonNew + " beyond the frozen baseline), "
             + counts.layerResolverSites + " layer lookups routed through Layers, "
             + counts.layerNames + " resolver names checked against Project Settings ("
-            + counts.layerLookups + " raw lookup outside the resolver) in "
+            + counts.layerLookups + " raw lookup outside the resolver), "
+            + counts.menuSlotInstances + " Player menu-slot sets in " + counts.menuSlotScenes
+            + " built scenes (" + counts.menuSlotGaps + " empty) in "
             + sw.ElapsedMilliseconds + "ms";
         if (issues.Count == 0 && warnings.Count == 0) Debug.Log(summary + " -> OK, no ability-reference drift.");
         else Debug.LogWarning(summary + " -> " + issues.Count + " problem(s) and " + warnings.Count + " warning(s) logged above.");
@@ -973,6 +984,504 @@ public static class AbilityReferenceValidator
                 + "nothing - enemies stop seeing the player, sweeps hit thin air - and nothing on the console "
                 + "says why. Restore the layer name, or update Layers.cs to the new one (T-014).", null);
         }
+    }
+
+    // ------------------------------------------------------------------ 9
+    // PlayerUIController's five menu slots (T-056). The component dereferenced them bare, so an empty slot was a
+    // NullReferenceException on the first Back press - or inside PlayerDeath.anim's animation event, where a
+    // throw is invisible and the player is left dead with no menu. The code half is fixed in the component (it
+    // names every gap once as the scene loads); this half catches it before anyone has to play the scene.
+    //
+    // Why a scene scan and not a component scan: Assets/Characters/Player.prefab leaves all five slots EMPTY on
+    // purpose. The panels belong to each scene's own UI canvas, so every scene fills the slots in on its own
+    // Player instance. That makes the prefab never a finding and a scene that forgot one always a finding - and
+    // it means the only honest answer to "is the death menu wired up in Forest?" is the prefab default overridden
+    // by that scene's modifications, which is what Unity applies at load and what a grep of either file alone
+    // cannot see. The print tool shows all three shapes: the prefab with five empties, the built scenes with
+    // five fills each, and the one scene in the repo with real gaps.
+    //
+    // Scope, stated instead of assumed: only scenes enabled in Build Settings are reported as problems. A scene
+    // outside the build cannot be played, and Assets/Scenes/SampleScene (a StarterAssets leftover, outside the
+    // build, missing DeathMenu and OptionsMenu) would otherwise pin a permanent, unreachable problem onto the
+    // baseline. Tools/Ciro/Print Menu Slots prints every scene, built or not, so the scope is never a hiding place.
+    // ------------------------------------------------------------------
+
+    /// <summary>The five GameObject slots PlayerUIController moves the player between.</summary>
+    static readonly string[] MenuSlots = { "playerUI", "PauseMenu", "AblityMenu", "OptionsMenu", "DeathMenu" };
+
+    /// <summary>One component block of a given script found in a prefab or scene file.</summary>
+    class ComponentBlock
+    {
+        public long BlockID;
+        public int Line;
+        public readonly bool[] Assigned = new bool[MenuSlots.Length];
+    }
+
+    /// <summary>A PlayerUIController living inside a prefab, so the scenes override its slots one by one.</summary>
+    class MenuSlotSource
+    {
+        public string PrefabPath;
+        public string PrefabGuid;
+        public ComponentBlock Block;
+    }
+
+    /// <summary>A PlayerUIController as the running scene will see it: defaults plus that scene's overrides.</summary>
+    class MenuSlotInstance
+    {
+        public string OwnerPath;
+        public string Label;
+        public int Line;
+        public readonly bool[] Assigned = new bool[MenuSlots.Length];
+    }
+
+    static void CheckMenuSlots(List<Issue> issues, Counts counts)
+    {
+        var scriptGuid = MenuScriptGuid(issues);
+        if (scriptGuid == null) return;
+
+        var sources = new List<MenuSlotSource>();
+        CollectMenuSlotSources(scriptGuid, sources);
+        if (sources.Count == 0)
+        {
+            Add(issues, "no prefab in the project carries a PlayerUIController (script " + Q(scriptGuid)
+                + "), so check 9 has nothing to compare scene overrides against. If the component moved out of a "
+                + "prefab into the scenes, this check has to be pointed at the scenes instead (T-056).", null);
+            return;
+        }
+
+        var scenes = EditorBuildSettings.scenes;
+        var instanceTotal = 0;
+        for (var s = 0; s < scenes.Length; s++)
+        {
+            var path = scenes[s].path;
+            if (!scenes[s].enabled || IsExcluded(path) || !File.Exists(path)) continue;
+
+            var instances = ScanMenuSlotInstances(path, scriptGuid, sources);
+            if (instances.Count == 0) continue;   // no Player placed in this scene (Main Menu, Video, Credits)
+            counts.menuSlotScenes++;
+            instanceTotal += instances.Count;
+
+            for (var i = 0; i < instances.Count; i++)
+            {
+                var instance = instances[i];
+                counts.menuSlotInstances++;
+                for (var slot = 0; slot < MenuSlots.Length; slot++)
+                {
+                    if (instance.Assigned[slot]) continue;
+                    counts.menuSlotGaps++;
+                    Add(issues, instance.OwnerPath + ":" + instance.Line + " " + instance.Label + " has no "
+                        + MenuSlots[slot] + ", so in this scene " + MenuSlotConsequence(MenuSlots[slot]) + ". "
+                        + "Assets/Characters/Player.prefab ships all five menu slots empty and every scene fills "
+                        + "them in on its own Player instance, so a copied scene, a deleted UI canvas or a wrong "
+                        + "prefab dropped into a slot is invisible to Unity: PlayerUIController now warns once at "
+                        + "Start instead of throwing, and Tools/Ciro/Print Menu Slots lists every scene (T-056).",
+                        AssetDatabase.LoadAssetAtPath<Object>(instance.OwnerPath));
+                }
+            }
+        }
+
+        // The anti-sleep guard, and the reason this check prints its own counts in the summary. A parser that
+        // stopped matching - because the YAML changed shape, or because the component moved into a nested prefab -
+        // reports "0 empty slots", which reads exactly like a project with nothing wrong. The first version of
+        // this check did precisely that (it parsed "fileID:" without the space YAML puts after the colon), and only
+        // the count being 0 gave it away. Every playable scene in this game carries a Player, so seeing none at
+        // all is a broken check, not a clean project, and is reported as one.
+        if (instanceTotal == 0)
+        {
+            Add(issues, "check 9 found no Player instance in ANY scene that is enabled in Build Settings, so it "
+                + "checked nothing. Either no built scene carries a Player (then this check is obsolete and should "
+                + "go), or it can no longer see one and every real gap would pass silently. Run "
+                + "Tools/Ciro/Print Menu Slots: it lists every scene in the project, and an empty list means the "
+                + "scan, not the project, is the problem (T-056).", null);
+        }
+    }
+
+    /// <summary>What one empty slot costs the player, phrased for a console line instead of a code comment.</summary>
+    static string MenuSlotConsequence(string slot)
+    {
+        switch (slot)
+        {
+            case "playerUI": return "a menu opens with the HUD still on screen";
+            case "PauseMenu": return "the pause key does nothing at all";
+            case "AblityMenu": return "the ability menu key does nothing at all";
+            case "OptionsMenu": return "the options menu cannot be opened or stepped back out of";
+            case "DeathMenu": return "the death screen never appears, and only an animation event asks for it";
+            default: return "the menu path that needs it is skipped";
+        }
+    }
+
+    /// <summary>
+    /// The script GUID of PlayerUIController, found by name instead of hardcoded: move or rename the file and this
+    /// follows it, and when nothing matches the check says so rather than quietly checking nothing. A MonoScript's
+    /// own GUID is exactly what a component's m_Script line stores, so no type reference is needed here.
+    /// </summary>
+    static string MenuScriptGuid(List<Issue> issues)
+    {
+        const string scriptName = "PlayerUIController";
+        var guids = AssetDatabase.FindAssets(scriptName + " t:MonoScript");
+        for (var i = 0; i < guids.Length; i++)
+        {
+            var path = AssetDatabase.GUIDToAssetPath(guids[i]);
+            if (IsExcluded(path)) continue;
+            if (string.Equals(Path.GetFileNameWithoutExtension(path), scriptName, StringComparison.Ordinal))
+                return guids[i];
+        }
+
+        if (issues != null)
+            Add(issues, "check 9 found no first-party script asset named " + scriptName + ", so no scene's menu "
+                + "slots were checked (T-056). If the component was renamed, update AbilityReferenceValidator.MenuSlots "
+                + "and the name this looks for; if it was deleted, delete the check too.", null);
+        return null;
+    }
+
+    /// <summary>
+    /// Every prefab carrying a PlayerUIController, with the slot values it ships: those are the defaults a scene's
+    /// own modifications start from, which is why they have to be read before any scene can be judged.
+    /// <para>
+    /// The guid is searched in the raw text first, then the block is parsed. Walking every line of ~350 prefabs
+    /// to find one component cost 1.5 s of the pass (measured 11/16/2026), which is most of the validator's warm
+    /// budget for a check that exists because of one prefab.
+    /// </para>
+    /// </summary>
+    static void CollectMenuSlotSources(string scriptGuid, List<MenuSlotSource> sources)
+    {
+        var dataPath = Application.dataPath.Replace('\\', '/');
+        foreach (var file in Directory.GetFiles(Application.dataPath, "*.prefab", SearchOption.AllDirectories))
+        {
+            var path = "Assets" + file.Replace('\\', '/').Substring(dataPath.Length);
+            if (IsExcluded(path)) continue;
+
+            var text = TryReadAllText(file);
+            if (text == null || text.IndexOf(scriptGuid, StringComparison.Ordinal) < 0) continue;
+
+            var blocks = ReadComponentBlocks(file, scriptGuid);
+            if (blocks.Count == 0) continue;
+
+            var guid = AssetDatabase.AssetPathToGUID(path);
+            for (var i = 0; i < blocks.Count; i++)
+                sources.Add(new MenuSlotSource { PrefabPath = path, PrefabGuid = guid, Block = blocks[i] });
+        }
+    }
+
+    /// <summary>Null for a file we cannot read - an unreadable file is not a finding, to this check or any other.</summary>
+    static string TryReadAllText(string file)
+    {
+        try
+        {
+            return File.ReadAllText(file);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Every component block of one script in a prefab file. Blocks are delimited by their
+    /// "--- !u!&lt;class&gt; &amp;&lt;fileID&gt;" header and a MonoBehaviour's serialized fields always follow its own
+    /// m_Script line inside the same block, so five flags is all this check needs from one read of the file.
+    /// Only prefabs come through here since the single-pass rewrite: a scene's components (none exist for this
+    /// check today) and its prefab-instance overrides are read together in ScanMenuSlotInstances.
+    /// </summary>
+    static List<ComponentBlock> ReadComponentBlocks(string file, string scriptGuid)
+    {
+        var blocks = new List<ComponentBlock>();
+        long blockID = 0;
+        ComponentBlock current = null;
+        try
+        {
+            using (var reader = new StreamReader(file))
+            {
+                string line;
+                var lineNo = 0;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lineNo++;
+                    var trimmed = line.Trim();
+                    if (trimmed.StartsWith("--- !u!", StringComparison.Ordinal))
+                    {
+                        blockID = BlockIDOf(trimmed);
+                        current = null;
+                        continue;
+                    }
+
+                    if (current == null)
+                    {
+                        if (trimmed.StartsWith("m_Script:", StringComparison.Ordinal)
+                            && trimmed.IndexOf(scriptGuid, StringComparison.Ordinal) >= 0)
+                        {
+                            current = new ComponentBlock { BlockID = blockID, Line = lineNo };
+                            blocks.Add(current);
+                        }
+                        continue;
+                    }
+
+                    var slot = SlotIndexOfField(trimmed);
+                    if (slot >= 0) current.Assigned[slot] = ReferenceIsSet(trimmed);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // A file we cannot read is not a finding; every other check simply does not see it either.
+        }
+        return blocks;
+    }
+
+    /// <summary>
+    /// The PlayerUIController instances of one scene as the running scene sees them: anything placed in it
+    /// directly, plus one entry per Player prefab instance carrying the prefab defaults and then that instance's
+    /// own modifications, last write wins - the order Unity's own deserializer uses.
+    /// <para>
+    /// ONE pass over the file. The first version read each scene twice (a component-block pass and a
+    /// modification pass) and cost ~1.1 s across the built scenes that carry a Player, on files up to 23 MB
+    /// (FirstForest.unity, measured 11/16/2026). Outside the two shapes this check cares about a line is only
+    /// ever tested for the marker that opens one, in the IndexOf style the event-binding scan in this file uses.
+    /// </para>
+    /// </summary>
+    static List<MenuSlotInstance> ScanMenuSlotInstances(string path, string scriptGuid, List<MenuSlotSource> sources)
+    {
+        var found = new List<MenuSlotInstance>();
+        MenuSlotInstance direct = null;    // a component block of the script placed straight into the scene
+        MenuSlotInstance instance = null;  // the prefab instance whose modification list is being read
+        var inMods = false;
+        var pendingSlot = -1;
+
+        try
+        {
+            using (var reader = new StreamReader(path))
+            {
+                string line;
+                var lineNo = 0;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lineNo++;
+
+                    // A component block never spans documents, and a modification list never survives one either.
+                    if (line.StartsWith("--- !u!", StringComparison.Ordinal))
+                    {
+                        if (instance != null) { found.Add(instance); instance = null; }
+                        direct = null;
+                        inMods = false;
+                        pendingSlot = -1;
+                        continue;
+                    }
+
+                    if (direct != null)
+                    {
+                        var filled = SlotIndexOfField(line.TrimStart());
+                        if (filled >= 0) direct.Assigned[filled] = ReferenceIsSet(line);
+                        continue;
+                    }
+
+                    if (!inMods)
+                    {
+                        if (line.IndexOf("m_Modifications:", StringComparison.Ordinal) >= 0) inMods = true;
+                        else if (line.IndexOf("m_Script:", StringComparison.Ordinal) >= 0
+                                 && line.IndexOf(scriptGuid, StringComparison.Ordinal) >= 0)
+                        {
+                            direct = new MenuSlotInstance
+                            {
+                                OwnerPath = path,
+                                Label = "the PlayerUIController placed in this scene",
+                                Line = lineNo
+                            };
+                            found.Add(direct);
+                        }
+                        continue;
+                    }
+
+                    // m_Modifications: opens a prefab instance's override list; the m_Removed / m_Source lines that
+                    // follow it close it. The singular "m_Modification:" key does NOT match, which is intended.
+                    if (line.IndexOf("m_RemovedComponents:", StringComparison.Ordinal) >= 0
+                        || line.IndexOf("m_SourcePrefab:", StringComparison.Ordinal) >= 0)
+                    {
+                        if (instance != null) found.Add(instance);
+                        instance = null;
+                        inMods = false;
+                        pendingSlot = -1;
+                        continue;
+                    }
+
+                    if (line.IndexOf("- target:", StringComparison.Ordinal) >= 0)
+                    {
+                        var source = MatchMenuSlotSource(sources, FileIDOf(line), GuidOf(line));
+                        if (source != null && instance == null)
+                        {
+                            instance = new MenuSlotInstance
+                            {
+                                OwnerPath = path,
+                                Label = "the Player instance in this scene",
+                                Line = lineNo
+                            };
+                            for (var i = 0; i < MenuSlots.Length; i++) instance.Assigned[i] = source.Block.Assigned[i];
+                        }
+                        pendingSlot = -1;
+                        continue;
+                    }
+
+                    if (instance == null) continue;
+
+                    if (line.IndexOf("propertyPath:", StringComparison.Ordinal) >= 0)
+                    {
+                        pendingSlot = SlotOfName(After(line.Trim(), "propertyPath:"));
+                        continue;
+                    }
+                    if (pendingSlot >= 0 && line.IndexOf("objectReference:", StringComparison.Ordinal) >= 0)
+                    {
+                        instance.Assigned[pendingSlot] = FileIDOf(line) != 0;
+                        pendingSlot = -1;
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // as above: an unreadable file is not a finding
+        }
+
+        // Every add above nulls the tracker, so anything still open here ran to the end of the file.
+        if (instance != null) found.Add(instance);
+        return found;
+    }
+
+    /// <summary>The modification target that belongs to a known PlayerUIController, or null.</summary>
+    static MenuSlotSource MatchMenuSlotSource(List<MenuSlotSource> sources, long componentID, string prefabGuid)
+    {
+        if (componentID == 0 || string.IsNullOrEmpty(prefabGuid)) return null;
+        for (var i = 0; i < sources.Count; i++)
+        {
+            if (sources[i].Block.BlockID == componentID
+                && string.Equals(sources[i].PrefabGuid, prefabGuid, StringComparison.Ordinal)) return sources[i];
+        }
+        return null;
+    }
+
+    /// <summary>Which slot a serialized field line ("DeathMenu: {fileID: 0}") names, or -1.</summary>
+    static int SlotIndexOfField(string trimmedLine)
+    {
+        for (var i = 0; i < MenuSlots.Length; i++)
+        {
+            if (trimmedLine.StartsWith(MenuSlots[i] + ":", StringComparison.Ordinal)) return i;
+        }
+        return -1;
+    }
+
+    /// <summary>Which slot a propertyPath names, matched exactly: a nested path is not the slot's own reference.</summary>
+    static int SlotOfName(string name)
+    {
+        for (var i = 0; i < MenuSlots.Length; i++)
+        {
+            if (name == MenuSlots[i]) return i;
+        }
+        return -1;
+    }
+
+    /// <summary>True when a line carries a reference that points at something, i.e. its fileID is not 0.</summary>
+    static bool ReferenceIsSet(string line)
+    {
+        return FileIDOf(line) != 0;
+    }
+
+    /// <summary>The &amp; number of a "--- !u!114 &8360464295297684396" document header.</summary>
+    static long BlockIDOf(string header)
+    {
+        var at = header.IndexOf('&');
+        return at < 0 ? 0 : DigitsAfter(header, at + 1);
+    }
+
+    /// <summary>The fileID of a "{fileID: 942453136}" reference, 0 when the reference points at nothing.</summary>
+    static long FileIDOf(string text)
+    {
+        var at = text.IndexOf("fileID:", StringComparison.Ordinal);
+        return at < 0 ? 0 : DigitsAfter(text, at + "fileID:".Length);
+    }
+
+    static long DigitsAfter(string text, int from)
+    {
+        from = SkipSpaces(text, from);
+        var end = from;
+        while (end < text.Length && (char.IsDigit(text[end]) || text[end] == '-')) end++;
+        if (end == from) return 0;
+        long value;
+        return long.TryParse(text.Substring(from, end - from), out value) ? value : 0;
+    }
+
+    /// <summary>
+    /// The guid value of a "- target: {fileID: 1, guid: abc, type: 3}" line. YAML writes a space after the colon,
+    /// so the value does not start on the character right after the key - that space is what made the first
+    /// version of this parser read every reference as empty (see T-056's report: a check that sees nothing prints
+    /// the same summary as a project with nothing wrong).
+    /// </summary>
+    static string GuidOf(string text)
+    {
+        var at = text.IndexOf("guid:", StringComparison.Ordinal);
+        if (at < 0) return "";
+        at = SkipSpaces(text, at + "guid:".Length);
+        var end = at;
+        while (end < text.Length && char.IsLetterOrDigit(text[end])) end++;
+        return text.Substring(at, end - at);
+    }
+
+    /// <summary>YAML separators: the space between "fileID:" and its number inside a flow mapping.</summary>
+    static int SkipSpaces(string text, int from)
+    {
+        while (from < text.Length && (text[from] == ' ' || text[from] == '\t')) from++;
+        return from;
+    }
+
+    /// <summary>
+    /// Every PlayerUIController in the project with its five menu slots as they will read at runtime, built scenes
+    /// and scratch scenes alike, so check 9's "only built scenes are reported" scope is a stated scope and never a
+    /// hiding place. Read-only, same shape as Tools/Ciro/Print Singleton Debt.
+    /// </summary>
+    [MenuItem("Tools/Ciro/Print Menu Slots")]
+    public static void PrintMenuSlots()
+    {
+        var scriptGuid = MenuScriptGuid(null);
+        if (scriptGuid == null)
+        {
+            Debug.LogWarning(Tag + "cannot resolve the PlayerUIController script GUID, so menu slots cannot be listed.");
+            return;
+        }
+
+        var sources = new List<MenuSlotSource>();
+        CollectMenuSlotSources(scriptGuid, sources);
+
+        var built = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var scenes = EditorBuildSettings.scenes;
+        for (var s = 0; s < scenes.Length; s++) if (scenes[s].enabled) built.Add(scenes[s].path);
+
+        for (var i = 0; i < sources.Count; i++)
+        {
+            Debug.Log(Tag + "prefab defaults   " + sources[i].PrefabPath + ":" + sources[i].Block.Line + "   "
+                + SlotTable(sources[i].Block.Assigned)
+                + "   (empty here is by design: every scene overrides the five on its own Player instance)");
+        }
+
+        var dataPath = Application.dataPath.Replace('\\', '/');
+        foreach (var file in Directory.GetFiles(Application.dataPath, "*.unity", SearchOption.AllDirectories))
+        {
+            var path = "Assets" + file.Replace('\\', '/').Substring(dataPath.Length);
+            if (IsExcluded(path)) continue;
+
+            var instances = ScanMenuSlotInstances(path, scriptGuid, sources);
+            for (var i = 0; i < instances.Count; i++)
+            {
+                var instance = instances[i];
+                Debug.Log(Tag + path + ":" + instance.Line + "   ["
+                    + (built.Contains(path) ? "in build" : "NOT in build - check 9 stays quiet") + "]   "
+                    + SlotTable(instance.Assigned));
+            }
+        }
+    }
+
+    /// <summary>One column per menu slot: x = wired up, - = empty.</summary>
+    static string SlotTable(bool[] assigned)
+    {
+        var parts = new string[MenuSlots.Length];
+        for (var i = 0; i < MenuSlots.Length; i++) parts[i] = (assigned[i] ? "x " : "- ") + MenuSlots[i];
+        return string.Join("  ", parts);
     }
 
     static int LineOf(string text, int index)
