@@ -10,10 +10,20 @@ public class PlayerHealthResponse : GeneralHealthResponse
     [SerializeField] private float deathCooldown = 3f;
     private float lastDeathTime = -Mathf.Infinity;
 
+    // T-013: rumble and death music used to dereference their managers directly. Neither manager is on the
+    // character: VibrationManager arrives on the GlobalManager prefab and MusicManager is its own prefab placed in
+    // the scene, so both are null in a scene that forgot them and during the frames before their Awake. A direct
+    // call there threw, which for HurtBehavior meant the hit response stopped halfway - knockback, the OnPlayerHurt
+    // listeners and the cues below the throw simply never ran for a cosmetic controller buzz.
+    // Both now degrade on their own, and each warns once per asset instead of once per hit: HurtBehavior fires on
+    // every landed hit, so an unguarded warning per hit is a worse console than the bug it reports.
+    private bool warnedMissingVibration;
+    private bool warnedMissingMusic;
+
     protected override void HurtBehavior(AttributeSystem owner, bool CanResponse)
     {
 
-        VibrationManager.Instance.Vibrate(0.5f, 0.8f, 0.5f);
+        Rumble(0.5f, 0.8f, 0.5f);
         CharacterVFX vfx = owner.GetComponent<CharacterVFX>();
         CharacterSFX sfx = owner.GetComponent<CharacterSFX>();
         // Two independent guards, deliberately: these used to be one `vfx != null && sfx != null`, so a
@@ -63,7 +73,49 @@ public class PlayerHealthResponse : GeneralHealthResponse
             animator.SetTrigger("IsDeath");
         }
 
-        VibrationManager.Instance.Vibrate(0.9f, 0.5f, 2f);
-        MusicManager.Instance.StartDeath();
+        Rumble(0.9f, 0.5f, 2f);
+        StartDeathMusic();
+    }
+
+    /// <summary>
+    /// T-013: guarded rumble. A missing VibrationManager costs the buzz only - see the field comment for why an
+    /// unguarded throw here stopped the rest of the hurt response. Vibrate itself already no-ops without a
+    /// gamepad, so keyboard-only play stays silent either way.
+    /// </summary>
+    private void Rumble(float lowFreq, float highFreq, float duration)
+    {
+        VibrationManager vibration = VibrationManager.Instance;
+        if (vibration == null)
+        {
+            if (!warnedMissingVibration)
+            {
+                warnedMissingVibration = true;
+                Debug.LogWarning("PlayerHealthResponse: no VibrationManager in this scene (it arrives on the "
+                    + "GlobalManager prefab), so hit rumble is skipped.", this);
+            }
+            return;
+        }
+
+        vibration.Vibrate(lowFreq, highFreq, duration);
+    }
+
+    /// <summary>
+    /// T-013: guarded death music. The death sequence keeps running without MusicManager; only the cue is lost.
+    /// </summary>
+    private void StartDeathMusic()
+    {
+        MusicManager music = MusicManager.Instance;
+        if (music == null)
+        {
+            if (!warnedMissingMusic)
+            {
+                warnedMissingMusic = true;
+                Debug.LogWarning("PlayerHealthResponse: no MusicManager in this scene, so the death music cue is "
+                    + "skipped. The death animation and the input lock are unaffected.", this);
+            }
+            return;
+        }
+
+        music.StartDeath();
     }
 }

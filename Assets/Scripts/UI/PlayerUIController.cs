@@ -15,6 +15,12 @@ public class PlayerUIController : MonoBehaviour
     private PlayerInput playerInput;
     private MenuNavigation optionsMenuNavigation;
 
+    // T-013: SoundMixerManager is not on this object - it arrives on the GlobalManager prefab - so it is null in
+    // any scene that does not carry that prefab, and during the frames before its Awake has run. This class used
+    // to dereference it four times, which turned a pause keypress into a NullReferenceException in exactly the
+    // menu the player is trying to reach. See FadePauseVolume for what happens instead.
+    private bool warnedMissingMixer;
+
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
@@ -39,7 +45,7 @@ public class PlayerUIController : MonoBehaviour
         playerInput.SwitchCurrentActionMap("UI");
         TimeEffectsManager.PauseGame();
 
-        SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);
+        FadePauseVolume(TotalVolumeDB);
     }
 
     public void PressAbilityMenuButton()
@@ -52,7 +58,7 @@ public class PlayerUIController : MonoBehaviour
         playerInput.SwitchCurrentActionMap("UI");
         TimeEffectsManager.PauseGame();
 
-        SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, TotalVolumeDB, DurationMusicFade);
+        FadePauseVolume(TotalVolumeDB);
 
     }
 
@@ -65,7 +71,7 @@ public class PlayerUIController : MonoBehaviour
             playerInput.SwitchCurrentActionMap("Player");
             TimeEffectsManager.ResumeGame();
 
-            SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
+            FadePauseVolume(0f);
         }
         else if (PauseMenu.activeSelf)
         {
@@ -74,7 +80,7 @@ public class PlayerUIController : MonoBehaviour
             playerInput.SwitchCurrentActionMap("Player");
             TimeEffectsManager.ResumeGame();
 
-            SoundMixerManager.instance.FadeVolumeToTarget(MixerNames.pausedVolume, 0f, DurationMusicFade);
+            FadePauseVolume(0f);
         }
         else if (OptionsMenu.activeSelf)
         {
@@ -86,6 +92,30 @@ public class PlayerUIController : MonoBehaviour
     {
         DeathMenu.SetActive(true);
         playerInput.SwitchCurrentActionMap("UI");
+    }
+
+    /// <summary>
+    /// T-013: the one place this class touches the audio mixer. The fade is cosmetic, so a scene without
+    /// SoundMixerManager skips the fade and the menu transition continues - the old direct call threw instead, and
+    /// because it sat last in each method it threw after the panel was already swapped, leaving the game paused
+    /// with the UI half changed. Warned once (see warnedMissingMixer) rather than once per keypress.
+    /// </summary>
+    private void FadePauseVolume(float targetDb)
+    {
+        SoundMixerManager mixer = SoundMixerManager.instance;
+        if (mixer == null)
+        {
+            if (!warnedMissingMixer)
+            {
+                warnedMissingMixer = true;
+                Debug.LogWarning("PlayerUIController: no SoundMixerManager in this scene (it arrives on the "
+                    + "GlobalManager prefab), so the pause music fade is skipped. The menus still open and close.",
+                    this);
+            }
+            return;
+        }
+
+        mixer.FadeVolumeToTarget(MixerNames.pausedVolume, targetDb, DurationMusicFade);
     }
 
 }

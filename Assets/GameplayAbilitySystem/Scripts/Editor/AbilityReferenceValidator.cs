@@ -618,16 +618,17 @@ public static class AbilityReferenceValidator
         new Regex("\\b([A-Za-z_][A-Za-z0-9_]*)\\.[iI]nstance\\b");
 
     /// <summary>
-    /// The freeze, taken 11/16/2026: 147 accesses in 57 files. One entry per file that reaches for a
-    /// manager today. A file listed here may keep that many accesses or fewer, never more; a file that
-    /// is not listed has never been allowed any. Regenerate with Tools/Ciro/Print Singleton Debt.
+    /// The freeze, taken 11/16/2026 at 147 accesses in 57 files, and re-frozen smaller after each cleanup since
+    /// (T-013 took it to 143). One entry per file that reaches for a manager today. A file listed here may keep
+    /// that many accesses or fewer, never more; a file that is not listed has never been allowed any.
+    /// Regenerate with Tools/Ciro/Print Singleton Debt.
     /// </summary>
     static readonly Dictionary<string, int> SingletonDebt =
         new Dictionary<string, int>(StringComparer.Ordinal)
         {
             { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/BossHealthResponse.cs", 1 },
             { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/EnemyHealthResponse.cs", 1 },
-            { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/PlayerHealthResponse.cs", 3 },
+            { "Assets/GameplayAbilitySystem/Scripts/AttributeResponses/PlayerHealthResponse.cs", 2 },
             { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/BowAttackSpec.cs", 1 },
             { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/DamageProjectileSpec.cs", 2 },
             { "Assets/GameplayAbilitySystem/Scripts/NewAbilities/ElectroAttackSpec.cs", 1 },
@@ -672,7 +673,7 @@ public static class AbilityReferenceValidator
             { "Assets/Scripts/UI/PauseMenu.cs", 5 },
             { "Assets/Scripts/UI/PlayerHUDMenu.cs", 4 },
             { "Assets/Scripts/UI/PlayerHealth.cs", 1 },
-            { "Assets/Scripts/UI/PlayerUIController.cs", 4 },
+            { "Assets/Scripts/UI/PlayerUIController.cs", 1 },
             { "Assets/Scripts/UI/PopUpUI.cs", 2 },
             { "Assets/Scripts/UI/QuestListUI.cs", 1 },
             { "Assets/Scripts/UI/Sound/ButtonSound.cs", 2 },
