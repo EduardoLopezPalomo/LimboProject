@@ -21,13 +21,17 @@ using Object = UnityEngine.Object;
 ///   4. every GameplayAbility asset Name exists in AbilityIds. Two assets may share a Name as
 ///      long as they live in different AbilityHolders, so that case is only a warning.
 ///   5. every AbilityIds const is still referenced, by an asset or by code (AbilityIds.<Name>)
-/// And two convention checks, riding on the same walk of every first-party .cs:
+/// And three convention checks, riding on the same walk of every first-party .cs:
 ///   6. the player's movement lock is only touched through InputController (T-001). Anyone calling
 ///      the StarterAssets setter directly is rebuilding the bug where an interrupted dash or throw
 ///      leaves the player permanently unable to move.
 ///   7. new code must not reach for a manager through a static singleton (P1.3, T-023). The 147
 ///      accesses the game already depends on are frozen per file, so only a new coupling is warned
 ///      about and the existing debt is not re-reported on every reload.
+///   8. a layer is only resolved by name through Layers (T-014), and every name Layers is asked for
+///      still exists in Project Settings. Unity answers a name it does not know with -1 / an empty mask
+///      instead of an error, so a layer renamed in the Project Settings window silently turns into
+///      "matches nothing": enemies stop seeing the player and area attacks find no targets.
 ///
 /// Deliberate NON-checks: Animator parameter names ("Dash", "CounterAttack", ...),
 /// attribute names ("BlockResistance"), blackboard variable NAMES, node/class names and
@@ -74,6 +78,9 @@ public static class AbilityReferenceValidator
         public int singletonFiles;
         public int singletonSites;
         public int singletonNew;
+        public int layerResolverSites;
+        public int layerLookups;
+        public int layerNames;
     }
 
     [MenuItem("Tools/Ciro/Validate Ability References")]
@@ -129,6 +136,7 @@ public static class AbilityReferenceValidator
             CheckBehaviorGraphs(issues, used, counts);
             CheckEventBindings(issues, used, counts);
             CheckRegistryIsUsed(issues, used);
+            CheckLayerNamesExist(issues, counts);
         }
         catch (Exception e)
         {
@@ -148,7 +156,10 @@ public static class AbilityReferenceValidator
             + " prefab/scene files (" + counts.eventBindings + " ActivateAbility/CancelAbility bindings, "
             + counts.eventNonStringBindings + " non-string bindings ignored), "
             + counts.singletonSites + " raw singleton accesses in " + counts.singletonFiles
-            + " files (" + counts.singletonNew + " beyond the frozen baseline) in "
+            + " files (" + counts.singletonNew + " beyond the frozen baseline), "
+            + counts.layerResolverSites + " layer lookups routed through Layers, "
+            + counts.layerNames + " resolver names checked against Project Settings ("
+            + counts.layerLookups + " raw lookup outside the resolver) in "
             + sw.ElapsedMilliseconds + "ms";
         if (issues.Count == 0 && warnings.Count == 0) Debug.Log(summary + " -> OK, no ability-reference drift.");
         else Debug.LogWarning(summary + " -> " + issues.Count + " problem(s) and " + warnings.Count + " warning(s) logged above.");
@@ -492,8 +503,8 @@ public static class AbilityReferenceValidator
     }
 
     /// <summary>
-    /// Walks every first-party .cs once. Three things come out of it: which AbilityIds names the code
-    /// uses, and the two convention checks (6 and 7) that ride along instead of opening the files again.
+    /// Walks every first-party .cs once. Four things come out of it: which AbilityIds names the code
+    /// uses, and the three convention checks (6, 7 and 8) that ride along instead of opening the files again.
     ///
     /// The sources are kept in memory for the pass because check 7 needs to know which types declare a
     /// singleton, and a type is only declared in one file while it is used in twenty. 305 small files
@@ -515,9 +526,10 @@ public static class AbilityReferenceValidator
             var path = sources[s].Key;
             var text = sources[s].Value;
 
-            // Checks 6 and 7 ride along in this walk instead of opening every file a second time.
+            // Checks 6, 7 and 8 ride along in this walk instead of opening every file a second time.
             CheckInputLockConvention(path, text, issues);
             CheckSingletonConvention(path, text, singletons, warnings, counts);
+            CheckLayerConvention(path, text, issues, counts);
 
             if (text.IndexOf(marker, StringComparison.Ordinal) < 0) continue;
 
@@ -807,7 +819,7 @@ public static class AbilityReferenceValidator
 
     /// <summary>
     /// Every first-party .cs as (asset path, text), honouring ExcludedPrefixes. The single source of
-    /// the file list for all three consumers: the AbilityIds scan, the two convention checks and
+    /// the file list for every consumer: the AbilityIds scan, the three convention checks and
     /// Tools/Ciro/Print Singleton Debt.
     /// </summary>
     static List<KeyValuePair<string, string>> ReadFirstPartySources()
@@ -877,6 +889,89 @@ public static class AbilityReferenceValidator
         Debug.Log(Tag + "singleton debt is " + total + " accesses in " + perFile.Count
             + " files. Paste these between the braces of SingletonDebt to re-freeze:"
             + "\n" + string.Join("\n", lines));
+    }
+
+    // ------------------------------------------------------------------ 8
+    // Layers, resolved by name (T-014). Unity has no opinion about a layer name it does not know:
+    // LayerMask.NameToLayer answers -1 and LayerMask.GetMask answers 0, and both are perfectly usable
+    // values as far as the physics API is concerned. So editing a layer name in Project Settings does not
+    // break anything loudly - it changes the game. `layer == NameToLayer("Player")` can never be true,
+    // an OverlapSphere filtered by a 0 mask finds nobody, and a weapon sweep silently hits nothing at all.
+    // That is the same class of failure as the two checks above: a rule that only exists in prose, in a
+    // project where the failure mode is "combat stops working" and the console stays clean.
+    //
+    // Assets/Scripts/Layers.cs is the seam: it resolves once per run, reports a name it cannot find by
+    // name, and chooses the inert-but-visible answer. Two halves to keep that true - nobody may go around
+    // the seam, and the names the seam advertises must still exist in Project Settings. The second half
+    // is the one that actually catches a rename before someone has to play long enough to notice it.
+    //
+    // The pattern is matched against BlankOutNonCode output, where comments and string bodies are already
+    // spaces, so documentation that mentions LayerMask.GetMask("EnemyLayer") - which Layers.cs itself is
+    // full of - cannot be mistaken for a call, and no call hides inside a string either.
+    // ------------------------------------------------------------------
+
+    /// <summary>The seam: the one file allowed to ask Unity for a layer by name.</summary>
+    const string LayerSeam = "Assets/Scripts/Layers.cs";
+
+    /// <summary>A call that resolves a layer by name.</summary>
+    static readonly Regex RawLayerLookup =
+        new Regex("\\bLayerMask\\s*\\.\\s*(NameToLayer|GetMask)\\s*\\(");
+
+    /// <summary>A call that goes through the resolver instead (the coverage number in the summary).</summary>
+    static readonly Regex ResolverCall =
+        new Regex("\\bLayers\\s*\\.\\s*(MaskOf|Is|IndexOf|TryIndex)\\s*\\(");
+
+    static void CheckLayerConvention(string path, string text, List<Issue> issues, Counts counts)
+    {
+        // The seam is the seam, and the grep is exempt from the grep: this file spells both APIs to look for them.
+        if (path == LayerSeam) return;
+        if (path.EndsWith("AbilityReferenceValidator.cs", StringComparison.Ordinal)) return;
+
+        var code = BlankOutNonCode(text);
+
+        var through = ResolverCall.Matches(code);
+        counts.layerResolverSites += through.Count;
+
+        var matches = RawLayerLookup.Matches(code);
+        for (var i = 0; i < matches.Count; i++)
+        {
+            counts.layerLookups++;
+            Add(issues, path + ":" + LineOf(code, matches[i].Index) + " resolves a layer by name with "
+                + matches[i].Value + " instead of going through Layers.MaskOf / Layers.Is / Layers.IndexOf. "
+                + "A name that no longer exists is not an error to Unity: NameToLayer answers -1 and GetMask "
+                + "answers 0, so whoever renamed that layer in Project Settings turned this call into "
+                + "\"matches nothing\" - no damage, no targets, no console entry. The resolver reports the "
+                + "name and returns the safe answer (T-014).", null);
+        }
+    }
+
+    /// <summary>
+    /// Every name Layers advertises in Layers.Known must be a layer Project Settings actually defines.
+    /// This is the half that catches the rename: the convention check above proves the call went through
+    /// the resolver, and this proves the resolver was asked for something real.
+    /// </summary>
+    static void CheckLayerNamesExist(List<Issue> issues, Counts counts)
+    {
+        // InternalEditorUtility.layers lists the defined layer names with the empty slots removed, so it
+        // is a set to test membership against and NOT an index-aligned array (position 8 is EnemyLayer,
+        // whose real index is 9, because slot 3 is unused).
+        var available = UnityEditorInternal.InternalEditorUtility.layers;
+        var defined = new HashSet<string>(StringComparer.Ordinal);
+        for (var i = 0; i < available.Length; i++) defined.Add(available[i]);
+
+        var known = Layers.Known;
+        if (known == null) return;
+        counts.layerNames = known.Length;
+
+        for (var i = 0; i < known.Length; i++)
+        {
+            if (defined.Contains(known[i])) continue;
+            Add(issues, "Layers.Known asks for the layer " + Q(known[i]) + " and Project Settings > Tags and "
+                + "Layers does not define it. It defines " + available.Length + ": "
+                + string.Join(", ", available) + ". Everything filtering by the missing name now matches "
+                + "nothing - enemies stop seeing the player, sweeps hit thin air - and nothing on the console "
+                + "says why. Restore the layer name, or update Layers.cs to the new one (T-014).", null);
+        }
     }
 
     static int LineOf(string text, int index)

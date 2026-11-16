@@ -13,7 +13,7 @@ public class HealTargetSpec : GameplayAbilitySpec
     private GameObject healAreaPrefab;
     private float radiusDetection;
     private float minHealthToStart;
-    private LayerMask enemyLayer = LayerMask.GetMask("EnemyLayer");
+    private LayerMask enemyLayer = Layers.MaskOf(Layers.EnemyLayer);
     private Collider[] results;
 
     private GameplayEffectManager finalEffectManager;

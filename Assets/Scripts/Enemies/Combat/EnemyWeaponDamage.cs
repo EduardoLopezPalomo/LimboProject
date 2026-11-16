@@ -104,7 +104,7 @@ public class EnemyWeaponDamage : MonoBehaviour
     {
         if (isUnusable) return;
 
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player") && !AlreadyHitPlayer)
+        if (Layers.Is(other.gameObject.layer, Layers.Player) && !AlreadyHitPlayer)
         {
             DamagePlayer(other);
         }

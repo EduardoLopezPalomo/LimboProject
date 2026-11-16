@@ -65,8 +65,12 @@ internal static class MapCalibrationFitting
 
     /// <summary>The layers that depict ground: Default, Water, Wall, Floor, Mountain. Deliberately
     /// leaves out Player / EnemyLayer / Shield / Proyectile (moving things), UI, TransparentFX and
-    /// MinimapIcon (the scrapped overlay layer), because a walking citizen is not a landmark.</summary>
-    private static readonly int[] GeometryLayers = { 0, 4, 6, 12, 13 };
+    /// MinimapIcon (the scrapped overlay layer), because a walking citizen is not a landmark.
+    /// Named, not numbered: these used to be the literal indices { 0, 4, 6, 12, 13 } with the names only
+    /// in this comment, which is how a layer edited in Project Settings quietly changes what the capture
+    /// contains. <see cref="Layers"/> resolves them and reports one that no longer exists.</summary>
+    private static readonly string[] GeometryLayers =
+        { Layers.Default, Layers.Water, Layers.Wall, Layers.Floor, Layers.Mountain };
 
     private class Draft
     {
@@ -364,7 +368,7 @@ internal static class MapCalibrationFitting
         cam.useOcclusionCulling = false;
         cam.depthTextureMode = DepthTextureMode.None;
         cam.cullingMask = 0;
-        for (int i = 0; i < GeometryLayers.Length; i++) cam.cullingMask |= 1 << GeometryLayers[i];
+        for (int i = 0; i < GeometryLayers.Length; i++) cam.cullingMask |= Layers.MaskOf(GeometryLayers[i]);
 
         // LookRotation(down, +Z) instead of Euler(-90,0,0): this is the orientation whose image right is
         // world +X (east) and whose image up is world +Z (north) - exactly how map space is defined in
@@ -1073,7 +1077,7 @@ internal static class MapCalibrationFitting
     private static bool IsGeometryLayer(int layer)
     {
         for (int i = 0; i < GeometryLayers.Length; i++)
-            if (GeometryLayers[i] == layer) return true;
+            if (Layers.Is(layer, GeometryLayers[i])) return true;
 
         return false;
     }
@@ -1413,8 +1417,10 @@ internal static class MapCalibrationFitting
     /// deliberately excluded - in Forest it is one 720 x 667 m plane whose bounds are wider than the
     /// island, so measuring it measures the sea rather than the level. Everything else (Player,
     /// EnemyLayer, Shield, Proyectile, EnemyDetection, TransparentFX, UI, MinimapIcon) is a moving thing
-    /// or an editor leftover, not a landmark.</summary>
-    private static readonly int[] BuiltLayers = { 0, 6, 12, 13 };
+    /// or an editor leftover, not a landmark. Named through <see cref="Layers"/> for the same reason
+    /// GeometryLayers is: the old literal indices { 0, 6, 12, 13 } said nothing when a layer moved.</summary>
+    private static readonly string[] BuiltLayers =
+        { Layers.Default, Layers.Wall, Layers.Floor, Layers.Mountain };
 
     /// <summary>What the rectangle is fitted to: the XZ footprint of the built geometry in the loaded
     /// scene. Replaced the land-overlap hill climb as the target on 11/12, because the drawings are
@@ -1461,7 +1467,7 @@ internal static class MapCalibrationFitting
     private static bool IsBuiltLayer(int layer)
     {
         for (int i = 0; i < BuiltLayers.Length; i++)
-            if (BuiltLayers[i] == layer) return true;
+            if (Layers.Is(layer, BuiltLayers[i])) return true;
 
         return false;
     }

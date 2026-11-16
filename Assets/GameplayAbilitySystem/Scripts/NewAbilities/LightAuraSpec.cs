@@ -8,7 +8,7 @@ public class LightAuraSpec : GameplayAbilitySpec
 
     private int maxEnemiesHit;
 
-    private LayerMask enemyLayer = LayerMask.GetMask("EnemyLayer");
+    private LayerMask enemyLayer = Layers.MaskOf(Layers.EnemyLayer);
 
     private Collider[] results;
     public LightAuraSpec(GameplayAbility ability, GameObject owner, float radius, GameplayEffect DamageEffect, int maxEnemiesHit, GameObject spherePrefab) : base(ability, owner)

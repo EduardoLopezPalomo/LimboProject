@@ -515,7 +515,7 @@ internal static class MapToolbox
                 // These levels are not static-flagged, so the layer is the reliable filter: HUD and
                 // overlay art must not define where the world ends.
                 int layer = renderer.gameObject.layer;
-                if (layer == LayerMask.NameToLayer("UI")) continue;
+                if (Layers.Is(layer, Layers.UI)) continue;
                 if (renderer is ParticleSystemRenderer) continue;
 
                 // A Canvas that is NOT on the UI layer still contributes CanvasRenderer bounds, and those

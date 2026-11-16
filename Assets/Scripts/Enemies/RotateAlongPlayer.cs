@@ -37,7 +37,7 @@ public class RotateAlongPlayer : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         SlotPosition = GetComponent<GoingToPlayer>();
         weaponController = GetComponent<EnemyWeaponController>();
-        enemyLayer = LayerMask.GetMask("EnemyLayer");
+        enemyLayer = Layers.MaskOf(Layers.EnemyLayer);
         
         wobbleSeed = UnityEngine.Random.value * 100f;
     }

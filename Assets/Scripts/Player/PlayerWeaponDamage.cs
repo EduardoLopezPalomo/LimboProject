@@ -149,8 +149,8 @@ public class PlayerWeaponDamage : MonoBehaviour
         parentConstraint = GetComponent<ParentConstraint>();
         cameraShakeDict = new Dictionary<CameraShakeState, CameraShakeData>();
 
-        int enemyLayer = LayerMask.NameToLayer("EnemyLayer");
-        if (enemyLayer < 0)
+        int enemyLayer;
+        if (!Layers.TryIndex(Layers.EnemyLayer, out enemyLayer))
         {
             Debug.LogError(DamageResolver.Label(gameObject) + " The 'EnemyLayer' layer does not exist in " +
                 "Project Settings, so the sweep cannot filter anything. The weapon is DISABLED.");

@@ -45,7 +45,7 @@ public class LightAttackSpec : GameplayAbilitySpec
         characterController = owner.GetComponent<CharacterController>();
         starterInputs = owner.GetComponent<StarterAssetsInputs>();
         characterSFX = owner.GetComponent<CharacterSFX>();
-        enemyLayer = LayerMask.GetMask("EnemyLayer");
+        enemyLayer = Layers.MaskOf(Layers.EnemyLayer);
 
         lateralDistanceRay = LateralDistanceRay;
         forwardDistanceRay = ForwardDistanceRay;

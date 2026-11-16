@@ -35,7 +35,7 @@ public class CounterAttackSpec : GameplayAbilitySpec
         weaponController = owner.GetComponent<EnemyWeaponController>();
         attributeSystem = owner.GetComponent<AttributeSystem>();
         characterSFX = owner.GetComponent<CharacterSFX>();
-        playerlayer = LayerMask.GetMask("Player");
+        playerlayer = Layers.MaskOf(Layers.Player);
 
         lateralDistanceRay = LateralDistanceRay;
         forwardDistanceRay = ForwardDistanceRay;

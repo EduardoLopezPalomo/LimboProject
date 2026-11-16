@@ -6,7 +6,7 @@ public class AreaRayAttackSpec : GameplayAbilitySpec
     private GameObject spherePrefab;
     private GameplayEffect damageEffect;
 
-    private LayerMask enemyLayer = LayerMask.GetMask("EnemyLayer");
+    private LayerMask enemyLayer = Layers.MaskOf(Layers.EnemyLayer);
 
     private Collider[] results;
     public AreaRayAttackSpec(GameplayAbility ability, GameObject owner, float radius, GameplayEffect DamageEffect, int maxEnemiesHit, GameObject spherePrefab) : base(ability, owner)
