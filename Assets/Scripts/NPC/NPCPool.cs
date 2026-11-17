@@ -25,7 +25,12 @@ public class NPCPool : MonoBehaviour
         behaviorAgent = GetComponentInChildren<BehaviorGraphAgent>(true);
         navAgent = GetComponentInChildren<NavMeshAgent>(true);
         renderers = GetComponentsInChildren<SkinnedMeshRenderer>(true);
-        playerDetection = GetComponent<NpcPlayerDetection>();
+        // T-057 D2: this was GetComponent, which only matches a detection on the pool's own GameObject.
+        // In Village that is true for 65 of the 66 pools, but Guard_masc1 (instanceID 1017254) keeps its
+        // detection on a child, so the field was null there and the "behaviorAgent && navAgent &&
+        // playerDetection" gate in Activate()/Deactivate() never passed - its graph agent could never be
+        // switched back on. The other four lookups on this object already search the children.
+        playerDetection = GetComponentInChildren<NpcPlayerDetection>(true);
     }
 
     private void OnEnable()

@@ -133,8 +133,12 @@ public class DayNight : MonoBehaviour
         if (newPhase != lastPhase)
         {
             Material selected = null;
-            OnDayPhaseChanged?.Invoke(newPhase);
 
+            // T-057 F2: the invoke used to sit here, above the switch that assigns CurrentPhase, so any
+            // subscriber that read DayNight.Instance.CurrentPhase inside the handler got the phase that
+            // had just ended rather than the one that started (measured: the handler was handed Night
+            // while CurrentPhase still read Day). Current subscribers use the parameter, so nothing was
+            // visibly wrong - which is exactly what makes it a trap for the next one. Publish first.
             switch (newPhase)
             {
                 case DayPhase.Day:
@@ -163,6 +167,11 @@ public class DayNight : MonoBehaviour
 
             ApplySkybox(selected);
             lastPhase = newPhase;
+
+            // T-057 F2 (the other half): the event is raised only once CurrentPhase and the skybox are
+            // both settled, so a subscriber that re-reads DayNight.Instance sees the phase it was just
+            // handed rather than the one that ended.
+            OnDayPhaseChanged?.Invoke(newPhase);
         }
     }
 

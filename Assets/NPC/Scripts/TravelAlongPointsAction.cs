@@ -121,6 +121,14 @@ public partial class TravelAlongPointsAction : Action
     protected override void OnDeserialize()
     {
         // If using a navigation mesh, we need to reset default value before Initialize.
+        // T-057 candidate 10: Self.Value is null when the graph is deserialized before its blackboard has
+        // been filled in (a domain reload or a scene save while this action is Running), and this used to
+        // dereference it on the first line. Bail: OnStart validates the same thing and will run next.
+        if (Self.Value == null)
+        {
+            return;
+        }
+
         m_NavMeshAgent = Self.Value.GetComponentInChildren<NavMeshAgent>();
         if (m_NavMeshAgent != null)
         {

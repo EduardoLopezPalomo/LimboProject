@@ -45,23 +45,47 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
 
     private void Start()
     {
-        CheckState(QuestManager.instance.GetCurrentQuest()); 
+        CheckState(); 
     }
 
-    private void CheckState(string id)
+    private void CheckState()
     {
-        if(quest.questId == id)
+        if (quest == null)
         {
-            hasBeenReleased = true;
+            Debug.LogError("GuardBlockerNPC on '" + name + "' has no quest assigned, so it can never let the player through.", this);
+            return;
+        }
+
+        QuestManager manager = QuestManager.instance;
+        if (manager == null)
+        {
+            Debug.LogWarning("No QuestManager in the scene, so GuardBlockerNPC on '" + name + "' cannot decide whether to unblock; staying blocked.", this);
+            return;
+        }
+
+        // T-057 candidate 3: this used to test "is FollowTheMusic the CURRENT quest", so the release only
+        // held while that quest was still active. The shipped guard runs vanishOnRelease = false, meaning
+        // it stays in the world with its collider merely disabled - and on re-entering Village after the
+        // story moved on, Start() no longer matched, the collider came back enabled and the guard blocked
+        // the road for good. Release on "this quest has been finished".
+        if (!manager.IsMainQuestCompleted(quest.questId))
+        {
+            return;
+        }
+
+        hasBeenReleased = true;
+        if (blockCollider != null)
+        {
             blockCollider.enabled = false;
-            if (vanishOnRelease)
-            {
-                Destroy(gameObject);
-            }
+        }
+
+        if (vanishOnRelease)
+        {
+            Destroy(gameObject);
         }
     }
 
-    private void CheckQuest(Quest quest)
+    private void CheckQuest(Quest completedQuest)
     {
         StartCoroutine(nextFrame());
     }
@@ -77,6 +101,12 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
 
         if (!hasBeenReleased)
         {
+            if (dialogueNPC == null)
+            {
+                Debug.LogError("GuardBlockerNPC on '" + name + "' has no dialogueNPC, so it has nothing to say while blocking.", this);
+                return;
+            }
+
             data.lines = dialogueNPC.GetDialogueLines();
             data.npcId = dialogueNPC.NpcId;
             data.characterName = dialogueNPC.NpcName;
@@ -85,7 +115,15 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
         }
         else // solo llega aquí si vanishOnRelease = false
         {
-            data.lines = new List<string>(farewellLines);
+            data.lines = farewellLines != null ? new List<string>(farewellLines) : new List<string>();
+            if (data.lines.Count == 0)
+            {
+                // Nothing to say, so nothing to open: raising an empty dialogue would switch the player
+                // into the UI map and close it again on the same frame.
+                Debug.LogWarning("GuardBlockerNPC on '" + name + "' was released but has no farewellLines, so the farewell is skipped.", this);
+                return;
+            }
+
             data.npcId = "guard_despedida";
             data.characterName = farewellName;
             data.voice = farewellVoice;
@@ -107,6 +145,6 @@ public class GuardBlockerNPC : MonoBehaviour, IConversation
     IEnumerator nextFrame()
     {
         yield return null;
-        CheckState(QuestManager.instance.GetCurrentQuest());
+        CheckState();
     }
 }

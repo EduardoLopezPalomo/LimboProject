@@ -111,6 +111,26 @@ public class QuestManager : MonoBehaviour
 
     public static bool IsCurrentGoal(string id) => !string.IsNullOrEmpty(id) && currentGoalIds.Contains(id);
 
+    /// <summary>
+    /// T-057 candidate 3: main quests are a linear list advanced by <see cref="currentMainQuestIndex"/>,
+    /// so a quest is completed exactly when it sits below that index. Callers need this because
+    /// <see cref="GetCurrentQuest"/> only answers "which one is active now", which stops being true the
+    /// moment the player moves on - GuardBlockerNPC used it as a "was this finished" test and re-blocked
+    /// the road behind the player afterwards.
+    /// </summary>
+    public bool IsMainQuestCompleted(string questId)
+    {
+        if (string.IsNullOrEmpty(questId) || mainQuests == null) return false;
+
+        int upto = Mathf.Min(currentMainQuestIndex, mainQuests.Count);
+        for (int i = 0; i < upto; i++)
+        {
+            if (mainQuests[i] != null && mainQuests[i].questId == questId) return true;
+        }
+
+        return false;
+    }
+
     public void AddSecondaryQuest(Quest quest)
     {
         if (SecondaryQuests.ContainsKey(quest.questId)) return;
