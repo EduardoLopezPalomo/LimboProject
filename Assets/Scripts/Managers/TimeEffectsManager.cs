@@ -7,6 +7,16 @@ public static class TimeEffectsManager
     private static CoroutineRunner runner;
     private static float defaultTimeScale = 1f;
 
+    /// <summary>
+    /// T-058 M4: the read-only half of the latch. There is still exactly one boolean and no owner
+    /// concept - deciding who may pause whom is decision D-18, not this line - but a caller that is
+    /// about to pause now has a way to ask whether somebody else already has the world stopped, which
+    /// is the difference between "the map opens" and "the map opens and the next menu to close hands
+    /// the clock back while it is still on screen" (MapToggle.CanOpenMap). Read-only on purpose: a
+    /// setter here would be a second latch wearing the first one's clothes.
+    /// </summary>
+    public static bool IsPaused => isPaused;
+
     public static void PauseGame()
     {
         if(!isPaused)

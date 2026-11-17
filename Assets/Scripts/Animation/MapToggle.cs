@@ -13,9 +13,15 @@ using UnityEngine;
 /// <item>it pauses through <see cref="TimeEffectsManager"/> instead of writing
 /// <c>Time.timeScale</c> directly, so it can never strand the game frozen or fight the parry
 /// slow-motion - the house pattern used by PlayerUIController and DeathMenu;</item>
-/// <item>it subscribes in Awake rather than OnEnable, because in the built scenes the GameObject
-/// holding it is a child of <c>miniRoot</c>, which is exactly what opening the map switches off:
-/// the old component disabled its own Update, so the big map could never be closed;</item>
+/// <item>it subscribes in Awake rather than OnEnable: the old component subscribed in OnEnable, and the
+/// version it replaced disabled its own Update as the minimap closed, so the big map could never be
+/// closed again. Measured 11/17/2026 while T-058 M2 was being written, this class sits on the scene root
+/// <c>MapManager</c> in all five built scenes (Village read out of the live hierarchy, Forest, SpaceBoss,
+/// FirstForest and Party off the scene YAML: <c>m_Father: {fileID: 0}</c>) - it is NOT under
+/// <c>miniRoot</c>, and earlier notes here said it was. That is what makes the watchdog in
+/// <see cref="Update"/> usable: it keeps running while the minimap is switched off and the full-screen
+/// drawing owns the screen. Re-parenting this component under either root would switch that watchdog off
+/// exactly when it is needed, so if that ever changes, move the watchdog with it;</item>
 /// <item>it freezes the world camera for as long as the map owns the screen
 /// (<see cref="SetCameraLocked"/>), because pausing alone does not: <c>ThirdPersonController</c>
 /// deliberately does not scale MOUSE look by <c>Time.deltaTime</c>, and the rig can also be moved by
@@ -42,6 +48,10 @@ public class MapToggle : MonoBehaviour
     [SerializeField, Tooltip("Optional. The Cinemachine brain on Main Camera, resolved at runtime when left empty. While the map is open it is switched off, which stops EVERY Cinemachine source from moving the world camera at once - orbital axis, follow damping, impulse shake. The input gate alone is not enough: see SetCameraLocked.")]
     private CinemachineBrain brain;
 
+    [Header("Stuck transitions")]
+    [SerializeField, Min(0.25f), Tooltip("T-058 M2: how long the open/close chain may stay mid-transition before it is declared stalled and completed by force. Measured on the authored clips (Eye_Close 0.517 s, Eye_Open 0.483 s), a full chain is about 1.0 s, so the default is roughly three times the longest single step and cannot cut a legitimate animation short. Counted in UNSCALED seconds on purpose: the map pauses the world as it opens, and a scaled clock would never advance far enough to notice anything. Raise it if a longer eye animation is ever authored.")]
+    private float busyTimeoutUnscaledSeconds = 1.5f;
+
     private enum State { Mini, Busy, Big }
 
     private State state = State.Mini;
@@ -52,6 +62,19 @@ public class MapToggle : MonoBehaviour
     private bool brainLocked;
     private bool brainWasEnabled = true;
     private bool brainLookupAttempted;
+
+    // T-058 M2: which half of the chain we are in, what it is waiting on and for how long. The chain
+    // ends at an Animation Event, so every step is a place the transition can simply stop - the eye's
+    // GameObject switched off under it (the eyes live under UI/HUD, so any menu or HUD fade takes them),
+    // a second caller stealing the eye's single callback slot, a trigger that does not transition, an
+    // Animator disabled by something else. Before this there was no record of any of it, and the only
+    // symptom was a world at timeScale 0 that could not be un-mapped.
+    private State stateBeforeBusy = State.Mini;
+    private EyeAnimation waitingOn;
+    private float busyStartedUnscaled;
+
+    // T-058 M4: resolved on demand to NAME the screen that already owns the clock, never per frame.
+    private PlayerUIController screenOwnerProbe;
 
     public bool IsBigMapOpen => state == State.Big;
     public bool IsBusy => state == State.Busy;
@@ -73,7 +96,7 @@ public class MapToggle : MonoBehaviour
         miniRoot.SetActive(true);
         bigRoot.SetActive(false);
         miniEye.SetOpenInstant();
-        state = State.Mini;
+        EnterState(State.Mini);
 
         if (mapService != null)
             mapService.ShowMinimap();
@@ -88,41 +111,125 @@ public class MapToggle : MonoBehaviour
         TimeEffectsManager.ResumeGame();
     }
 
-    /// <summary>The OpenMap entry point. Ignored mid-animation so a fast double tap cannot
-    /// interleave the two eye sequences.</summary>
+    /// <summary>The OpenMap entry point.
+    ///
+    /// Opening is gated (<see cref="CanOpenMap"/>), closing never is: whatever else has happened to the
+    /// clock underneath the drawing, the player must always be able to hand the screen back. Mid-transition
+    /// presses are ignored as before - a fast double tap must not interleave the two eye sequences - but
+    /// they now say so, because "nothing happened" with no line in the console is the thing T-056 made a
+    /// habit of removing. T-058 M4.
+    /// </summary>
     public void ToggleMap()
     {
-        if (!referencesValid || state == State.Busy) return;
+        if (!referencesValid)
+        {
+            Debug.LogWarning($"{name} was asked to toggle the map and refused: it is not wired, so the map is disabled. Awake already named the missing reference.", this);
+            return;
+        }
 
-        if (state == State.Mini) OpenBigMap();
-        else if (state == State.Big) CloseBigMap();
+        if (state == State.Busy)
+        {
+            Debug.LogWarning($"{name} was asked to toggle the map mid-transition and ignored it: {(waitingOn == null ? "no eye had been armed yet" : "waiting on " + waitingOn.name + "'s " + waitingOn.PendingRequest + " event")} to close the current one (the watchdog will finish it if that never lands).", this);
+            return;
+        }
+
+        if (state == State.Big)
+        {
+            CloseBigMap();
+            return;
+        }
+
+        string blocker;
+        if (!CanOpenMap(out blocker))
+        {
+            Debug.LogWarning($"{name} refused to open the big map: {blocker}. Close that screen first - the map pauses the world too, and whoever resumes next would hand the clock back while the drawing still owned the screen (T-058 M3/M4).", this);
+            return;
+        }
+
+        OpenBigMap();
     }
+
+    /// <summary>
+    /// T-058 M4: the map is a full-screen owner of the world clock, so it may only be taken when nothing
+    /// else already holds it. One test does that today, because one latch is what the game has:
+    /// <see cref="TimeEffectsManager.IsPaused"/> is true for every screen that stops the world -
+    /// DeathMenu, the pause, ability and options menus (PlayerUIController pauses on all four), the
+    /// teleport popup - so "already paused by someone else" IS "someone else owns the screen", and
+    /// opening on top of them is exactly how M3 loses a pause.
+    ///
+    /// What this cannot see, stated so nobody mistakes the gate for complete: a dialogue and a cutscene.
+    /// Neither pauses (a dialogue only switches the action map to "UI", where OpenMap is not bound, which
+    /// is why the case is rare rather than impossible) and neither exposes a signal to ask. Those two
+    /// belong to D-18's owner model rather than to another FindFirstObjectByType here, and D-12 has
+    /// already settled the camera half of the same question.
+    /// </summary>
+    private bool CanOpenMap(out string blocker)
+    {
+        if (TimeEffectsManager.IsPaused)
+        {
+            blocker = "the world is already paused by " + DescribeScreenOwner();
+            return false;
+        }
+
+        blocker = null;
+        return true;
+    }
+
+    /// <summary>Whoever it is, named: every screen that pauses the game today is one of the Player's four
+    /// menu panels or the teleport popup, and both are reachable through public slots, so a refusal can
+    /// print a name instead of a shrug. Asked on a refused key press only - never in a frame - and it
+    /// returns the generic wording when it cannot work out who, which is precisely the hole D-18 exists
+    /// to fill and the line that will tell us it is worth filling.</summary>
+    private string DescribeScreenOwner()
+    {
+        if (screenOwnerProbe == null)
+            screenOwnerProbe = FindFirstObjectByType<PlayerUIController>();
+
+        if (screenOwnerProbe != null)
+        {
+            if (IsUp(screenOwnerProbe.DeathMenu)) return "the death menu";
+            if (IsUp(screenOwnerProbe.PauseMenu)) return "the pause menu";
+            if (IsUp(screenOwnerProbe.OptionsMenu)) return "the options menu";
+            if (IsUp(screenOwnerProbe.AblityMenu)) return "the ability menu";
+        }
+
+        PopUpUI popup = FindFirstObjectByType<PopUpUI>();
+        if (popup != null && popup.gameObject.activeInHierarchy) return "the teleport popup";
+
+        return "another system, and pause has no owner to ask (T-058 D-18)";
+    }
+
+    private static bool IsUp(GameObject panel) => panel != null && panel.activeInHierarchy;
+
 
     private void OpenBigMap()
     {
-        state = State.Busy;
+        BeginTransition(State.Mini);
         TimeEffectsManager.PauseGame();
         SetCameraLocked(true);
 
         if (mapService != null)
             mapService.ShowBigMap();
 
+        waitingOn = miniEye;
         miniEye.PlayClose(() =>
         {
             miniRoot.SetActive(false);
             bigRoot.SetActive(true);
             bigEye.SetClosedInstant();
-            bigEye.PlayOpen(() => state = State.Big);
+            waitingOn = bigEye;
+            bigEye.PlayOpen(() => EnterState(State.Big));
         });
     }
 
     private void CloseBigMap()
     {
-        state = State.Busy;
+        BeginTransition(State.Big);
 
         if (mapService != null)
             mapService.ShowMinimap();
 
+        waitingOn = bigEye;
         bigEye.PlayClose(() =>
         {
             bigRoot.SetActive(false);
@@ -130,8 +237,115 @@ public class MapToggle : MonoBehaviour
             miniEye.SetClosedInstant();
             SetCameraLocked(false);
             TimeEffectsManager.ResumeGame();
-            miniEye.PlayOpen(() => state = State.Mini);
+            waitingOn = miniEye;
+            miniEye.PlayOpen(() => EnterState(State.Mini));
         });
+    }
+
+    /// <summary>Enters Busy and remembers both where it came from (so a recovery knows which end is the
+    /// intended one) and when it started (so the watchdog can count in unscaled seconds).</summary>
+    private void BeginTransition(State from)
+    {
+        stateBeforeBusy = from;
+        waitingOn = null;
+        state = State.Busy;
+        busyStartedUnscaled = Time.unscaledTime;
+    }
+
+    /// <summary>The single way out of Busy. Every step of the chain above lands here, and so does the
+    /// watchdog, which is the point: there is exactly one place that says the map is at rest.</summary>
+    private void EnterState(State next)
+    {
+        state = next;
+        waitingOn = null;
+    }
+
+
+    /// <summary>
+    /// T-058 M2: the watchdog. Every step of the chain above ends at an Animation Event, and each one is
+    /// a place the transition can stop for the rest of the session - the eye's GameObject switched off
+    /// under it (the eyes live under UI/HUD, so a menu, a dialogue or a HUD fade takes them), a second
+    /// caller stealing the eye's single callback slot, a trigger that does not transition, an Animator
+    /// switched off elsewhere. All four leave the world at timeScale 0 with the brain disabled, look input
+    /// starved and M ignored - the worst shape a bug can have, because there is nothing left to press and
+    /// nothing on screen explaining it. The eye animation's own tooltip already confesses the family; this
+    /// covers the rest of it from the class that owns the chain.
+    ///
+    /// Two kinds of stall, and they get different patience. If the eye can no longer animate, its event
+    /// cannot arrive and waiting is pointless, so the transition completes on this frame. Otherwise it gets
+    /// the full budget, in unscaled time, so a legitimately long animation is never cut short.
+    ///
+    /// It COMPLETES rather than "resumes and hopes": <see cref="ApplyState"/> writes the whole end state of
+    /// whichever direction was in flight, so the drawing, the two roots, the eyelid pose, the camera locks
+    /// and the clock agree afterwards and the player can press M again.
+    /// </summary>
+    private void Update()
+    {
+        if (state != State.Busy) return;
+
+        float waited = Time.unscaledTime - busyStartedUnscaled;
+        bool hopeless = waitingOn != null && !waitingOn.CanAnimate;
+
+        if (!hopeless && waited < busyTimeoutUnscaledSeconds) return;
+
+        RecoverFromStalledTransition(waited, hopeless);
+    }
+
+    private void RecoverFromStalledTransition(float waited, bool eyeStopped)
+    {
+        State target = stateBeforeBusy == State.Mini ? State.Big : State.Mini;
+
+        string step = waitingOn == null
+            ? "no eye had been armed for this transition"
+            : "it was waiting for " + waitingOn.name + " to finish its " + waitingOn.PendingRequest
+              + (eyeStopped
+                  ? " event and that Animator can no longer run (its GameObject is off or the component disabled), so the event cannot arrive"
+                  : " event, which has not arrived in " + waitingOn.PendingSeconds.ToString("F2") + "s");
+
+        Debug.LogError($"{name} has been mid-map-transition for {waited:F2}s of unscaled time (budget {busyTimeoutUnscaledSeconds:F2}s): {step}. Completing the transition to {target} so the player gets the screen, the camera and the clock back in a consistent state (T-058 M2).", this);
+
+        // Both eyes, not only the stalled one: the step that already ran may have armed the other, and a
+        // late event must not run a chain this method has finished. Cancel rather than run - ApplyState
+        // below is the authority on the end state now.
+        if (miniEye != null) miniEye.CancelPendingCallback();
+        if (bigEye != null) bigEye.CancelPendingCallback();
+
+        ApplyState(target);
+    }
+
+    /// <summary>What each end of the chain leaves behind, in one place, so the animation callback and the
+    /// watchdog cannot disagree about what "the big map is open" means. Every statement restates a state
+    /// that is normally already true when it runs, which is what makes it safe to call from either.</summary>
+    private void ApplyState(State target)
+    {
+        bool big = target == State.Big;
+
+        if (miniRoot != null) miniRoot.SetActive(!big);
+        if (bigRoot != null) bigRoot.SetActive(big);
+
+        if (big)
+        {
+            if (miniEye != null) miniEye.SetClosedInstant();
+            if (bigEye != null) bigEye.SetOpenInstant();
+        }
+        else
+        {
+            if (bigEye != null) bigEye.SetClosedInstant();
+            if (miniEye != null) miniEye.SetOpenInstant();
+        }
+
+        if (mapService != null)
+        {
+            if (big) mapService.ShowBigMap();
+            else mapService.ShowMinimap();
+        }
+
+        SetCameraLocked(big);
+
+        if (big) TimeEffectsManager.PauseGame();
+        else TimeEffectsManager.ResumeGame();
+
+        EnterState(target);
     }
 
     /// <summary>Take the camera out of the player's hands for as long as the map owns the screen, and

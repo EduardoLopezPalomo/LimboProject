@@ -34,6 +34,28 @@ public class MapService : MonoBehaviour
     private MapDefinition definition;
     private bool warnedNoPlayer;
     private bool warnedNoDefinition;
+    private bool warnedNoView;
+
+    /// <summary>
+    /// T-058 M7: twelve paths in this class test <c>view</c> and three used to dereference it. A marker
+    /// rectangle can outlive the view that drew it - the T-043 empty <c>MapManager</c> shape, a
+    /// <c>MapView</c> torn down ahead of the first marker unregister at level unload - and the crash
+    /// then surfaced far from the wiring that was wrong, on an enemy death or a scene change. This is
+    /// the loud-once half of the answer; the callers below decide what to do without a view (hand the
+    /// rectangle back to nothing, i.e. destroy it, or skip the resize), which is never a throw.
+    /// </summary>
+    private bool ViewMissing()
+    {
+        if (view != null) return false;
+
+        if (!warnedNoView)
+        {
+            warnedNoView = true;
+            Debug.LogError($"{name} has no MapView assigned, so its markers have nowhere to be drawn or pooled. Every built scene needs the MapManager pair: one MapService and one MapView with both viewports assigned (T-058 M7, and T-043 for the duplicate case).", this);
+        }
+
+        return true;
+    }
 
     /// <summary>One registered marker and the RectTransform drawing it, if it has one.</summary>
     private class Entry
@@ -238,6 +260,11 @@ public class MapService : MonoBehaviour
         Entry entry = Find(marker);
         if (entry == null || entry.rect == null) return;
 
+        // T-058 M7: the goal switch is driven by quest code (QuestZoneTrigger, DialogueNPC, TeleportQuest,
+        // QuestItemInteractable), which has no idea whether this scene's map is wired - and the four
+        // callers run at level start, which is where an unwired view would otherwise throw.
+        if (ViewMissing()) return;
+
         view.SetMarkerSize(entry.rect, view.GetMarkerSizeUnits(marker));
         if (marker.IsGoal)
             entry.rect.SetAsLastSibling();
@@ -343,7 +370,15 @@ public class MapService : MonoBehaviour
 
         if (entry.rect != null)
         {
-            view.ReleaseMarker(entry.marker.IconType, entry.rect);
+            // T-058 M7: this release used to sit one line ABOVE the guard below it, so the naked
+            // view.ReleaseMarker ran on exactly the unwired view that the next statement declares
+            // unusable. Same rule as RemoveAt: no view, nothing to pool into, the rectangle goes away.
+            if (view != null) view.ReleaseMarker(entry.marker.IconType, entry.rect);
+            else
+            {
+                ViewMissing();
+                Destroy(entry.rect.gameObject);
+            }
             entry.rect = null;
         }
 
@@ -377,8 +412,14 @@ public class MapService : MonoBehaviour
         Entry entry = entries[index];
         if (entry.rect != null)
         {
-            if (entry.marker != null) view.ReleaseMarker(entry.marker.IconType, entry.rect);
-            else Destroy(entry.rect.gameObject);
+            // T-058 M7: with no view there is nothing to pool into, so the rectangle is destroyed rather
+            // than asked for. This used to call view.ReleaseMarker on the strength of the rectangle alone.
+            if (view != null && entry.marker != null) view.ReleaseMarker(entry.marker.IconType, entry.rect);
+            else
+            {
+                ViewMissing();
+                Destroy(entry.rect.gameObject);
+            }
         }
 
         entries.RemoveAt(index);
