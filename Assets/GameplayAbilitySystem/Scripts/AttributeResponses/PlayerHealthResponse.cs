@@ -67,6 +67,9 @@ public class PlayerHealthResponse : GeneralHealthResponse
         // dies cannot hand movement back on its way out, and the death lock itself cannot outlive the
         // character. PlayerDeath.anim's InputAfterDeath event is what frees movement afterwards (see
         // InputController.Update, which adopts that write instead of keeping the lock as debt).
+        // T-011 (open): that release lives ONLY as the event string "InputAfterDeath" at 0.7 s inside
+        // Assets/Animations/Other/PlayerDeath.anim - renaming it or reimporting the clip strands movement
+        // in silence, exactly like the "ShowDeathMenu" twin at 0.5 s (see PlayerUIController.ShowDeathMenu).
         InputController.AcquireInputLock(owner.gameObject, InputController.LockOwner.Death);
         if (animator != null)
         {

@@ -56,7 +56,11 @@ public class InputController : MonoBehaviour
     /// </summary>
     public static class LockOwner
     {
-        /// <summary>Raised on death. PlayerDeath.anim's InputAfterDeath event drops it (see Update).</summary>
+        /// <summary>
+        /// Raised on death. PlayerDeath.anim's InputAfterDeath event drops it (see Update) - the ONLY
+        /// releaser, living as an event string inside the clip. Breaking that string strands movement in
+        /// silence; tracked as T-011, see PlayerUIController.ShowDeathMenu for the full fragility note.
+        /// </summary>
         public const string Death = "Death";
 
         /// <summary>Raised by the whole-input channel (menus, cutscenes) via DisableInput.</summary>

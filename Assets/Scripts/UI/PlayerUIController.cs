@@ -129,12 +129,29 @@ public class PlayerUIController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Shows the death screen and hands controls to the menu. Called from EXACTLY ONE place in the whole
+    /// project, and it is not code: the AnimationEvent string "ShowDeathMenu" at 0.5 s inside
+    /// Assets/Animations/Other/PlayerDeath.anim.
+    ///
+    /// FRAGILITY - read before touching either side of this wiring (tracked as T-011, open):
+    /// Unity delivers animation events by method NAME via SendMessage, and this clip's events carry
+    /// messageOptions 0, so renaming or moving this method, deleting or re-timing the event, or reimporting
+    /// a replacement death clip does NOT fail to compile and does NOT log. The player dies and the screen
+    /// never appears, in silence. The twin event at 0.7 s ("InputAfterDeath") is worse: it lands in the
+    /// read-only ThirdPersonController and is the only thing that frees movement after death, so a broken
+    /// clip strands the death menu AND the controls together.
+    /// There is no backstop yet - T-011 proposes a watchdog in PlayerHealthResponse.DeathBehavior.
+    /// DO NOT RENAME this method without editing PlayerDeath.anim in the same change, and treat the clip's
+    /// event names as part of this class's public API even though no compiler can see it.
+    ///
+    /// T-056: the single string caller is also why the throw this used to allow is invisible: nothing to
+    /// press again, no stack trace anyone reads, just a player who is dead with no death screen and -
+    /// because the action map switch sat BELOW the throw - no switch either. The two statements now stand
+    /// on their own.
+    /// </summary>
     public void ShowDeathMenu()
     {
-        // T-056: the only caller is the animation event in Assets/Animations/Other/PlayerDeath.anim, so the
-        // throw this used to allow is invisible: nothing to press again, no stack trace anyone reads, just a
-        // player who is dead with no death screen and - because the action map switch sat BELOW the throw - no
-        // switch either. The two statements now stand on their own. The animation-event wiring itself is T-011.
         if (HasSlot("DeathMenu", DeathMenu)) DeathMenu.SetActive(true);
         SwitchActionMap("UI");
     }
