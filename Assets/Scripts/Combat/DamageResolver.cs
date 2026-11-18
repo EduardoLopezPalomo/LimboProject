@@ -211,6 +211,16 @@ public static class DamageResolver
         return true;
     }
 
+    // Feedback sinks (T-010, P1.3 step 2). Defaults are the manager singletons wrapped by
+    // SceneFeedbackSinks, so gameplay is byte-identical until someone assigns otherwise; tests
+    // replace them to assert "this hit requested shake/rumble/sound exactly once with this data"
+    // without a scene. Static initializers mean a domain reload always restores the defaults, and
+    // a null at call time falls back to the default too, so a forgotten TearDown cannot strand
+    // the game without feedback.
+    public static IShakeSink ShakeSink = SceneShakeSink.Shared;
+    public static IRumbleSink RumbleSink = SceneRumbleSink.Shared;
+    public static ISfxSink SfxSink = SceneSfxSink.Shared;
+
     /// <summary>
     /// Plays the camera shake half of a hit's feedback. Safe to call with no manager or no shake.
     /// </summary>
@@ -218,13 +228,8 @@ public static class DamageResolver
     {
         if (!data.HasValue) return;
 
-        if (CameraShakeManager.instance == null)
-        {
-            Debug.LogError(Label(null) + " CameraShakeManager.instance is missing from the scene; the hit's camera shake was skipped.");
-            return;
-        }
-
-        CameraShakeManager.instance.CameraShake(data.Value, impulseSource);
+        IShakeSink sink = ShakeSink ?? SceneShakeSink.Shared;
+        sink.Shake(data.Value, impulseSource);
     }
 
     /// <summary>
@@ -234,10 +239,9 @@ public static class DamageResolver
     {
         if (!rumble.HasValue) return;
 
-        if (VibrationManager.Instance == null) return;
-
+        IRumbleSink sink = RumbleSink ?? SceneRumbleSink.Shared;
         Rumble r = rumble.Value;
-        VibrationManager.Instance.Vibrate(r.LowFrequency, r.HighFrequency, r.Duration);
+        sink.Vibrate(r.LowFrequency, r.HighFrequency, r.Duration);
     }
 
     /// <summary>
@@ -246,19 +250,15 @@ public static class DamageResolver
     /// A null definition is a legitimate choice made per prefab ("this variant is silent"), so it is
     /// ignored. A missing <see cref="SoundFXManager.instance"/> is a scene problem: the hazard scripts
     /// used to call it unguarded from OnEnable, which is one missing manager away from killing the
-    /// activation of every pooled VFX that has a sound assigned.
+    /// activation of every pooled VFX that has a sound assigned. That missing-manager report now
+    /// lives on <see cref="SceneSfxSink"/>, the binding that owns the singleton.
     /// </summary>
     public static void PlaySound(SFXDefinition def, Transform source)
     {
         if (def == null) return;
 
-        if (SoundFXManager.instance == null)
-        {
-            Debug.LogError(Label(null) + $" SoundFXManager.instance is missing from the scene; the sound '{def.name}' was skipped.");
-            return;
-        }
-
-        SoundFXManager.instance.PlaySoundRandomPitch(def.sfx, source, def.volume, def.minPitch, def.maxPitch);
+        ISfxSink sink = SfxSink ?? SceneSfxSink.Shared;
+        sink.PlayRandomPitch(def, source);
     }
 
     /// <summary>

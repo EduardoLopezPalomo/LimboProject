@@ -748,7 +748,10 @@ public static class AbilityReferenceValidator
 
     /// <summary>
     /// The freeze, taken 11/16/2026 at 147 accesses in 57 files, and re-frozen smaller after each cleanup since
-    /// (T-013 took it to 143). One entry per file that reaches for a manager today. A file listed here may keep
+    /// (T-013 took it to 143; re-frozen 11/18 at 142 by T-010: DamageResolver's 6 accesses moved to
+    /// SceneFeedbackSinks - the seam keeps the resolver free of statics, the count did not shrink - plus a
+    /// GuardBlockerNPC 2->1 cleanup that had not been re-frozen).
+    /// One entry per file that reaches for a manager today. A file listed here may keep
     /// that many accesses or fewer, never more; a file that is not listed has never been allowed any.
     /// Regenerate with Tools/Ciro/Print Singleton Debt.
     /// </summary>
@@ -770,14 +773,14 @@ public static class AbilityReferenceValidator
             { "Assets/Scripts/ChangeMainMenuPC.cs", 1 },
             { "Assets/Scripts/CharacterSFX.cs", 2 },
             { "Assets/Scripts/CharacterVFX.cs", 3 },
-            { "Assets/Scripts/Combat/DamageResolver.cs", 6 },
+            { "Assets/Scripts/Combat/SceneFeedbackSinks.cs", 6 },
             { "Assets/Scripts/Enemies/Boss/BossConversation.cs", 2 },
             { "Assets/Scripts/Enemies/EnemiesGroupController.cs", 2 },
             { "Assets/Scripts/Enemies/EnemyGraphBridge.cs", 1 },
             { "Assets/Scripts/Enemies/GoingToPlayer.cs", 3 },
             { "Assets/Scripts/Enemies/RotateAlongPlayer.cs", 1 },
             { "Assets/Scripts/Managers/PlayerSubSlot.cs", 2 },
-            { "Assets/Scripts/NPC/GuardBlockerNPC.cs", 2 },
+            { "Assets/Scripts/NPC/GuardBlockerNPC.cs", 1 },
             { "Assets/Scripts/NPC/NPCGraphBridge.cs", 2 },
             { "Assets/Scripts/NPC/NPCPool.cs", 2 },
             { "Assets/Scripts/Player/LockOn.cs", 5 },
