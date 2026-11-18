@@ -37,6 +37,9 @@ using Object = UnityEngine.Object;
 ///      Assets/Characters/Player.prefab ships those slots empty and each scene fills them in on its own Player
 ///      instance, so Unity never reports a gap either: an empty slot was a NullReferenceException on the pause
 ///      key, on the back key, or inside the death animation event where a throw is invisible.
+/// And one that closes the loop on the duplicate-name advisory of check 4:
+///  10. no two assets sharing a Name sit in the SAME AbilityHolder (T-009). Awake drops the second with
+///      only a LogError, so the "different holders" premise is now proven, prefab by prefab, on every run.
 ///
 /// Deliberate NON-checks: Animator parameter names ("Dash", "CounterAttack", ...),
 /// attribute names ("BlockResistance"), blackboard variable NAMES, node/class names and
@@ -89,6 +92,12 @@ public static class AbilityReferenceValidator
         public int menuSlotScenes;
         public int menuSlotInstances;
         public int menuSlotGaps;
+        public int holderComponents;
+        public int holderPrefabs;
+        public int holderDuplicates;
+        public int holderSceneRefs;
+        public int holderSceneOverrides;
+        public int holderSceneStandalone;
     }
 
     [MenuItem("Tools/Ciro/Validate Ability References")]
@@ -146,6 +155,7 @@ public static class AbilityReferenceValidator
             CheckRegistryIsUsed(issues, used);
             CheckLayerNamesExist(issues, counts);
             CheckMenuSlots(issues, counts);
+            CheckHolderDuplicates(issues, warnings, counts);
         }
         catch (Exception e)
         {
@@ -170,7 +180,12 @@ public static class AbilityReferenceValidator
             + counts.layerNames + " resolver names checked against Project Settings ("
             + counts.layerLookups + " raw lookup outside the resolver), "
             + counts.menuSlotInstances + " Player menu-slot sets in " + counts.menuSlotScenes
-            + " built scenes (" + counts.menuSlotGaps + " empty) in "
+            + " built scenes (" + counts.menuSlotGaps + " empty), "
+            + counts.holderComponents + " AbilityHolder components in " + counts.holderPrefabs
+            + " prefabs (" + counts.holderDuplicates + " duplicate-in-holder), "
+            + counts.holderSceneRefs + " holder refs in scenes ("
+            + counts.holderSceneOverrides + " abilities overrides, "
+            + counts.holderSceneStandalone + " standalone) in "
             + sw.ElapsedMilliseconds + "ms";
         if (issues.Count == 0 && warnings.Count == 0) Debug.Log(summary + " -> OK, no ability-reference drift.");
         else Debug.LogWarning(summary + " -> " + issues.Count + " problem(s) and " + warnings.Count + " warning(s) logged above.");
@@ -219,8 +234,111 @@ public static class AbilityReferenceValidator
             if (pair.Value.Count < 2) continue;
             Add(warnings, pair.Value.Count + " GameplayAbility assets share Name=" + Q(pair.Key) + ": "
                 + string.Join(", ", pair.Value)
-                + ". They resolve to the same ability Id, which is fine as long as each one sits in a different AbilityHolder - check that no single holder holds two of them.",
+                + ". They resolve to the same ability Id, which is fine as long as each one sits in a different AbilityHolder - holder coexistence is proven by the holder pass of this validator (check 10, T-009).",
                 null);
+        }
+    }
+
+    // ------------------------------------------------------------------ 10
+    // Two assets sharing a Name inside ONE AbilityHolder is a real bug: Awake() keys specs by
+    // Id = Animator.StringToHash(Name) and drops the second entry with only a LogError, so the
+    // ability never activates. Check 4 only knows names collide SOMEWHERE; this proves they
+    // never coexist. Prefabs hold the real lists (measured 11/18: 38 prefabs carry every holder,
+    // and every .unity reference is a stripped instance with no 'abilities' override), so the
+    // object walk runs on prefabs and scenes get a cheap text pass that flags exactly the two
+    // shapes that would invalidate that: a per-instance abilities override, or a standalone
+    // (non-stripped) scene holder. Never LoadAllAssetsAtPath on a .unity file.
+    // ------------------------------------------------------------------
+    static void CheckHolderDuplicates(List<Issue> issues, List<Issue> warnings, Counts counts)
+    {
+        foreach (var path in FindAssets("t:Prefab"))
+        {
+            Object[] components;
+            try { components = AssetDatabase.LoadAllAssetsAtPath(path); }
+            catch (Exception) { continue; }
+
+            bool hasHolder = false;
+            foreach (var obj in components)
+            {
+                var holder = obj as AbilityHolder;
+                if (holder == null) continue;
+
+                var so = new SerializedObject(holder);
+                var list = so.FindProperty("abilities");
+                if (list == null || !list.isArray) continue;
+
+                counts.holderComponents++;
+                hasHolder = true;
+
+                var seen = new Dictionary<string, string>(StringComparer.Ordinal);
+                for (int i = 0; i < list.arraySize; i++)
+                {
+                    var refProp = list.GetArrayElementAtIndex(i);
+                    var ab = refProp == null ? null : refProp.objectReferenceValue as GameplayAbility;
+                    if (ab == null) continue; // null entry: Awake reports that at runtime
+                    string first;
+                    if (seen.TryGetValue(ab.Name, out first))
+                    {
+                        counts.holderDuplicates++;
+                        Add(issues, path + " (" + holder.gameObject.name + ") holds two abilities sharing Name="
+                            + Q(ab.Name) + ": " + first + " and " + AssetDatabase.GetAssetPath(ab)
+                            + ". They resolve to the same Id; Awake() keeps the first and DROPS the second, "
+                            + "which will never activate. Remove one of them from this holder (T-009).",
+                            holder);
+                        break; // one message per holder is enough
+                    }
+                    seen[ab.Name] = AssetDatabase.GetAssetPath(ab);
+                }
+            }
+            if (hasHolder) counts.holderPrefabs++;
+        }
+
+        ScanSceneHolderShapes(warnings, counts);
+    }
+
+    static void ScanSceneHolderShapes(List<Issue> warnings, Counts counts)
+    {
+        var dataPath = Application.dataPath.Replace('\\', '/');
+        var guid = AssetDatabase.AssetPathToGUID("Assets/GameplayAbilitySystem/Scripts/BaseAbility/AbilityHolder.cs");
+
+        foreach (var file in Directory.GetFiles(Application.dataPath, "*.unity", SearchOption.AllDirectories))
+        {
+            var path = "Assets" + file.Replace('\\', '/').Substring(dataPath.Length);
+            if (IsExcluded(path)) continue;
+
+            string text;
+            try { text = File.ReadAllText(file); }
+            catch (Exception) { continue; }
+            if (text.IndexOf(guid, StringComparison.Ordinal) < 0
+                && text.IndexOf("propertyPath: abilities", StringComparison.Ordinal) < 0) continue;
+
+            var docs = text.Split(new[] { "\n--- !u!" }, StringSplitOptions.None);
+            foreach (var doc in docs)
+            {
+                if (doc.IndexOf(guid, StringComparison.Ordinal) < 0) continue;
+                counts.holderSceneRefs++;
+                // "stripped" documents reference a prefab instance; their list comes from the
+                // prefab, which the object walk above already checked, unless overridden below.
+                var head = doc.Length > 60 ? doc.Substring(0, 60) : doc;
+                if (head.IndexOf("stripped", StringComparison.Ordinal) < 0)
+                {
+                    counts.holderSceneStandalone++;
+                    Add(warnings, path + " defines a standalone AbilityHolder directly in the scene. "
+                        + "Its 'abilities' list is NOT covered by the prefab-based duplicate check - audit it by hand "
+                        + "(no two entries may share a Name) or move it into a prefab (T-009).", null);
+                }
+            }
+
+            // Count every override that touches the list itself: a full replacement
+            // ('propertyPath: abilities'), its size, or an individual element.
+            var overrides = Regex.Matches(text, @"propertyPath:\s*abilities(\.|\r?\n|$)");
+            if (overrides.Count > 0)
+            {
+                counts.holderSceneOverrides += overrides.Count;
+                Add(warnings, path + " overrides 'abilities' on a prefab instance "
+                    + overrides.Count + " time(s). The override replaces or extends the list, so the prefab-based "
+                    + "duplicate check does not see the final content - audit the instance by hand (T-009).", null);
+            }
         }
     }
 
