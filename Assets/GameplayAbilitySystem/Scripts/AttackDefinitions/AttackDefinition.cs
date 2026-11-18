@@ -12,6 +12,7 @@ public enum AttackKind
 [CreateAssetMenu(menuName = "Combat/AttackDefinition")]
 public class AttackDefinition : ScriptableObject
 {
+    [AbilityName]
     public string ability;
     public AttackKind kind;
 }
